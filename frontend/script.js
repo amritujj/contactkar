@@ -1,6 +1,6 @@
 
 // Global API URL (Change to your live server)
-const API_URL = 'http://localhost:3000/api';
+const API_URL = "https://contactkar.onrender.com/api";
 
 // 1. Search Plate & Call
 async function searchAndCall() {
