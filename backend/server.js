@@ -1,396 +1,451 @@
-// ContactKar Backend Server - Updated v2.0
-const express = require('express');
-const cors = require('cors');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const QRCode = require('qrcode');
-const { Pool } = require('pg');
-require('dotenv').config();
+// backend/server.js
+require("dotenv").config();
+
+const express = require("express");
+const cors = require("cors");
+const { Pool } = require("pg");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const axios = require("axios");
+const QRCode = require("qrcode");
 
 const app = express();
+
+/* -------------------- Config -------------------- */
+const PORT = process.env.PORT || 10000; // Render supplies PORT; use fallback locally [web:211]
+const JWT_SECRET = process.env.JWT_SECRET;
+const BREVO_API_KEY = process.env.BREVO_API_KEY;
+const SENDER_EMAIL = process.env.SENDER_EMAIL;
+
+if (!JWT_SECRET) console.warn("⚠️ Missing JWT_SECRET in environment");
+if (!BREVO_API_KEY) console.warn("⚠️ Missing BREVO_API_KEY in environment");
+if (!SENDER_EMAIL) console.warn("⚠️ Missing SENDER_EMAIL in environment");
+
+app.use(express.json({ limit: "1mb" }));
+
+// CORS: lock down later (for now allow all to reduce deployment friction)
 app.use(cors());
-app.use(express.json());
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL?.includes("localhost") ? false : { rejectUnauthorized: false },
+});
+
+/* -------------------- Helpers -------------------- */
+function generateOtp() {
+  return Math.floor(100000 + Math.random() * 900000).toString(); // 6 digits
+}
+
+function addMinutes(date, mins) {
+  return new Date(date.getTime() + mins * 60 * 1000);
+}
+
+async function sendBrevoEmail({ toEmail, subject, html }) {
+  if (!BREVO_API_KEY) throw new Error("Missing BREVO_API_KEY");
+  if (!SENDER_EMAIL) throw new Error("Missing SENDER_EMAIL");
+
+  await axios.post(
+    "https://api.brevo.com/v3/smtp/email",
+    {
+      sender: { name: "ContactKar", email: SENDER_EMAIL },
+      to: [{ email: toEmail }],
+      subject,
+      htmlContent: html,
+    },
+    {
+      headers: {
+        "api-key": BREVO_API_KEY,
+        "content-type": "application/json",
+        accept: "application/json",
+      },
+      timeout: 15000,
+    }
+  );
+}
+
+function signToken(userId) {
+  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: "7d" });
+}
+
+function authRequired(req, res, next) {
+  try {
+    const hdr = req.headers.authorization || "";
+    const token = hdr.startsWith("Bearer ") ? hdr.slice(7) : null;
+    if (!token) return res.status(401).json({ success: false, error: "Missing token" });
+
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.userId = payload.id;
+    next();
+  } catch {
+    return res.status(401).json({ success: false, error: "Invalid/expired token" });
+  }
+}
+
+/* -------------------- DB setup -------------------- */
+// Run once manually: GET /api/setup-db
+async function setupDb() {
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT,
+      password_hash TEXT NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS tags (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      tag_code TEXT UNIQUE NOT NULL,
+      type TEXT NOT NULL DEFAULT 'vehicle', -- vehicle|pet
+      vehicle_number TEXT,
+      pet_name TEXT,
+      pet_breed TEXT,
+      is_contactable BOOLEAN DEFAULT TRUE,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    -- Stores OTPs for login/change-email, tied to a user or email
+    CREATE TABLE IF NOT EXISTS email_otps (
+      id SERIAL PRIMARY KEY,
+      purpose TEXT NOT NULL,                 -- login|change_email
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      email TEXT NOT NULL,                   -- where we sent OTP
+      otp_code TEXT NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      used BOOLEAN DEFAULT FALSE,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+
+    -- Stores signup OTP + pending signup data until verified
+    CREATE TABLE IF NOT EXISTS pending_signups (
+      id SERIAL PRIMARY KEY,
+      email TEXT UNIQUE NOT NULL,
+      name TEXT NOT NULL,
+      password_hash TEXT NOT NULL,
+      otp_code TEXT NOT NULL,
+      expires_at TIMESTAMP NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW()
+    );
+  `);
+}
+
+/* -------------------- Health -------------------- */
 app.get("/", (req, res) => {
   res.status(200).send("✅ ContactKar API is running");
 });
 
-// Magic endpoint to create database tables automatically!
-app.get('/api/setup-db', async (req, res) => {
-    try {
-        await pool.query(`
-            CREATE TABLE IF NOT EXISTS users (
-                id SERIAL PRIMARY KEY,
-                email VARCHAR(255) UNIQUE NOT NULL,
-                phone VARCHAR(15),
-                password_hash VARCHAR(255) NOT NULL,
-                name VARCHAR(100),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                privacy_settings JSONB DEFAULT '{"allow_contact": true}'
-            );
-            CREATE TABLE IF NOT EXISTS tags (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER REFERENCES users(id),
-                tag_code VARCHAR(20) UNIQUE NOT NULL,
-                qr_code_url TEXT,
-                type VARCHAR(20) DEFAULT 'vehicle',
-                vehicle_number VARCHAR(20),
-                pet_name VARCHAR(50),
-                is_contactable BOOLEAN DEFAULT TRUE,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS vehicle_registry_table (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER REFERENCES users(id),
-                plate_number VARCHAR(20) UNIQUE NOT NULL
-            );
-        `);
-        res.send("✅ Database tables created successfully!");
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("❌ Error creating tables: " + err.message);
-    }
+app.get("/api/setup-db", async (req, res) => {
+  try {
+    await setupDb();
+    res.send("✅ Database tables created/verified");
+  } catch (e) {
+    console.error(e);
+    res.status(500).send("❌ setup-db failed: " + e.message);
+  }
 });
 
+/* -------------------- Auth: Signup OTP -------------------- */
+// Step 1: Send OTP (also stores pending signup)
+app.post("/api/auth/send-signup-otp", async (req, res) => {
+  try {
+    const { email, password, name } = req.body || {};
+    if (!email || !password || !name) return res.status(400).json({ success: false, error: "Missing fields" });
 
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
-});
+    await setupDb();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
+    const existing = await pool.query("SELECT id FROM users WHERE email=$1", [email]);
+    if (existing.rows.length) return res.status(400).json({ success: false, error: "Email already registered" });
 
-// Middleware
-const verifyToken = (req, res, next) => {
-    const token = req.headers['authorization'];
-    if (!token) return res.status(403).json({ error: 'No token provided' });
-    jwt.verify(token.split(' ')[1], JWT_SECRET, (err, decoded) => {
-        if (err) return res.status(401).json({ error: 'Invalid token' });
-        req.userId = decoded.id;
-        next();
+    const otp = generateOtp();
+    const passwordHash = await bcrypt.hash(password, 10);
+    const expiresAt = addMinutes(new Date(), 10);
+
+    // Upsert pending signup
+    await pool.query(
+      `
+      INSERT INTO pending_signups (email, name, password_hash, otp_code, expires_at)
+      VALUES ($1,$2,$3,$4,$5)
+      ON CONFLICT (email)
+      DO UPDATE SET name=$2, password_hash=$3, otp_code=$4, expires_at=$5
+      `,
+      [email, name, passwordHash, otp, expiresAt]
+    );
+
+    await sendBrevoEmail({
+      toEmail: email,
+      subject: "ContactKar - Verify your email (Signup OTP)",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
+          <h2 style="margin:0 0 12px;color:#2563eb;">Verify your email</h2>
+          <p style="margin:0 0 16px;color:#374151;">Use this OTP to complete your ContactKar signup:</p>
+          <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center;">${otp}</div>
+          <p style="margin:16px 0 0;color:#6b7280;font-size:14px;">Expires in 10 minutes. Do not share.</p>
+        </div>
+      `,
     });
-};
 
-function generateTagCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = 'CK-';
-    for (let i = 0; i < 6; i++) code += chars.charAt(Math.floor(Math.random() * chars.length));
-    return code;
-}
-
-// ========== AUTH ==========
-app.post('/api/auth/register', async (req, res) => {
-    try {
-        const { email, password, name } = req.body;
-        const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (userCheck.rows.length > 0) return res.status(400).json({ error: 'Email already registered' });
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const result = await pool.query(
-            'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name',
-            [email, hashedPassword, name]
-        );
-        const token = jwt.sign({ id: result.rows[0].id }, JWT_SECRET);
-        res.json({ success: true, user: result.rows[0], token });
-    } catch (error) { res.status(500).json({ error: 'Registration failed' }); }
+    res.json({ success: true, message: "OTP sent" });
+  } catch (e) {
+    console.error("send-signup-otp error:", e.response?.data || e.message);
+    res.status(500).json({ success: false, error: "Failed to send OTP" });
+  }
 });
 
-app.post('/api/auth/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+// Step 2: Verify OTP => Create user
+app.post("/api/auth/verify-signup-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body || {};
+    if (!email || !otp) return res.status(400).json({ success: false, error: "Missing fields" });
 
-        const validPassword = await bcrypt.compare(password, result.rows[0].password_hash);
-        if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+    await setupDb();
 
-        const token = jwt.sign({ id: result.rows[0].id }, JWT_SECRET);
-        res.json({ success: true, user: { id: result.rows[0].id, name: result.rows[0].name }, token });
-    } catch (error) { res.status(500).json({ error: 'Login failed' }); }
+    const pending = await pool.query("SELECT * FROM pending_signups WHERE email=$1", [email]);
+    if (!pending.rows.length) return res.status(400).json({ success: false, error: "OTP not requested or expired" });
+
+    const row = pending.rows[0];
+    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ success: false, error: "OTP expired" });
+    if (row.otp_code !== otp) return res.status(400).json({ success: false, error: "Invalid OTP" });
+
+    const created = await pool.query(
+      "INSERT INTO users (email, name, password_hash) VALUES ($1,$2,$3) RETURNING id,email,name",
+      [row.email, row.name, row.password_hash]
+    );
+
+    await pool.query("DELETE FROM pending_signups WHERE email=$1", [email]);
+
+    const user = created.rows[0];
+    const token = signToken(user.id);
+    res.json({ success: true, user, token });
+  } catch (e) {
+    console.error("verify-signup-otp error:", e.message);
+    res.status(500).json({ success: false, error: "Verification failed" });
+  }
 });
 
-// ========== TAGS & PETS ==========
+/* -------------------- Auth: Login OTP -------------------- */
+// Step 1: Check password, then send OTP to email
+app.post("/api/auth/send-login-otp", async (req, res) => {
+  try {
+    const { email, password } = req.body || {};
+    if (!email || !password) return res.status(400).json({ success: false, error: "Missing fields" });
 
-// Create Tag (Vehicle or Pet)
-app.post('/api/tags/create', verifyToken, async (req, res) => {
-    try {
-        const { type, vehicleNumber, petName, petBreed, emergencyContact, planType } = req.body;
-        const tagCode = generateTagCode();
-        const qrUrl = `https://contactkar.in/contact/${tagCode}`;
-        const qrCodeDataUrl = await QRCode.toDataURL(qrUrl);
+    await setupDb();
 
-        // Insert into Tags Table
-        const result = await pool.query(
-            `INSERT INTO tags 
-            (user_id, tag_code, qr_code_url, type, vehicle_number, pet_name, pet_breed, emergency_contact, plan_type) 
-            VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-            [req.userId, tagCode, qrCodeDataUrl, type, vehicleNumber, petName, petBreed, emergencyContact, planType]
-        );
+    const userRes = await pool.query("SELECT id,email,name,password_hash FROM users WHERE email=$1", [email]);
+    if (!userRes.rows.length) return res.status(401).json({ success: false, error: "Invalid credentials" });
 
-        // If Vehicle, also register in Vehicle Registry for Search
-        if (type === 'vehicle' && vehicleNumber) {
-            await pool.query(
-                'INSERT INTO vehicle_registry_table (user_id, plate_number) VALUES ($1, $2) ON CONFLICT DO NOTHING',
-                [req.userId, vehicleNumber]
-            );
-        }
+    const user = userRes.rows[0];
+    const ok = await bcrypt.compare(password, user.password_hash);
+    if (!ok) return res.status(401).json({ success: false, error: "Invalid credentials" });
 
-        res.json({ success: true, tag: result.rows[0] });
-    } catch (error) { console.error(error); res.status(500).json({ error: 'Creation failed' }); }
-});
+    const otp = generateOtp();
+    const expiresAt = addMinutes(new Date(), 10);
 
-// Get User Tags
-app.get('/api/tags/user', verifyToken, async (req, res) => {
-    try {
-        const result = await pool.query('SELECT * FROM tags WHERE user_id = $1 ORDER BY created_at DESC', [req.userId]);
-        res.json({ success: true, tags: result.rows });
-    } catch (error) { res.status(500).json({ error: 'Fetch failed' }); }
-});
+    await pool.query(
+      "INSERT INTO email_otps (purpose,user_id,email,otp_code,expires_at) VALUES ($1,$2,$3,$4,$5)",
+      ["login", user.id, user.email, otp, expiresAt]
+    );
 
-// Toggle Privacy (Contactable ON/OFF)
-app.put('/api/tags/:id/toggle', verifyToken, async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { isContactable } = req.body; // Boolean
-        const result = await pool.query(
-            'UPDATE tags SET is_contactable = $1 WHERE id = $2 AND user_id = $3 RETURNING *',
-            [isContactable, id, req.userId]
-        );
-        res.json({ success: true, tag: result.rows[0] });
-    } catch (error) { res.status(500).json({ error: 'Update failed' }); }
-});
-
-// ========== SEARCH & CALL ==========
-
-// Search by Plate
-app.post('/api/search/plate', async (req, res) => {
-    try {
-        const { plateNumber } = req.body;
-        // Find owner via registry or tags
-        const result = await pool.query(
-            `SELECT t.tag_code, t.is_contactable 
-             FROM tags t 
-             WHERE t.vehicle_number = $1 AND t.type = 'vehicle'`,
-            [plateNumber]
-        );
-
-        if (result.rows.length === 0) return res.status(404).json({ found: false });
-
-        const tag = result.rows[0];
-        if (!tag.is_contactable) return res.status(200).json({ found: true, contactable: false, message: "Owner has disabled calls." });
-
-        res.json({ found: true, contactable: true, tagCode: tag.tag_code });
-    } catch (error) { res.status(500).json({ error: 'Search failed' }); }
-});
-
-// Initiate Call Bridge (Secure Call)
-app.post('/api/contact/call-bridge', async (req, res) => {
-    try {
-        const { tagCode, callerNumber } = req.body;
-
-        // 1. Fetch Owner Phone from DB
-        const tagResult = await pool.query(
-            'SELECT u.phone FROM tags t JOIN users u ON t.user_id = u.id WHERE t.tag_code = $1',
-            [tagCode]
-        );
-
-        if (tagResult.rows.length === 0) return res.status(404).json({ error: 'User not found' });
-        const ownerPhone = tagResult.rows[0].phone;
-
-        // 2. Call Cloud Telephony API (Exotel/Twilio)
-        // This is where you would make the actual API call to bridge two numbers
-        // Example logic:
-        // await exotel.connectCalls(callerNumber, ownerPhone);
-
-        // 3. Log the call
-        await pool.query(
-            'INSERT INTO contact_logs (tag_id, contact_type, caller_number) VALUES ((SELECT id FROM tags WHERE tag_code=$1), $2, $3)',
-            [tagCode, 'call_bridge', callerNumber]
-        );
-
-        res.json({ success: true, message: 'Call initiating...' });
-    } catch (error) { 
-        console.error(error); 
-        res.status(500).json({ error: 'Call failed' }); 
-    }
-});
-const axios = require('axios');
-
-// In-memory OTP store (use Redis in production)
-const otpStore = {};
-
-// Generate random 6-digit OTP
-function generateOTP() {
-    return Math.floor(100000 + Math.random() * 900000).toString();
-}
-
-// Send email via Brevo
-async function sendEmailViaBrevo(toEmail, subject, htmlContent) {
-    await axios.post('https://api.brevo.com/v3/smtp/email', {
-        sender: { name: "ContactKar", email: process.env.SENDER_EMAIL },
-        to: [{ email: toEmail }],
-        subject: subject,
-        htmlContent: htmlContent
-    }, {
-        headers: {
-            'api-key': process.env.BREVO_API_KEY,
-            'Content-Type': 'application/json'
-        }
+    await sendBrevoEmail({
+      toEmail: user.email,
+      subject: "ContactKar - Your login OTP",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
+          <h2 style="margin:0 0 12px;color:#111827;">Login verification</h2>
+          <p style="margin:0 0 16px;color:#374151;">Use this OTP to login:</p>
+          <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center;">${otp}</div>
+          <p style="margin:16px 0 0;color:#6b7280;font-size:14px;">Expires in 10 minutes. Do not share.</p>
+        </div>
+      `,
     });
-}
 
-// ===== SIGNUP: Send OTP =====
-app.post('/api/auth/send-signup-otp', async (req, res) => {
-    try {
-        const { email, password, name } = req.body;
-        if (!email || !password || !name) return res.status(400).json({ error: 'All fields required' });
-
-        // Check if already registered
-        const userCheck = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (userCheck.rows.length > 0) return res.status(400).json({ error: 'Email already registered' });
-
-        // Generate & store OTP (with 10 min expiry)
-        const otp = generateOTP();
-        otpStore[email] = { otp, password, name, expiresAt: Date.now() + 10 * 60 * 1000 };
-
-        // Send via Brevo
-        await sendEmailViaBrevo(email, 'ContactKar - Verify Your Email',
-            `<div style="font-family:sans-serif;max-width:480px;margin:auto;padding:30px;border-radius:10px;border:1px solid #e5e7eb;">
-                <h2 style="color:#2563eb;">Welcome to ContactKar!</h2>
-                <p>Your account verification code is:</p>
-                <div style="font-size:2.5rem;font-weight:bold;letter-spacing:10px;color:#1f2937;background:#f3f4f6;padding:20px;border-radius:8px;text-align:center;">${otp}</div>
-                <p style="color:#6b7280;margin-top:20px;font-size:0.9rem;">This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
-                <p style="color:#6b7280;font-size:0.9rem;">If you didn't request this, please ignore this email.</p>
-            </div>`
-        );
-
-        res.json({ success: true, message: 'OTP sent to your email' });
-    } catch (error) {
-        console.error('Send signup OTP error:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to send OTP' });
-    }
+    res.json({ success: true, message: "OTP sent" });
+  } catch (e) {
+    console.error("send-login-otp error:", e.response?.data || e.message);
+    res.status(500).json({ success: false, error: "Failed to send OTP" });
+  }
 });
 
-// ===== SIGNUP: Verify OTP & Create Account =====
-app.post('/api/auth/verify-signup-otp', async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        const stored = otpStore[email];
+// Step 2: Verify OTP => issue token
+app.post("/api/auth/verify-login-otp", async (req, res) => {
+  try {
+    const { email, otp } = req.body || {};
+    if (!email || !otp) return res.status(400).json({ success: false, error: "Missing fields" });
 
-        if (!stored) return res.status(400).json({ error: 'OTP expired or not requested' });
-        if (Date.now() > stored.expiresAt) { delete otpStore[email]; return res.status(400).json({ error: 'OTP expired. Please register again.' }); }
-        if (stored.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+    await setupDb();
 
-        // OTP correct — create the account
-        const hashedPassword = await bcrypt.hash(stored.password, 10);
-        const result = await pool.query(
-            'INSERT INTO users (email, password_hash, name) VALUES ($1, $2, $3) RETURNING id, email, name',
-            [email, hashedPassword, stored.name]
-        );
-        delete otpStore[email]; // Clear OTP after use
+    const q = await pool.query(
+      `
+      SELECT * FROM email_otps
+      WHERE purpose='login' AND email=$1 AND used=FALSE
+      ORDER BY created_at DESC
+      LIMIT 1
+      `,
+      [email]
+    );
 
-        const token = jwt.sign({ id: result.rows[0].id }, process.env.JWT_SECRET);
-        res.json({ success: true, user: result.rows[0], token });
-    } catch (error) {
-        console.error('Verify signup OTP error:', error);
-        res.status(500).json({ error: 'Verification failed' });
-    }
+    if (!q.rows.length) return res.status(400).json({ success: false, error: "OTP not requested or expired" });
+    const row = q.rows[0];
+
+    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ success: false, error: "OTP expired" });
+    if (row.otp_code !== otp) return res.status(400).json({ success: false, error: "Invalid OTP" });
+
+    await pool.query("UPDATE email_otps SET used=TRUE WHERE id=$1", [row.id]);
+
+    const userRes = await pool.query("SELECT id,email,name FROM users WHERE id=$1", [row.user_id]);
+    const user = userRes.rows[0];
+
+    const token = signToken(user.id);
+    res.json({ success: true, user, token });
+  } catch (e) {
+    console.error("verify-login-otp error:", e.message);
+    res.status(500).json({ success: false, error: "Verification failed" });
+  }
 });
 
-// ===== LOGIN: Send OTP =====
-app.post('/api/auth/send-login-otp', async (req, res) => {
-    try {
-        const { email, password } = req.body;
-        const result = await pool.query('SELECT * FROM users WHERE email = $1', [email]);
-        if (result.rows.length === 0) return res.status(401).json({ error: 'Invalid credentials' });
+/* -------------------- Auth: Change email (OTP to OLD email) -------------------- */
+app.post("/api/auth/send-change-email-otp", authRequired, async (req, res) => {
+  try {
+    await setupDb();
 
-        const validPassword = await bcrypt.compare(password, result.rows[0].password_hash);
-        if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+    const userRes = await pool.query("SELECT id,email,name FROM users WHERE id=$1", [req.userId]);
+    if (!userRes.rows.length) return res.status(404).json({ success: false, error: "User not found" });
+    const user = userRes.rows[0];
 
-        // Generate & send OTP
-        const otp = generateOTP();
-        otpStore[email] = { otp, userId: result.rows[0].id, name: result.rows[0].name, expiresAt: Date.now() + 10 * 60 * 1000 };
+    const otp = generateOtp();
+    const expiresAt = addMinutes(new Date(), 10);
 
-        await sendEmailViaBrevo(email, 'ContactKar - Your Login Code',
-            `<div style="font-family:sans-serif;max-width:480px;margin:auto;padding:30px;border-radius:10px;border:1px solid #e5e7eb;">
-                <h2 style="color:#2563eb;">Your Login Code</h2>
-                <p>Use this code to complete your login:</p>
-                <div style="font-size:2.5rem;font-weight:bold;letter-spacing:10px;color:#1f2937;background:#f3f4f6;padding:20px;border-radius:8px;text-align:center;">${otp}</div>
-                <p style="color:#6b7280;margin-top:20px;font-size:0.9rem;">Expires in <strong>10 minutes</strong>. Do not share.</p>
-            </div>`
-        );
+    await pool.query(
+      "INSERT INTO email_otps (purpose,user_id,email,otp_code,expires_at) VALUES ($1,$2,$3,$4,$5)",
+      ["change_email", user.id, user.email, otp, expiresAt]
+    );
 
-        res.json({ success: true, message: 'OTP sent to your email' });
-    } catch (error) {
-        console.error('Send login OTP error:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to send OTP' });
-    }
+    await sendBrevoEmail({
+      toEmail: user.email, // OLD email
+      subject: "ContactKar - OTP to change your email",
+      html: `
+        <div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px;">
+          <h2 style="margin:0 0 12px;color:#ec4899;">Email change request</h2>
+          <p style="margin:0 0 16px;color:#374151;">Use this OTP to confirm changing your account email:</p>
+          <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center;">${otp}</div>
+          <p style="margin:16px 0 0;color:#6b7280;font-size:14px;">Expires in 10 minutes. If you didn’t request this, ignore this email.</p>
+        </div>
+      `,
+    });
+
+    res.json({ success: true, message: "OTP sent to current email" });
+  } catch (e) {
+    console.error("send-change-email-otp error:", e.response?.data || e.message);
+    res.status(500).json({ success: false, error: "Failed to send OTP" });
+  }
 });
 
-// ===== LOGIN: Verify OTP & Issue Token =====
-app.post('/api/auth/verify-login-otp', async (req, res) => {
-    try {
-        const { email, otp } = req.body;
-        const stored = otpStore[email];
+app.post("/api/auth/verify-change-email-otp", authRequired, async (req, res) => {
+  try {
+    const { otp, newEmail } = req.body || {};
+    if (!otp || !newEmail) return res.status(400).json({ success: false, error: "Missing fields" });
 
-        if (!stored) return res.status(400).json({ error: 'OTP expired or not requested' });
-        if (Date.now() > stored.expiresAt) { delete otpStore[email]; return res.status(400).json({ error: 'OTP expired. Please login again.' }); }
-        if (stored.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
+    await setupDb();
 
-        delete otpStore[email];
-        const token = jwt.sign({ id: stored.userId }, process.env.JWT_SECRET);
-        res.json({ success: true, user: { id: stored.userId, name: stored.name }, token });
-    } catch (error) {
-        res.status(500).json({ error: 'Verification failed' });
-    }
+    // Ensure new email not taken
+    const taken = await pool.query("SELECT id FROM users WHERE email=$1", [newEmail]);
+    if (taken.rows.length) return res.status(400).json({ success: false, error: "Email already in use" });
+
+    const q = await pool.query(
+      `
+      SELECT * FROM email_otps
+      WHERE purpose='change_email' AND user_id=$1 AND used=FALSE
+      ORDER BY created_at DESC
+      LIMIT 1
+      `,
+      [req.userId]
+    );
+
+    if (!q.rows.length) return res.status(400).json({ success: false, error: "OTP not requested or expired" });
+    const row = q.rows[0];
+
+    if (new Date(row.expires_at) < new Date()) return res.status(400).json({ success: false, error: "OTP expired" });
+    if (row.otp_code !== otp) return res.status(400).json({ success: false, error: "Invalid OTP" });
+
+    await pool.query("UPDATE email_otps SET used=TRUE WHERE id=$1", [row.id]);
+    await pool.query("UPDATE users SET email=$1 WHERE id=$2", [newEmail, req.userId]);
+
+    res.json({ success: true });
+  } catch (e) {
+    console.error("verify-change-email-otp error:", e.message);
+    res.status(500).json({ success: false, error: "Failed to update email" });
+  }
 });
 
-// ===== DASHBOARD: Send OTP to Change Email =====
-app.post('/api/auth/send-change-email-otp', verifyToken, async (req, res) => {
-    try {
-        const userResult = await pool.query('SELECT email FROM users WHERE id = $1', [req.userId]);
-        const currentEmail = userResult.rows[0].email;
-
-        const otp = generateOTP();
-        otpStore['change_' + req.userId] = { otp, expiresAt: Date.now() + 10 * 60 * 1000 };
-
-        await sendEmailViaBrevo(currentEmail, 'ContactKar - Email Change Verification',
-            `<div style="font-family:sans-serif;max-width:480px;margin:auto;padding:30px;border-radius:10px;border:1px solid #e5e7eb;">
-                <h2 style="color:#ec4899;">Email Change Request</h2>
-                <p>Someone requested to change your account email. Your verification code is:</p>
-                <div style="font-size:2.5rem;font-weight:bold;letter-spacing:10px;color:#1f2937;background:#f3f4f6;padding:20px;border-radius:8px;text-align:center;">${otp}</div>
-                <p style="color:#6b7280;margin-top:20px;font-size:0.9rem;">If this wasn't you, please ignore this email and your account will remain safe.</p>
-            </div>`
-        );
-
-        res.json({ success: true });
-    } catch (error) {
-        console.error(error.response?.data || error.message);
-        res.status(500).json({ error: 'Failed to send OTP' });
-    }
+/* -------------------- Profile -------------------- */
+app.get("/api/me", authRequired, async (req, res) => {
+  try {
+    await setupDb();
+    const r = await pool.query("SELECT id,email,name,phone,created_at FROM users WHERE id=$1", [req.userId]);
+    res.json({ success: true, user: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ success: false, error: "Failed" });
+  }
 });
 
-// ===== DASHBOARD: Verify OTP & Update Email =====
-app.post('/api/auth/verify-change-email-otp', verifyToken, async (req, res) => {
-    try {
-        const { otp, newEmail } = req.body;
-        const stored = otpStore['change_' + req.userId];
-
-        if (!stored) return res.status(400).json({ error: 'OTP expired' });
-        if (Date.now() > stored.expiresAt) { delete otpStore['change_' + req.userId]; return res.status(400).json({ error: 'OTP expired' }); }
-        if (stored.otp !== otp) return res.status(400).json({ error: 'Invalid OTP' });
-
-        await pool.query('UPDATE users SET email = $1 WHERE id = $2', [newEmail, req.userId]);
-        delete otpStore['change_' + req.userId];
-
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: 'Failed to update email' });
-    }
+app.put("/api/me", authRequired, async (req, res) => {
+  try {
+    const { name, phone } = req.body || {};
+    await setupDb();
+    const r = await pool.query(
+      "UPDATE users SET name=COALESCE($1,name), phone=COALESCE($2,phone) WHERE id=$3 RETURNING id,email,name,phone",
+      [name, phone, req.userId]
+    );
+    res.json({ success: true, user: r.rows[0] });
+  } catch (e) {
+    res.status(500).json({ success: false, error: "Failed" });
+  }
 });
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server is running on port ${PORT}`);
+/* -------------------- Tags -------------------- */
+app.get("/api/tags/user", authRequired, async (req, res) => {
+  try {
+    await setupDb();
+    const r = await pool.query("SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC", [req.userId]);
+    res.json({ success: true, tags: r.rows });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, error: "Failed to fetch tags" });
+  }
 });
 
-app.listen(PORT, () => console.log(`✅ ContactKar Server v2.0 running on ${PORT}`));
+app.put("/api/tags/:id/toggle", authRequired, async (req, res) => {
+  try {
+    const tagId = Number(req.params.id);
+    const { isContactable } = req.body || {};
+    await setupDb();
+
+    // Ensure tag belongs to this user
+    const own = await pool.query("SELECT id FROM tags WHERE id=$1 AND user_id=$2", [tagId, req.userId]);
+    if (!own.rows.length) return res.status(404).json({ success: false, error: "Tag not found" });
+
+    await pool.query("UPDATE tags SET is_contactable=$1 WHERE id=$2", [!!isContactable, tagId]);
+    res.json({ success: true });
+  } catch (e) {
+    res.status(500).json({ success: false, error: "Failed to update" });
+  }
+});
+
+// Optional: generate QR code for a tag_code (example)
+app.get("/api/tags/:code/qrcode", async (req, res) => {
+  try {
+    const code = req.params.code;
+    const url = `https://contactkar.vercel.app/tag/${encodeURIComponent(code)}`;
+    const dataUrl = await QRCode.toDataURL(url);
+    res.json({ success: true, code, qr: dataUrl });
+  } catch (e) {
+    res.status(500).json({ success: false, error: "QR generation failed" });
+  }
+});
+
+/* -------------------- Start (ONLY ONCE) -------------------- */
+app.listen(PORT, () => {
+  console.log(`✅ ContactKar Server v3 running on ${PORT}`);
+});
