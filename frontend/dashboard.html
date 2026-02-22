@@ -5,43 +5,37 @@
     <title>My Dashboard - ContactKar</title>
     <link rel="stylesheet" href="styles_v2.css">
     <style>
-        /* Extra styles for granular controls */
-        .controls-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid #f3f4f6;
-        }
-        .control-item {
-            text-align: center;
-            background: #f9fafb;
-            padding: 0.8rem;
-            border-radius: 8px;
-        }
-        .control-label {
-            font-size: 0.8rem;
-            font-weight: 600;
-            display: block;
-            margin-bottom: 0.5rem;
-            color: #4b5563;
-        }
-        .tag-content { width: 100%; }
-        .tag-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+        .controls-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #f3f4f6; }
+        .control-item { text-align: center; background: #f9fafb; padding: 0.8rem; border-radius: 8px; }
+        .control-label { font-size: 0.8rem; font-weight: 600; display: block; margin-bottom: 0.5rem; color: #4b5563; }
+        .empty-state { text-align: center; padding: 3rem; background: white; border-radius: 12px; border: 1px dashed #ccc; }
+        
+        .tab-section { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .tab-section.active-tab { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .panel { background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 1.5rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151; font-size: 0.9rem; }
+        .form-group input, .form-group select { width: 100%; padding: 0.8rem; border: 1px solid #d1d5db; border-radius: 8px; font-size: 1rem; outline: none; }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+        
+        .plan-card { border: 2px solid var(--primary); border-radius: 12px; padding: 1.5rem; background: #eff6ff; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .payment-method { border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        
+        /* Table Styles */
+        .history-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .history-table th { padding: 1rem; border-bottom: 2px solid var(--border); color: #6b7280; font-size: 0.9rem; }
+        .history-table td { padding: 1rem; border-bottom: 1px solid var(--border); color: #374151; }
+        .invoice-btn { color: var(--primary); font-weight: bold; cursor: pointer; background: none; border: none; }
+        .invoice-btn:hover { text-decoration: underline; }
 
-        /* Specific icons colors */
-        .icon-call { color: #2563eb; }
-        .icon-sms { color: #f59e0b; }
-        .icon-video { color: #9333ea; }
-
-        @media (max-width: 600px) {
-            .controls-grid { grid-template-columns: 1fr; }
-            .tag-item { flex-direction: column; }
-        }
+        .danger-zone { border: 1px solid var(--danger); border-radius: 12px; padding: 1.5rem; background: #fef2f2; }
+        .avatar-circle { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold; margin-right: 1.5rem; }
+        
+        @media (max-width: 768px) { .controls-grid, .form-row, .plan-card, .payment-method { grid-template-columns: 1fr; flex-direction: column; align-items: flex-start; gap: 1rem; } }
     </style>
     <script>
-        // Protect this route
         if (localStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';
         }
@@ -52,8 +46,8 @@
         <div class="container">
             <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
             <div style="display: flex; align-items: center; gap: 1rem;">
-                <span style="font-weight: 500;">Hi, User</span>
-                <button onclick="logout()" style="background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Logout</button>
+                <span style="font-weight: 500;" id="user-greeting">Hi, User</span>
+                <button onclick="logout()" style="background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 5px; cursor: pointer; transition: 0.3s;">Logout</button>
             </div>
         </div>
     </nav>
@@ -61,99 +55,207 @@
     <div class="container">
         <div class="dashboard-grid">
             <aside class="sidebar">
-                <ul>
-                    <li><a href="#" class="active">📦 My Tags</a></li>
-                    <li><a href="#">👤 Profile</a></li>
-                    <li><a href="#">💳 Billing</a></li>
-                    <li><a href="#">⚙️ Settings</a></li>
+                <ul id="sidebar-menu">
+                    <li><a href="#" id="nav-tags" class="active" onclick="switchTab('tags')">📦 My Tags</a></li>
+                    <li><a href="#" id="nav-profile" onclick="switchTab('profile')">👤 Profile</a></li>
+                    <li><a href="#" id="nav-billing" onclick="switchTab('billing')">💳 Billing</a></li>
+                    <li><a href="#" id="nav-settings" onclick="switchTab('settings')">⚙️ Settings</a></li>
                 </ul>
             </aside>
-
+            
             <main class="main-content">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
-                    <h2>Active Tags</h2>
-                    <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">+ Add New Tag</button>
+                
+                <!-- 1. MY TAGS SECTION -->
+                <div id="tags-section" class="tab-section active-tab">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2>Active Tags</h2>
+                        <a href="index.html#services" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">+ Buy New Tag</a>
+                    </div>
+                    <div id="loading" style="text-align: center; color: #666;">Loading your tags...</div>
+                    <div id="empty-state" class="empty-state" style="display: none;">
+                        <span style="font-size: 3rem;">🛒</span>
+                        <h3 style="margin-top: 1rem;">You don't have any tags yet!</h3>
+                        <p style="color: #666; margin-bottom: 1.5rem;">Protect your vehicle or pet by purchasing a smart tag.</p>
+                        <a href="vehicle.html" class="btn btn-primary">Get Vehicle Tag</a>
+                        <a href="pet.html" class="btn btn-pet" style="margin-left: 10px;">Get Pet Tag</a>
+                    </div>
+                    <div id="tags-list"></div>
                 </div>
 
-                <!-- Car Tag -->
-                <div class="tag-item">
-                    <div class="tag-content">
-                        <div class="tag-header">
-                            <div style="display: flex; gap: 1rem; align-items: center;">
-                                <span style="font-size: 2rem; background: #eff6ff; padding: 10px; border-radius: 8px;">🚗</span>
-                                <div>
-                                    <h4>Honda City</h4>
-                                    <p style="color: #666; font-size: 0.9rem;">DL 01 AB 1234</p>
-                                </div>
+                <!-- 2. PROFILE SECTION -->
+                <div id="profile-section" class="tab-section">
+                    <h2 style="margin-bottom: 2rem;">Personal Profile</h2>
+                    <div class="panel">
+                        <div style="display: flex; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 2rem;">
+                            <div class="avatar-circle" id="profile-avatar">👤</div>
+                            <div>
+                                <h3 style="margin-bottom: 0.5rem;">Profile Picture</h3>
+                                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">PNG, JPG under 5MB</p>
+                                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="alert('Upload system opening...')">Upload New</button>
+                                <button class="btn" style="background: none; color: var(--danger); font-size: 0.9rem;">Remove</button>
                             </div>
-                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">Active</span>
                         </div>
 
-                        <!-- Granular Controls -->
-                        <div class="controls-grid">
-                            <div class="control-item">
-                                <span class="control-label icon-call">📞 Voice Call</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked onchange="updateStatus(this, 'Voice')">
-                                    <span class="slider"></span>
-                                </label>
+                        <form onsubmit="saveProfile(event)">
+                            <h3 style="margin-bottom: 1.5rem; font-size: 1.1rem; color: #374151;">Basic Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Full Name</label>
+                                    <input type="text" id="profile-name" placeholder="Rahul Sharma">
+                                </div>
+                                <div class="form-group">
+                                    <label>Primary Phone Number</label>
+                                    <input type="tel" id="profile-phone" placeholder="+91 98765 43210">
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-label icon-sms">💬 SMS / WhatsApp</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked onchange="updateStatus(this, 'SMS')">
-                                    <span class="slider"></span>
-                                </label>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Email Address</label>
+                                    <input type="email" id="profile-email" disabled style="background: #f3f4f6; cursor: not-allowed;" placeholder="user@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Emergency Alternate Contact</label>
+                                    <input type="tel" placeholder="+91 91234 56789">
+                                </div>
                             </div>
-                            <div class="control-item">
-                                <span class="control-label icon-video">📹 Video Call</span>
-                                <label class="switch">
-                                    <input type="checkbox" onchange="updateStatus(this, 'Video')">
-                                    <span class="slider"></span>
-                                </label>
+                            <div class="form-group" style="margin-bottom: 2rem;">
+                                <label>Full Address (For Tag Deliveries)</label>
+                                <input type="text" placeholder="House No, Street, City, State, PIN">
                             </div>
-                        </div>
+                            <button type="submit" class="btn btn-primary" id="save-profile-btn">Save Profile Changes</button>
+                        </form>
                     </div>
                 </div>
 
-                <!-- Pet Tag -->
-                <div class="tag-item">
-                    <div class="tag-content">
-                        <div class="tag-header">
-                            <div style="display: flex; gap: 1rem; align-items: center;">
-                                <span style="font-size: 2rem; background: #fdf2f8; padding: 10px; border-radius: 8px;">🐾</span>
-                                <div>
-                                    <h4>Bruno</h4>
-                                    <p style="color: #666; font-size: 0.9rem;">Golden Retriever</p>
+                <!-- 3. BILLING SECTION -->
+                <div id="billing-section" class="tab-section">
+                    <h2 style="margin-bottom: 2rem;">Billing & Plans</h2>
+                    
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: #374151;">Current Subscription</h3>
+                    <div class="plan-card">
+                        <div>
+                            <span style="background: var(--primary); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; margin-bottom: 10px; display: inline-block;">ACTIVE</span>
+                            <h3 style="color: var(--primary-dark); margin-bottom: 5px; font-size: 1.4rem;">Pay-Per-Tag Plan</h3>
+                            <p style="color: #4b5563; font-size: 0.95rem;">You currently pay standard rates per tag with lifetime validity.</p>
+                        </div>
+                        <div style="text-align: right;">
+                            <p style="font-size: 0.9rem; margin-bottom: 10px; color: #6b7280;">Want multi-vehicle discounts?</p>
+                            <button class="btn btn-primary" onclick="alert('Upgrade options loading...')">Upgrade to PRO</button>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: #374151;">Payment Methods</h3>
+                    <div class="payment-method">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="font-size: 2rem; color: #1e3a8a;">💳</div>
+                            <div>
+                                <h4 style="margin-bottom: 2px;">HDFC Visa ending in 4242</h4>
+                                <p style="color: #6b7280; font-size: 0.85rem;">Expires 12/2028</p>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button class="btn" style="background: none; border: 1px solid #d1d5db; padding: 0.5rem 1rem;">Edit</button>
+                            <button class="btn" style="background: none; color: var(--danger);">Delete</button>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.9rem; margin-bottom: 2rem;">+ Add New Payment Method</button>
+
+                    <h3 style="margin-bottom: 1rem; font-size: 1.1rem; color: #374151;">Order & Invoice History</h3>
+                    <div class="panel" style="padding: 0; overflow-x: auto;">
+                        <table class="history-table">
+                            <tr>
+                                <th>Date</th>
+                                <th>Description</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Receipt</th>
+                            </tr>
+                            <tr>
+                                <td>Feb 15, 2026</td>
+                                <td><strong>Vehicle Tag</strong> (DL01AB1234)</td>
+                                <td>₹99</td>
+                                <td><span style="background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">Paid</span></td>
+                                <td><button class="invoice-btn" onclick="alert('Downloading PDF...')">⬇ Download</button></td>
+                            </tr>
+                            <tr>
+                                <td>Jan 10, 2026</td>
+                                <td><strong>Pet Tag</strong> (Bruno)</td>
+                                <td>₹149</td>
+                                <td><span style="background: #dcfce7; color: #166534; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">Paid</span></td>
+                                <td><button class="invoice-btn" onclick="alert('Downloading PDF...')">⬇ Download</button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 4. SETTINGS SECTION -->
+                <div id="settings-section" class="tab-section">
+                    <h2 style="margin-bottom: 2rem;">Account Settings</h2>
+                    
+                    <div class="panel">
+                        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">Preferences</h3>
+                        <div class="form-row" style="margin-top: 1.5rem;">
+                            <div class="form-group">
+                                <label>Language</label>
+                                <select>
+                                    <option>English</option>
+                                    <option>Hindi (हिंदी)</option>
+                                    <option>Marathi (मराठी)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Timezone</label>
+                                <select>
+                                    <option>Asia/Kolkata (IST)</option>
+                                    <option>UTC (GMT 0)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="panel">
+                        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">Security & Password</h3>
+                        <form onsubmit="changePassword(event)" style="margin-top: 1.5rem;">
+                            <div class="form-group" style="margin-bottom: 1.5rem;">
+                                <label>Current Password</label>
+                                <input type="password" placeholder="Enter current password" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>New Password</label>
+                                    <input type="password" placeholder="Minimum 8 characters" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Confirm New Password</label>
+                                    <input type="password" placeholder="Repeat new password" required>
                                 </div>
                             </div>
-                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">Active</span>
-                        </div>
+                            <button type="submit" class="btn btn-primary" id="pwd-btn">Update Password</button>
+                        </form>
+                    </div>
 
-                        <!-- Granular Controls -->
-                        <div class="controls-grid">
-                            <div class="control-item">
-                                <span class="control-label icon-call">📞 Voice Call</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
+                    <div class="panel" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1rem;">Notification Alerts</h3>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                            <div>
+                                <strong>Email Alerts</strong>
+                                <p style="font-size: 0.85rem; color: #6b7280;">Receive email when someone scans your tag</p>
                             </div>
-                            <div class="control-item">
-                                <span class="control-label icon-sms">💬 SMS Alerts</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                            <div class="control-item">
-                                <span class="control-label icon-video">📹 Video Finder</span>
-                                <label class="switch">
-                                    <input type="checkbox" checked>
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
+                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
                         </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 0;">
+                            <div>
+                                <strong>WhatsApp Alerts</strong>
+                                <p style="font-size: 0.85rem; color: #6b7280;">Get instant WhatsApp messages</p>
+                            </div>
+                            <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+                        </div>
+                    </div>
+                    
+                    <div class="danger-zone">
+                        <h3 style="color: var(--danger); margin-bottom: 0.5rem;">Danger Zone</h3>
+                        <p style="margin-bottom: 1rem; font-size: 0.9rem; color: #991b1b;">Once you delete your account, there is no going back. All your active tags will instantly stop working and your data will be permanently erased.</p>
+                        <button class="btn" style="background: white; border: 1px solid var(--danger); color: var(--danger); font-weight: bold;" onclick="confirmDelete()">Delete Account Permanently</button>
                     </div>
                 </div>
 
@@ -163,10 +265,113 @@
 
     <script src="nav_logic.js"></script>
     <script>
-        function updateStatus(checkbox, type) {
-            // Logic to send update to server would go here
-            console.log(type + " is now " + (checkbox.checked ? "ON" : "OFF"));
+        const API_URL = "https://contactkar.onrender.com/api";
+        const userName = localStorage.getItem('userName') || 'User';
+        
+        document.getElementById('user-greeting').innerText = `Hi, ${userName}`;
+        document.getElementById('profile-name').value = userName;
+        // Make avatar initials
+        document.getElementById('profile-avatar').innerText = userName.charAt(0).toUpperCase();
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active-tab'));
+            document.querySelectorAll('.sidebar a').forEach(link => link.classList.remove('active'));
+            document.getElementById(`${tabId}-section`).classList.add('active-tab');
+            document.getElementById(`nav-${tabId}`).classList.add('active');
         }
+
+        // Profile Update Simulation
+        function saveProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('save-profile-btn');
+            btn.innerText = "Saving...";
+            
+            setTimeout(() => {
+                const newName = document.getElementById('profile-name').value;
+                localStorage.setItem('userName', newName);
+                document.getElementById('user-greeting').innerText = `Hi, ${newName}`;
+                document.getElementById('profile-avatar').innerText = newName.charAt(0).toUpperCase();
+                btn.innerText = "Save Profile Changes";
+                alert("✅ Profile updated successfully!");
+            }, 800);
+        }
+
+        // Password Change Simulation
+        function changePassword(e) {
+            e.preventDefault();
+            const btn = document.getElementById('pwd-btn');
+            btn.innerText = "Updating...";
+            setTimeout(() => {
+                btn.innerText = "Update Password";
+                e.target.reset(); // clear form
+                alert("🔒 Password changed successfully!");
+            }, 1000);
+        }
+
+        function confirmDelete() {
+            if(confirm("Are you ABSOLUTELY sure you want to delete your account? This action cannot be undone.")) {
+                alert("Account deletion requested. Contacting server...");
+            }
+        }
+
+        // Fetch real tags
+        async function fetchMyTags() {
+            const token = localStorage.getItem('token');
+            if(!token) return;
+
+            try {
+                const response = await fetch(`${API_URL}/tags/user`, { headers: { 'Authorization': `Bearer ${token}` }});
+                const data = await response.json();
+                document.getElementById('loading').style.display = 'none';
+
+                if (data.success && data.tags.length > 0) {
+                    renderTags(data.tags);
+                } else {
+                    document.getElementById('empty-state').style.display = 'block';
+                }
+            } catch (error) { document.getElementById('loading').innerText = "Failed to load tags. Please refresh."; }
+        }
+
+        function renderTags(tags) {
+            const container = document.getElementById('tags-list');
+            container.innerHTML = ''; 
+
+            tags.forEach(tag => {
+                const isVehicle = tag.type === 'vehicle';
+                const icon = isVehicle ? '🚗' : '🐾';
+                const bgColor = isVehicle ? '#eff6ff' : '#fdf2f8';
+                const title = isVehicle ? (tag.vehicle_number || 'My Vehicle') : (tag.pet_name || 'My Pet');
+                const subtitle = isVehicle ? 'Vehicle Tag' : (tag.pet_breed || 'Pet Tag');
+                const isChecked = tag.is_contactable ? 'checked' : '';
+
+                container.innerHTML += `
+                <div class="panel" style="margin-bottom: 1rem; padding: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <div style="display: flex; gap: 1rem; align-items: center;">
+                            <span style="font-size: 2rem; background: ${bgColor}; padding: 10px; border-radius: 8px;">${icon}</span>
+                            <div>
+                                <h4 style="font-size: 1.2rem;">${title}</h4>
+                                <p style="color: #666; font-size: 0.9rem;">Code: ${tag.tag_code} | ${subtitle}</p>
+                            </div>
+                        </div>
+                        <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">Active</span>
+                    </div>
+                    
+                    <div class="controls-grid">
+                        <div class="control-item"><span class="control-label icon-call" style="color:#2563eb">📞 Voice Call</span><label class="switch"><input type="checkbox" ${isChecked} onchange="updateTagPrivacy(${tag.id}, this.checked)"><span class="slider"></span></label></div>
+                        <div class="control-item"><span class="control-label icon-sms" style="color:#f59e0b">💬 SMS / WhatsApp</span><label class="switch"><input type="checkbox" ${isChecked}><span class="slider"></span></label></div>
+                        <div class="control-item"><span class="control-label icon-video" style="color:#9333ea">📹 Video Call</span><label class="switch"><input type="checkbox"><span class="slider"></span></label></div>
+                    </div>
+                </div>`;
+            });
+        }
+
+        async function updateTagPrivacy(tagId, isContactable) {
+            const token = localStorage.getItem('token');
+            try { await fetch(`${API_URL}/tags/${tagId}/toggle`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ isContactable }) }); } catch (error) { console.error(error); }
+        }
+
+        document.addEventListener('DOMContentLoaded', fetchMyTags);
     </script>
 </body>
 </html>
