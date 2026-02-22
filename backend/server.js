@@ -14,6 +14,43 @@ app.get("/", (req, res) => {
   res.status(200).send("✅ ContactKar API is running");
 });
 
+// Magic endpoint to create database tables automatically!
+app.get('/api/setup-db', async (req, res) => {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS users (
+                id SERIAL PRIMARY KEY,
+                email VARCHAR(255) UNIQUE NOT NULL,
+                phone VARCHAR(15),
+                password_hash VARCHAR(255) NOT NULL,
+                name VARCHAR(100),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                privacy_settings JSONB DEFAULT '{"allow_contact": true}'
+            );
+            CREATE TABLE IF NOT EXISTS tags (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                tag_code VARCHAR(20) UNIQUE NOT NULL,
+                qr_code_url TEXT,
+                type VARCHAR(20) DEFAULT 'vehicle',
+                vehicle_number VARCHAR(20),
+                pet_name VARCHAR(50),
+                is_contactable BOOLEAN DEFAULT TRUE,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS vehicle_registry_table (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                plate_number VARCHAR(20) UNIQUE NOT NULL
+            );
+        `);
+        res.send("✅ Database tables created successfully!");
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("❌ Error creating tables: " + err.message);
+    }
+});
+
 
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
