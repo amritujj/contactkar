@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard - ContactKar</title>
+    <link rel="stylesheet" href="styles_v2.css">
+    <style>
+        /* Extra styles for granular controls */
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f3f4f6;
+        }
+        .control-item {
+            text-align: center;
+            background: #f9fafb;
+            padding: 0.8rem;
+            border-radius: 8px;
+        }
+        .control-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #4b5563;
+        }
+        .tag-content { width: 100%; }
+        .tag-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem; }
+
+        /* Specific icons colors */
+        .icon-call { color: #2563eb; }
+        .icon-sms { color: #f59e0b; }
+        .icon-video { color: #9333ea; }
+
+        @media (max-width: 600px) {
+            .controls-grid { grid-template-columns: 1fr; }
+            .tag-item { flex-direction: column; }
+        }
+    </style>
+    <script>
+        // Protect this route
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <span style="font-weight: 500;">Hi, User</span>
+                <button onclick="logout()" style="background: none; border: 1px solid #ddd; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="dashboard-grid">
+            <aside class="sidebar">
+                <ul>
+                    <li><a href="#" class="active">📦 My Tags</a></li>
+                    <li><a href="#">👤 Profile</a></li>
+                    <li><a href="#">💳 Billing</a></li>
+                    <li><a href="#">⚙️ Settings</a></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2>Active Tags</h2>
+                    <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">+ Add New Tag</button>
+                </div>
+
+                <!-- Car Tag -->
+                <div class="tag-item">
+                    <div class="tag-content">
+                        <div class="tag-header">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <span style="font-size: 2rem; background: #eff6ff; padding: 10px; border-radius: 8px;">🚗</span>
+                                <div>
+                                    <h4>Honda City</h4>
+                                    <p style="color: #666; font-size: 0.9rem;">DL 01 AB 1234</p>
+                                </div>
+                            </div>
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">Active</span>
+                        </div>
+
+                        <!-- Granular Controls -->
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <span class="control-label icon-call">📞 Voice Call</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="updateStatus(this, 'Voice')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-label icon-sms">💬 SMS / WhatsApp</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked onchange="updateStatus(this, 'SMS')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-label icon-video">📹 Video Call</span>
+                                <label class="switch">
+                                    <input type="checkbox" onchange="updateStatus(this, 'Video')">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pet Tag -->
+                <div class="tag-item">
+                    <div class="tag-content">
+                        <div class="tag-header">
+                            <div style="display: flex; gap: 1rem; align-items: center;">
+                                <span style="font-size: 2rem; background: #fdf2f8; padding: 10px; border-radius: 8px;">🐾</span>
+                                <div>
+                                    <h4>Bruno</h4>
+                                    <p style="color: #666; font-size: 0.9rem;">Golden Retriever</p>
+                                </div>
+                            </div>
+                            <span style="background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: 600;">Active</span>
+                        </div>
+
+                        <!-- Granular Controls -->
+                        <div class="controls-grid">
+                            <div class="control-item">
+                                <span class="control-label icon-call">📞 Voice Call</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-label icon-sms">💬 SMS Alerts</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                            <div class="control-item">
+                                <span class="control-label icon-video">📹 Video Finder</span>
+                                <label class="switch">
+                                    <input type="checkbox" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="nav_logic.js"></script>
+    <script>
+        function updateStatus(checkbox, type) {
+            // Logic to send update to server would go here
+            console.log(type + " is now " + (checkbox.checked ? "ON" : "OFF"));
+        }
+    </script>
+</body>
+</html>

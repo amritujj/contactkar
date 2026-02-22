@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContactKar - Home</title>
+    <link rel="stylesheet" href="styles_v2.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">Home</a></li>
+                <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
+                <li><a href="pet.html" class="nav-link">Pet Tags</a></li>
+            </ul>
+            <div>
+                <a href="login.html" id="loginBtn" class="btn-nav btn-login">Login / Sign Up</a>
+                <a href="dashboard.html" id="accountBtn" class="btn-nav btn-account">My Account</a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero">
+        <div class="container">
+            <h1>Smart Contact Tags for<br><span style="color: var(--primary);">Vehicles</span> & <span style="color: var(--pet-color);">Pets</span></h1>
+            <p>The privacy-first way to be reachable. No phone number sharing required.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="vehicle.html" class="btn btn-primary">Explore Vehicle Tags</a>
+                <a href="pet.html" class="btn btn-pet">Explore Pet Tags</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="icon">🚗</span>
+                <h3>For Cars & Bikes</h3>
+                <p>QR stickers for parking issues. Includes Number Plate calling.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🐾</span>
+                <h3>For Dogs & Cats</h3>
+                <p>Digital lockets. If lost, finder scans to call you instantly.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🔒</span>
+                <h3>100% Private</h3>
+                <p>Your mobile number is never revealed. Calls are bridged securely.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-col">
+                <h3>ContactKar</h3>
+                <p>Connecting people, protecting privacy.</p>
+            </div>
+            <div class="footer-col">
+                <h3>Products</h3>
+                <a href="vehicle.html">Vehicle Tags</a>
+                <a href="pet.html">Pet Tags</a>
+            </div>
+            <div class="footer-col">
+                <h3>Account</h3>
+                <a href="login.html">Login</a>
+                <a href="dashboard.html">Dashboard</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="nav_logic.js"></script>
+</body>
+</html>
