@@ -25,11 +25,13 @@
 
     .danger-zone{border:1px solid var(--danger);border-radius:12px;padding:1.5rem;background:#fef2f2}
 
+    .email-display { background: #f3f4f6; padding: 0.8rem; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: center; }
+    .email-display span { color: #4b5563; font-weight: 500; }
+
     @media (max-width: 768px){.controls-grid,.form-row{grid-template-columns:1fr}}
   </style>
 
   <script>
-    // Protect this route (client-side for static demo)
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
@@ -75,7 +77,6 @@
               <a href="pet.html" class="btn btn-pet">Get Pet Tag</a>
             </div>
           </div>
-
           <div id="tags-list"></div>
         </section>
 
@@ -83,6 +84,50 @@
         <section id="profile-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Profile</h2>
           <div class="panel">
+
+            <div class="form-group" style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
+                <label>Login Email Address</label>
+                <div class="email-display">
+                    <span id="display-email">user@example.com</span>
+                    <button type="button" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="openEmailOTPFlow()">Change Email</button>
+                </div>
+                <small style="color: #6b7280; display: block; margin-top: 5px;">Your primary email used for login and invoices.</small>
+            </div>
+
+            <!-- OTP Mock Flow (Hidden by default) -->
+            <div id="otp-flow" style="display: none; background: #fdf2f8; border: 1px solid var(--pet-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
+                <h4 style="margin-bottom: 10px; color: var(--pet-dark);">Change Email Address</h4>
+
+                <!-- STEP 1: VERIFY CURRENT EMAIL -->
+                <div id="otp-step-1">
+                    <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 10px;">For security, we will send an OTP to your <b>current</b> email address first.</p>
+                    <button type="button" id="send-otp-btn" class="btn btn-primary" onclick="sendOTPToCurrentEmail()">Send OTP to Current Email</button>
+                </div>
+
+                <!-- STEP 2: ENTER OTP -->
+                <div id="otp-step-2" style="display: none;">
+                    <div class="form-group">
+                        <label>Enter OTP sent to <span id="current-email-bold" style="color: var(--primary);"></span></label>
+                        <input type="text" id="otp-input" placeholder="123456" maxlength="6" style="letter-spacing: 5px; font-weight: bold; text-align: center; margin-bottom: 10px;">
+                    </div>
+                    <button type="button" id="verify-otp-btn" class="btn btn-primary" onclick="verifyOTP()">Verify OTP</button>
+                </div>
+
+                <!-- STEP 3: ENTER NEW EMAIL -->
+                <div id="otp-step-3" style="display: none;">
+                    <p style="font-size: 0.9rem; color: #10b981; font-weight: bold; margin-bottom: 10px;">✅ Identity Verified!</p>
+                    <div class="form-group">
+                        <label>Enter New Email Address</label>
+                        <input type="email" id="new-email-input" placeholder="new.email@example.com" style="margin-bottom: 10px;">
+                    </div>
+                    <button type="button" id="save-new-email-btn" class="btn btn-pet" onclick="saveNewEmail()">Save New Email</button>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <button type="button" class="btn btn-outline" style="border: none;" onclick="cancelEmailFlow()">Cancel</button>
+                </div>
+            </div>
+
             <form onsubmit="saveProfile(event)">
               <div class="form-row">
                 <div class="form-group">
@@ -94,70 +139,23 @@
                   <input id="profile-phone" type="tel" placeholder="+91 98765 43210" />
                 </div>
               </div>
-              <div class="form-group" style="margin-bottom:1.5rem;">
-                <label>Email</label>
-                <input id="profile-email" type="email" disabled style="background:#f3f4f6;cursor:not-allowed;" />
-              </div>
-              <button class="btn btn-primary" type="submit" id="profile-save-btn">Save</button>
+              <button class="btn btn-primary" type="submit" id="profile-save-btn">Save Basic Info</button>
               <span id="profile-save-msg" style="margin-left:10px;color:#10b981;font-weight:600;"></span>
             </form>
           </div>
         </section>
 
-        <!-- BILLING -->
+        <!-- BILLING (Kept empty per your previous request) -->
         <section id="billing-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Billing</h2>
-
-          <!-- Subscription: show only if user has one -->
-          <div id="subscription-panel" class="panel" style="display:none;"></div>
-          <div id="subscription-empty" class="empty-block" style="display:none;">
-            <div style="font-size:2.2rem;">🧾</div>
-            <h3>No active subscription</h3>
-            <p>You can still use ContactKar by buying tags; subscription is optional.</p>
-            <button class="btn btn-primary" onclick="alert('Connect Razorpay/Stripe later');">Upgrade (optional)</button>
-          </div>
-
-          <!-- Payment Methods: show only if exists -->
-          <div id="payment-panel" class="panel" style="display:none;"></div>
-          <div id="payment-empty" class="empty-block" style="display:none;">
-            <div style="font-size:2.2rem;">💳</div>
-            <h3>No payment methods saved</h3>
-            <p>Add a card/UPI later when you integrate payments.</p>
-            <button class="btn btn-outline" onclick="alert('Add payment method flow later');">+ Add payment method</button>
-          </div>
-
-          <!-- Orders: show only if exists -->
-          <div id="orders-panel" class="panel" style="display:none;"></div>
-          <div id="orders-empty" class="empty-block" style="display:none;">
-            <div style="font-size:2.2rem;">📦</div>
-            <h3>No orders yet</h3>
-            <p>When you purchase a tag, your invoices will appear here.</p>
-            <a class="btn btn-primary" href="vehicle.html">Buy a tag</a>
-          </div>
+          <div id="subscription-empty" class="empty-block"><div style="font-size:2.2rem;">🧾</div><h3>No active subscription</h3></div>
+          <div id="payment-empty" class="empty-block" style="margin-top: 1rem;"><div style="font-size:2.2rem;">💳</div><h3>No payment methods saved</h3></div>
+          <div id="orders-empty" class="empty-block" style="margin-top: 1rem;"><div style="font-size:2.2rem;">📦</div><h3>No orders yet</h3></div>
         </section>
 
         <!-- SETTINGS -->
         <section id="settings-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Settings</h2>
-
-          <div class="panel">
-            <h3 style="margin-bottom:1rem;">Notifications</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #e5e7eb;">
-              <div>
-                <strong>Email alerts</strong>
-                <div style="font-size:.9rem;color:#6b7280;">Receive email when someone contacts you.</div>
-              </div>
-              <label class="switch"><input type="checkbox" id="notif-email" checked /><span class="slider"></span></label>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;">
-              <div>
-                <strong>WhatsApp/SMS alerts</strong>
-                <div style="font-size:.9rem;color:#6b7280;">Receive WhatsApp/SMS for scans and calls.</div>
-              </div>
-              <label class="switch"><input type="checkbox" id="notif-sms" checked /><span class="slider"></span></label>
-            </div>
-          </div>
-
           <div class="danger-zone">
             <h3 style="color:var(--danger);margin-bottom:0.5rem;">Danger zone</h3>
             <p style="margin-bottom:1rem;font-size:0.9rem;color:#991b1b;">Delete account will disable all your tags and remove your data.</p>
@@ -172,7 +170,6 @@
   <script>
     const API_URL = 'https://contactkar.onrender.com/api';
 
-    // ----- Tabs -----
     function switchTab(tabId) {
       document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active-tab'));
       document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
@@ -180,13 +177,17 @@
       document.getElementById('nav-' + tabId).classList.add('active');
     }
 
-    // ----- Profile (client-side only for now) -----
+    // Load initial profile data
     const userName = localStorage.getItem('userName') || 'User';
+    const userEmail = localStorage.getItem('userEmail') || 'Not Set';
+
     document.getElementById('user-greeting').innerText = `Hi, ${userName}`;
     document.getElementById('profile-name').value = userName;
-    document.getElementById('profile-email').value = localStorage.getItem('userEmail') || '';
     document.getElementById('profile-phone').value = localStorage.getItem('userPhone') || '';
+    document.getElementById('display-email').innerText = userEmail; 
+    document.getElementById('current-email-bold').innerText = userEmail; // For OTP prompt
 
+    // Basic Info Save
     function saveProfile(e) {
       e.preventDefault();
       const btn = document.getElementById('profile-save-btn');
@@ -197,7 +198,6 @@
       const newName = document.getElementById('profile-name').value.trim();
       const phone = document.getElementById('profile-phone').value.trim();
 
-      // store locally for now
       localStorage.setItem('userName', newName);
       localStorage.setItem('userPhone', phone);
       document.getElementById('user-greeting').innerText = `Hi, ${newName || 'User'}`;
@@ -209,7 +209,67 @@
       }, 350);
     }
 
-    // ----- Tags -----
+    // --- OTP Email Change Flow (Sends to CURRENT Email) ---
+    function openEmailOTPFlow() {
+        document.getElementById('otp-flow').style.display = 'block';
+        document.getElementById('otp-step-1').style.display = 'block';
+        document.getElementById('otp-step-2').style.display = 'none';
+        document.getElementById('otp-step-3').style.display = 'none';
+    }
+
+    function cancelEmailFlow() {
+        document.getElementById('otp-flow').style.display = 'none';
+        document.getElementById('otp-input').value = '';
+        document.getElementById('new-email-input').value = '';
+    }
+
+    function sendOTPToCurrentEmail() {
+        const btn = document.getElementById('send-otp-btn');
+        btn.innerText = "Sending OTP...";
+        btn.disabled = true;
+
+        setTimeout(() => {
+            alert(`OTP sent successfully to your current email (${userEmail})! (Use 123456 to test)`);
+            document.getElementById('otp-step-1').style.display = 'none';
+            document.getElementById('otp-step-2').style.display = 'block';
+            btn.innerText = "Send OTP to Current Email";
+            btn.disabled = false;
+        }, 800);
+    }
+
+    function verifyOTP() {
+        const otp = document.getElementById('otp-input').value;
+        if(otp !== '123456') { // Mock check
+            alert('❌ Invalid OTP. Please try again.');
+            return;
+        }
+
+        // OTP verified successfully
+        document.getElementById('otp-step-2').style.display = 'none';
+        document.getElementById('otp-step-3').style.display = 'block';
+    }
+
+    function saveNewEmail() {
+        const newEmail = document.getElementById('new-email-input').value;
+        if(!newEmail || !newEmail.includes('@')) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+
+        // Save new email
+        localStorage.setItem('userEmail', newEmail);
+        document.getElementById('display-email').innerText = newEmail;
+        document.getElementById('current-email-bold').innerText = newEmail; // Update for future changes
+
+        alert('✅ Email address updated successfully!');
+        cancelEmailFlow(); // Reset and close
+    }
+
+    function confirmDelete() {
+      if(confirm('Delete account permanently? This cannot be undone.')) alert('Delete endpoint will be added on backend.');
+    }
+
+    // --- Tags Logic ---
     function tagCard(tag) {
       const isVehicle = tag.type === 'vehicle';
       const icon = isVehicle ? '🚗' : '🐾';
@@ -230,21 +290,6 @@
             </div>
             <span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:999px;font-size:.8rem;font-weight:700;">Active</span>
           </div>
-
-          <div class="controls-grid">
-            <div class="control-item">
-              <span class="control-label" style="color:#2563eb">📞 Voice Call</span>
-              <label class="switch"><input type="checkbox" ${checked} onchange="updateTagPrivacy(${tag.id}, this.checked)" /><span class="slider"></span></label>
-            </div>
-            <div class="control-item">
-              <span class="control-label" style="color:#f59e0b">💬 SMS / WhatsApp</span>
-              <label class="switch"><input type="checkbox" ${checked} /><span class="slider"></span></label>
-            </div>
-            <div class="control-item">
-              <span class="control-label" style="color:#9333ea">📹 Video Call</span>
-              <label class="switch"><input type="checkbox" /><span class="slider"></span></label>
-            </div>
-          </div>
         </div>
       `;
     }
@@ -254,139 +299,18 @@
       const loading = document.getElementById('tags-loading');
       const empty = document.getElementById('tags-empty');
       const list = document.getElementById('tags-list');
-
-      if (!token) {
-        loading.style.display = 'none';
-        empty.style.display = 'block';
-        return;
-      }
+      if (!token) { loading.style.display = 'none'; empty.style.display = 'block'; return; }
 
       try {
-        const res = await fetch(`${API_URL}/tags/user`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(`${API_URL}/tags/user`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-
         loading.style.display = 'none';
-
-        if (data.success && Array.isArray(data.tags) && data.tags.length > 0) {
-          list.innerHTML = data.tags.map(tagCard).join('');
-        } else {
-          empty.style.display = 'block';
-        }
-      } catch (e) {
-        loading.textContent = 'Failed to load tags. Please refresh.';
-      }
+        if (data.success && Array.isArray(data.tags) && data.tags.length > 0) list.innerHTML = data.tags.map(tagCard).join('');
+        else empty.style.display = 'block';
+      } catch (e) { loading.textContent = 'Failed to load tags.'; }
     }
 
-    async function updateTagPrivacy(tagId, isContactable) {
-      const token = localStorage.getItem('token');
-      if (!token) return;
-      try {
-        await fetch(`${API_URL}/tags/${tagId}/toggle`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-          body: JSON.stringify({ isContactable }),
-        });
-      } catch (e) {
-        alert('Failed to update. Please try again.');
-      }
-    }
-
-    // ----- Billing (no fake data) -----
-    // Later you can replace this with a real API call like GET /api/billing/summary
-    function renderBilling(billing) {
-      // subscription
-      const subPanel = document.getElementById('subscription-panel');
-      const subEmpty = document.getElementById('subscription-empty');
-      if (billing.subscription) {
-        subEmpty.style.display = 'none';
-        subPanel.style.display = 'block';
-        subPanel.innerHTML = `
-          <h3 style="margin-bottom:.5rem;">Subscription</h3>
-          <div style="color:#6b7280;margin-bottom:1rem;">Plan: <strong>${billing.subscription.planName}</strong></div>
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button class="btn btn-outline" onclick="alert('Manage subscription later');">Manage</button>
-            <button class="btn" style="background:#fff;border:1px solid #d1d5db;" onclick="alert('Download invoice later');">Download invoice</button>
-          </div>
-        `;
-      } else {
-        subPanel.style.display = 'none';
-        subEmpty.style.display = 'block';
-      }
-
-      // payment methods
-      const payPanel = document.getElementById('payment-panel');
-      const payEmpty = document.getElementById('payment-empty');
-      if (billing.paymentMethods && billing.paymentMethods.length) {
-        payEmpty.style.display = 'none';
-        payPanel.style.display = 'block';
-        payPanel.innerHTML = `
-          <h3 style="margin-bottom:1rem;">Payment methods</h3>
-          ${billing.paymentMethods.map(pm => `
-            <div style="display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);border-radius:12px;padding:1rem;margin-bottom:.75rem;">
-              <div><strong>${pm.label}</strong><div style="color:#6b7280;font-size:.9rem;">${pm.meta || ''}</div></div>
-              <button class="btn" style="background:#fff;border:1px solid #d1d5db;padding:.5rem 1rem;" onclick="alert('Edit later');">Edit</button>
-            </div>
-          `).join('')}
-          <button class="btn btn-outline" onclick="alert('Add payment method later');">+ Add payment method</button>
-        `;
-      } else {
-        payPanel.style.display = 'none';
-        payEmpty.style.display = 'block';
-      }
-
-      // orders
-      const ordPanel = document.getElementById('orders-panel');
-      const ordEmpty = document.getElementById('orders-empty');
-      if (billing.orders && billing.orders.length) {
-        ordEmpty.style.display = 'none';
-        ordPanel.style.display = 'block';
-        ordPanel.innerHTML = `
-          <h3 style="margin-bottom:1rem;">Order & invoice history</h3>
-          <div style="overflow-x:auto;">
-            <table style="width:100%;border-collapse:collapse;">
-              <thead>
-                <tr style="text-align:left;color:#6b7280;border-bottom:2px solid var(--border);">
-                  <th style="padding:12px;">Date</th>
-                  <th style="padding:12px;">Description</th>
-                  <th style="padding:12px;">Amount</th>
-                  <th style="padding:12px;">Status</th>
-                  <th style="padding:12px;">Receipt</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${billing.orders.map(o => `
-                  <tr style="border-bottom:1px solid var(--border);">
-                    <td style="padding:12px;">${o.date}</td>
-                    <td style="padding:12px;"><strong>${o.title}</strong></td>
-                    <td style="padding:12px;">${o.amount}</td>
-                    <td style="padding:12px;">${o.status}</td>
-                    <td style="padding:12px;"><button class="btn" style="background:#fff;border:1px solid #d1d5db;padding:.35rem .75rem;" onclick="alert('Download later');">Download</button></td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-          </div>
-        `;
-      } else {
-        ordPanel.style.display = 'none';
-        ordEmpty.style.display = 'block';
-      }
-    }
-
-    function confirmDelete() {
-      const ok = confirm('Delete account permanently? This cannot be undone.');
-      if (!ok) return;
-      alert('Delete endpoint will be added on backend.');
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      fetchMyTags();
-
-      // no fake billing data: everything empty by default
-      renderBilling({ subscription: null, paymentMethods: [], orders: [] });
-    });
+    document.addEventListener('DOMContentLoaded', fetchMyTags);
   </script>
 </body>
 </html>
