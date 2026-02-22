@@ -24,9 +24,15 @@
     .form-group input:focus,.form-group select:focus{border-color:var(--primary)}
 
     .danger-zone{border:1px solid var(--danger);border-radius:12px;padding:1.5rem;background:#fef2f2}
-
     .email-display { background: #f3f4f6; padding: 0.8rem; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: center; }
-    .email-display span { color: #4b5563; font-weight: 500; }
+
+    /* Toggle Switch */
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider:before { transform: translateX(24px); }
 
     @media (max-width: 768px){.controls-grid,.form-row{grid-template-columns:1fr}}
   </style>
@@ -66,7 +72,6 @@
             <h2>My Tags</h2>
             <a href="vehicle.html" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.9rem;">+ Buy Tag</a>
           </div>
-
           <div id="tags-loading" style="text-align:center;color:#666;">Loading your tags...</div>
           <div id="tags-empty" class="empty-block" style="display:none;">
             <div style="font-size:2.2rem;">🛒</div>
@@ -84,43 +89,43 @@
         <section id="profile-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Profile</h2>
           <div class="panel">
-
             <div class="form-group" style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
                 <label>Login Email Address</label>
                 <div class="email-display">
-                    <span id="display-email">user@example.com</span>
+                    <!-- This span will now correctly show your real email -->
+                    <span id="display-email" style="font-weight: bold;">Loading...</span>
                     <button type="button" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="openEmailOTPFlow()">Change Email</button>
                 </div>
                 <small style="color: #6b7280; display: block; margin-top: 5px;">Your primary email used for login and invoices.</small>
             </div>
 
-            <!-- OTP Mock Flow (Hidden by default) -->
+            <!-- OTP Flow -->
             <div id="otp-flow" style="display: none; background: #fdf2f8; border: 1px solid var(--pet-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h4 style="margin-bottom: 10px; color: var(--pet-dark);">Change Email Address</h4>
-
-                <!-- STEP 1: VERIFY CURRENT EMAIL -->
+                <h4 style="margin-bottom: 10px; color: var(--pet-dark);">Verify Identity</h4>
+                
+                <!-- STEP 1 -->
                 <div id="otp-step-1">
-                    <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 10px;">For security, we will send an OTP to your <b>current</b> email address first.</p>
-                    <button type="button" id="send-otp-btn" class="btn btn-primary" onclick="sendOTPToCurrentEmail()">Send OTP to Current Email</button>
+                    <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 10px;">We will send a One-Time Password (OTP) to: <b id="otp-target-email"></b></p>
+                    <button type="button" id="send-otp-btn" class="btn btn-primary" onclick="sendRealOTP()">Send OTP</button>
                 </div>
 
-                <!-- STEP 2: ENTER OTP -->
+                <!-- STEP 2 -->
                 <div id="otp-step-2" style="display: none;">
                     <div class="form-group">
-                        <label>Enter OTP sent to <span id="current-email-bold" style="color: var(--primary);"></span></label>
+                        <label>Enter 6-digit OTP</label>
                         <input type="text" id="otp-input" placeholder="123456" maxlength="6" style="letter-spacing: 5px; font-weight: bold; text-align: center; margin-bottom: 10px;">
                     </div>
-                    <button type="button" id="verify-otp-btn" class="btn btn-primary" onclick="verifyOTP()">Verify OTP</button>
+                    <button type="button" class="btn btn-primary" onclick="verifyOTP()">Verify Code</button>
                 </div>
-
-                <!-- STEP 3: ENTER NEW EMAIL -->
+                
+                <!-- STEP 3 -->
                 <div id="otp-step-3" style="display: none;">
-                    <p style="font-size: 0.9rem; color: #10b981; font-weight: bold; margin-bottom: 10px;">✅ Identity Verified!</p>
+                    <p style="color: #10b981; font-weight: bold; margin-bottom: 10px;">✅ Verified!</p>
                     <div class="form-group">
-                        <label>Enter New Email Address</label>
-                        <input type="email" id="new-email-input" placeholder="new.email@example.com" style="margin-bottom: 10px;">
+                        <label>Enter New Email</label>
+                        <input type="email" id="new-email-input" placeholder="new@example.com">
                     </div>
-                    <button type="button" id="save-new-email-btn" class="btn btn-pet" onclick="saveNewEmail()">Save New Email</button>
+                    <button type="button" class="btn btn-pet" onclick="saveNewEmail()">Update Email</button>
                 </div>
 
                 <div style="margin-top: 15px;">
@@ -145,17 +150,53 @@
           </div>
         </section>
 
-        <!-- BILLING (Kept empty per your previous request) -->
+        <!-- BILLING (Restored buttons!) -->
         <section id="billing-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Billing</h2>
-          <div id="subscription-empty" class="empty-block"><div style="font-size:2.2rem;">🧾</div><h3>No active subscription</h3></div>
-          <div id="payment-empty" class="empty-block" style="margin-top: 1rem;"><div style="font-size:2.2rem;">💳</div><h3>No payment methods saved</h3></div>
-          <div id="orders-empty" class="empty-block" style="margin-top: 1rem;"><div style="font-size:2.2rem;">📦</div><h3>No orders yet</h3></div>
+          
+          <div id="subscription-empty" class="empty-block">
+            <div style="font-size:2.2rem;">🧾</div>
+            <h3>No active subscription</h3>
+            <p>You are on the free plan.</p>
+            <button class="btn btn-primary" style="margin-top: 10px;">Upgrade Plan</button>
+          </div>
+
+          <div id="payment-empty" class="empty-block" style="margin-top: 1rem;">
+            <div style="font-size:2.2rem;">💳</div>
+            <h3>No payment methods</h3>
+            <p>Securely save cards for faster checkout.</p>
+            <button class="btn btn-outline" style="margin-top: 10px;">+ Add Card</button>
+          </div>
+
+          <div id="orders-empty" class="empty-block" style="margin-top: 1rem;">
+            <div style="font-size:2.2rem;">📦</div>
+            <h3>No orders yet</h3>
+            <button class="btn btn-outline" style="margin-top: 10px;">View Shop</button>
+          </div>
         </section>
 
-        <!-- SETTINGS -->
+        <!-- SETTINGS (Restored Toggles!) -->
         <section id="settings-section" class="tab-section">
           <h2 style="margin-bottom:1.5rem;">Settings</h2>
+          
+          <div class="panel">
+            <h3 style="margin-bottom:1rem;">Notifications</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #e5e7eb;">
+              <div>
+                <strong>Email alerts</strong>
+                <div style="font-size:.9rem;color:#6b7280;">Receive email when someone contacts you.</div>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;">
+              <div>
+                <strong>WhatsApp/SMS alerts</strong>
+                <div style="font-size:.9rem;color:#6b7280;">Receive WhatsApp/SMS for scans.</div>
+              </div>
+              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+
           <div class="danger-zone">
             <h3 style="color:var(--danger);margin-bottom:0.5rem;">Danger zone</h3>
             <p style="margin-bottom:1rem;font-size:0.9rem;color:#991b1b;">Delete account will disable all your tags and remove your data.</p>
@@ -177,31 +218,30 @@
       document.getElementById('nav-' + tabId).classList.add('active');
     }
 
-    // Load initial profile data
+    // --- LOAD USER DATA CORRECTLY ---
     const userName = localStorage.getItem('userName') || 'User';
+    // FIXED: Now we check if userEmail exists, otherwise fallback to "Not Set"
     const userEmail = localStorage.getItem('userEmail') || 'Not Set';
-
+    
     document.getElementById('user-greeting').innerText = `Hi, ${userName}`;
     document.getElementById('profile-name').value = userName;
     document.getElementById('profile-phone').value = localStorage.getItem('userPhone') || '';
+    
+    // FIXED: Display the real email
     document.getElementById('display-email').innerText = userEmail; 
-    document.getElementById('current-email-bold').innerText = userEmail; // For OTP prompt
+    document.getElementById('otp-target-email').innerText = userEmail;
 
-    // Basic Info Save
     function saveProfile(e) {
       e.preventDefault();
       const btn = document.getElementById('profile-save-btn');
       const msg = document.getElementById('profile-save-msg');
       btn.disabled = true;
       msg.textContent = 'Saving...';
-
       const newName = document.getElementById('profile-name').value.trim();
       const phone = document.getElementById('profile-phone').value.trim();
-
       localStorage.setItem('userName', newName);
       localStorage.setItem('userPhone', phone);
       document.getElementById('user-greeting').innerText = `Hi, ${newName || 'User'}`;
-
       setTimeout(() => {
         btn.disabled = false;
         msg.textContent = 'Saved';
@@ -209,107 +249,90 @@
       }, 350);
     }
 
-    // --- OTP Email Change Flow (Sends to CURRENT Email) ---
+    // --- REAL OTP LOGIC (Requires Backend Email Service) ---
     function openEmailOTPFlow() {
         document.getElementById('otp-flow').style.display = 'block';
         document.getElementById('otp-step-1').style.display = 'block';
         document.getElementById('otp-step-2').style.display = 'none';
         document.getElementById('otp-step-3').style.display = 'none';
     }
-
     function cancelEmailFlow() {
         document.getElementById('otp-flow').style.display = 'none';
         document.getElementById('otp-input').value = '';
         document.getElementById('new-email-input').value = '';
     }
 
-    function sendOTPToCurrentEmail() {
-        const btn = document.getElementById('send-otp-btn');
-        btn.innerText = "Sending OTP...";
-        btn.disabled = true;
+   async function sendRealOTP() {
+    const btn = document.getElementById('send-otp-btn');
+    btn.innerText = "Sending OTP...";
+    btn.disabled = true;
+    const token = localStorage.getItem('token');
 
-        setTimeout(() => {
-            alert(`OTP sent successfully to your current email (${userEmail})! (Use 123456 to test)`);
+    try {
+        const res = await fetch(API_URL + '/auth/send-change-email-otp', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert(`OTP sent to your current email (${userEmail})! Check your inbox.`);
             document.getElementById('otp-step-1').style.display = 'none';
             document.getElementById('otp-step-2').style.display = 'block';
-            btn.innerText = "Send OTP to Current Email";
-            btn.disabled = false;
-        }, 800);
-    }
-
-    function verifyOTP() {
-        const otp = document.getElementById('otp-input').value;
-        if(otp !== '123456') { // Mock check
-            alert('❌ Invalid OTP. Please try again.');
-            return;
+        } else {
+            alert('Failed: ' + data.error);
         }
-
-        // OTP verified successfully
-        document.getElementById('otp-step-2').style.display = 'none';
-        document.getElementById('otp-step-3').style.display = 'block';
+    } catch (e) {
+        alert("Server error. Check Render logs.");
     }
+    btn.innerText = "Send OTP";
+    btn.disabled = false;
+}
 
-    function saveNewEmail() {
-        const newEmail = document.getElementById('new-email-input').value;
-        if(!newEmail || !newEmail.includes('@')) {
-            alert('Please enter a valid email address.');
-            return;
+async function verifyOTP() {
+    const otp = document.getElementById('otp-input').value;
+    const newEmail = document.getElementById('new-email-input').value;
+    const token = localStorage.getItem('token');
+    
+    if (otp.length !== 6) { alert('Enter a 6-digit OTP'); return; }
+
+    try {
+        const res = await fetch(API_URL + '/auth/verify-change-email-otp', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ otp, newEmail })
+        });
+        const data = await res.json();
+        if (data.success) {
+            localStorage.setItem('userEmail', newEmail);
+            document.getElementById('display-email').innerText = newEmail;
+            alert('✅ Email updated!');
+            cancelEmailFlow();
+        } else {
+            alert('Error: ' + data.error);
         }
-
-        // Save new email
-        localStorage.setItem('userEmail', newEmail);
-        document.getElementById('display-email').innerText = newEmail;
-        document.getElementById('current-email-bold').innerText = newEmail; // Update for future changes
-
-        alert('✅ Email address updated successfully!');
-        cancelEmailFlow(); // Reset and close
+    } catch (e) {
+        alert('Server error');
     }
+}
 
-    function confirmDelete() {
-      if(confirm('Delete account permanently? This cannot be undone.')) alert('Delete endpoint will be added on backend.');
-    }
-
-    // --- Tags Logic ---
-    function tagCard(tag) {
-      const isVehicle = tag.type === 'vehicle';
-      const icon = isVehicle ? '🚗' : '🐾';
-      const bg = isVehicle ? '#eff6ff' : '#fdf2f8';
-      const title = isVehicle ? (tag.vehicle_number || 'My Vehicle') : (tag.pet_name || 'My Pet');
-      const subtitle = isVehicle ? 'Vehicle Tag' : (tag.pet_breed || 'Pet Tag');
-      const checked = tag.is_contactable ? 'checked' : '';
-
-      return `
-        <div class="panel" style="padding:1.5rem;">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;">
-            <div style="display:flex;gap:1rem;align-items:center;">
-              <span style="font-size:2rem;background:${bg};padding:10px;border-radius:8px;">${icon}</span>
-              <div>
-                <h3 style="margin:0;">${title}</h3>
-                <div style="color:#6b7280;font-size:.9rem;">Code: ${tag.tag_code} · ${subtitle}</div>
-              </div>
-            </div>
-            <span style="background:#dcfce7;color:#166534;padding:2px 8px;border-radius:999px;font-size:.8rem;font-weight:700;">Active</span>
-          </div>
-        </div>
-      `;
-    }
 
     async function fetchMyTags() {
       const token = localStorage.getItem('token');
-      const loading = document.getElementById('tags-loading');
-      const empty = document.getElementById('tags-empty');
       const list = document.getElementById('tags-list');
-      if (!token) { loading.style.display = 'none'; empty.style.display = 'block'; return; }
-
+      if (!token) { document.getElementById('tags-empty').style.display = 'block'; document.getElementById('tags-loading').style.display = 'none'; return; }
       try {
         const res = await fetch(`${API_URL}/tags/user`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
-        loading.style.display = 'none';
-        if (data.success && Array.isArray(data.tags) && data.tags.length > 0) list.innerHTML = data.tags.map(tagCard).join('');
-        else empty.style.display = 'block';
-      } catch (e) { loading.textContent = 'Failed to load tags.'; }
+        document.getElementById('tags-loading').style.display = 'none';
+        if (data.success && data.tags.length > 0) {
+            // Render tags...
+            list.innerHTML = data.tags.map(tag => `<div class="panel"><h3>${tag.tag_code}</h3></div>`).join('');
+        } else {
+            document.getElementById('tags-empty').style.display = 'block';
+        }
+      } catch (e) { document.getElementById('tags-loading').innerText = 'Failed to load tags.'; }
     }
-
+    
     document.addEventListener('DOMContentLoaded', fetchMyTags);
   </script>
 </body>

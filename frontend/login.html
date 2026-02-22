@@ -5,10 +5,14 @@
     <title>Login / Sign Up - ContactKar</title>
     <link rel="stylesheet" href="styles_v2.css">
     <style>
+        #otp-section { display: none; }
+        .error-msg { color: var(--danger); text-align: center; font-weight: bold; margin-bottom: 1rem; display: none; }
+        .success-msg { color: var(--success); text-align: center; font-weight: bold; margin-bottom: 1rem; display: none; }
+        .otp-boxes { display: flex; gap: 10px; justify-content: center; margin: 1rem 0; }
+        .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 1.4rem; font-weight: bold; border: 2px solid #d1d5db; border-radius: 8px; }
+        .otp-boxes input:focus { border-color: var(--primary); outline: none; }
         .switch-form { text-align: center; margin-top: 1.5rem; color: #666; cursor: pointer; }
         .switch-form span { color: var(--primary); font-weight: bold; text-decoration: underline; }
-        #signup-fields { display: none; }
-        .error-message { color: var(--danger); text-align: center; margin-bottom: 1rem; display: none; font-weight: bold;}
     </style>
 </head>
 <body>
@@ -20,90 +24,151 @@
 
     <div class="auth-container">
         <h2 class="form-title" id="form-title">Welcome Back</h2>
+        <div id="error-box" class="error-msg"></div>
+        <div id="success-box" class="success-msg"></div>
 
-        <div id="error-msg" class="error-message"></div>
-
-        <form id="auth-form" onsubmit="handleAuth(event)">
-            <div id="signup-fields">
-                <div class="form-group">
+        <!-- STEP 1: Email/Password Form -->
+        <div id="credentials-section">
+            <form onsubmit="sendOTP(event)">
+                <div id="signup-name" style="display:none;" class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="name" class="form-input" placeholder="Rahul Sharma">
                 </div>
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="password" class="form-input" placeholder="••••••••" required minlength="6">
-            </div>
-            <button type="submit" id="submit-btn" class="btn btn-primary" style="width: 100%;">Login</button>
-        </form>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" class="form-input" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" id="send-otp-btn" class="btn btn-primary" style="width:100%;">Send OTP</button>
+            </form>
+            <p class="switch-form" onclick="toggleMode()">
+                <span id="switch-text">Don't have an account? Sign up here.</span>
+            </p>
+        </div>
 
-        <p class="switch-form" onclick="toggleMode()">
-            <span id="switch-text">Don't have an account? Sign up here.</span>
-        </p>
+        <!-- STEP 2: OTP Verification -->
+        <div id="otp-section">
+            <p style="text-align:center; color:#4b5563; margin-bottom: 0.5rem;">Enter the 6-digit OTP sent to</p>
+            <p style="text-align:center; font-weight:bold; color:var(--primary); margin-bottom: 1.5rem;" id="otp-sent-to"></p>
+            <div class="otp-boxes">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 1)" id="d0">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 2)" id="d1">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 3)" id="d2">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 4)" id="d3">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 5)" id="d4">
+                <input type="text" maxlength="1" oninput="moveToNext(this, 6)" id="d5">
+            </div>
+            <button onclick="verifyOTP()" class="btn btn-primary" style="width:100%;" id="verify-btn">Verify & Continue</button>
+            <button onclick="goBack()" style="width:100%; margin-top: 10px; background:none; border:none; color:var(--text-light); cursor:pointer;">← Go Back</button>
+        </div>
     </div>
 
     <script>
-        const API_URL = "https://contactkar.onrender.com/api";
+        const API_URL = 'https://contactkar.onrender.com/api';
         let isLoginMode = true;
 
         function toggleMode() {
             isLoginMode = !isLoginMode;
-            document.getElementById('form-title').innerText = isLoginMode ? "Welcome Back" : "Create Account";
-            document.getElementById('submit-btn').innerText = isLoginMode ? "Login" : "Sign Up";
+            document.getElementById('form-title').innerText = isLoginMode ? 'Welcome Back' : 'Create Account';
+            document.getElementById('send-otp-btn').innerText = isLoginMode ? 'Send OTP' : 'Send OTP';
             document.getElementById('switch-text').innerText = isLoginMode ? "Don't have an account? Sign up here." : "Already have an account? Login here.";
-            document.getElementById('signup-fields').style.display = isLoginMode ? "none" : "block";
+            document.getElementById('signup-name').style.display = isLoginMode ? 'none' : 'block';
             document.getElementById('name').required = !isLoginMode;
-            document.getElementById('error-msg').style.display = "none";
+            clearMessages();
         }
 
-        async function handleAuth(e) {
-            e.preventDefault();
-            const btn = document.getElementById('submit-btn');
-            const errorBox = document.getElementById('error-msg');
+        function showError(msg) { const e = document.getElementById('error-box'); e.innerText = msg; e.style.display = 'block'; document.getElementById('success-box').style.display = 'none'; }
+        function showSuccess(msg) { const s = document.getElementById('success-box'); s.innerText = msg; s.style.display = 'block'; document.getElementById('error-box').style.display = 'none'; }
+        function clearMessages() { document.getElementById('error-box').style.display = 'none'; document.getElementById('success-box').style.display = 'none'; }
 
+        function moveToNext(el, nextIndex) {
+            if (el.value.length === 1 && nextIndex <= 5) document.getElementById('d' + nextIndex).focus();
+        }
+
+        function goBack() {
+            document.getElementById('credentials-section').style.display = 'block';
+            document.getElementById('otp-section').style.display = 'none';
+            clearMessages();
+        }
+
+        // STEP 1: Send OTP via Brevo
+        async function sendOTP(e) {
+            e.preventDefault();
+            const btn = document.getElementById('send-otp-btn');
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const name = document.getElementById('name').value;
 
-            btn.innerText = "Please wait...";
+            btn.innerText = 'Sending OTP...';
             btn.disabled = true;
-            errorBox.style.display = "none";
+            clearMessages();
 
-            const endpoint = isLoginMode ? "/auth/login" : "/auth/register";
+            const endpoint = isLoginMode ? '/auth/send-login-otp' : '/auth/send-signup-otp';
             const payload = isLoginMode ? { email, password } : { email, password, name };
 
             try {
-                const response = await fetch(API_URL + endpoint, {
+                const res = await fetch(API_URL + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
                 });
+                const data = await res.json();
 
-                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('credentials-section').style.display = 'none';
+                    document.getElementById('otp-section').style.display = 'block';
+                    document.getElementById('otp-sent-to').innerText = email;
+                    document.getElementById('d0').focus();
+                    showSuccess('OTP sent! Check your inbox.');
+                } else {
+                    showError(data.error || 'Failed to send OTP');
+                    btn.innerText = 'Send OTP';
+                    btn.disabled = false;
+                }
+            } catch (err) {
+                showError('Server error. Try again.');
+                btn.innerText = 'Send OTP';
+                btn.disabled = false;
+            }
+        }
+
+        // STEP 2: Verify OTP via Backend
+        async function verifyOTP() {
+            const otp = [0,1,2,3,4,5].map(i => document.getElementById('d'+i).value).join('');
+            if (otp.length !== 6) { showError('Enter all 6 digits'); return; }
+
+            const btn = document.getElementById('verify-btn');
+            btn.innerText = 'Verifying...';
+            btn.disabled = true;
+
+            const email = document.getElementById('otp-sent-to').innerText;
+            const endpoint = isLoginMode ? '/auth/verify-login-otp' : '/auth/verify-signup-otp';
+
+            try {
+                const res = await fetch(API_URL + endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, otp })
+                });
+                const data = await res.json();
 
                 if (data.success) {
                     localStorage.setItem('isLoggedIn', 'true');
                     localStorage.setItem('token', data.token);
-
-                    // SAVE EMAIL AND NAME LOCALLY FOR DASHBOARD
                     localStorage.setItem('userName', data.user.name || '');
-                    localStorage.setItem('userEmail', email); 
-
+                    localStorage.setItem('userEmail', email);
                     window.location.href = 'dashboard.html';
                 } else {
-                    errorBox.innerText = data.error || "Authentication failed";
-                    errorBox.style.display = "block";
-                    btn.innerText = isLoginMode ? "Login" : "Sign Up";
+                    showError(data.error || 'Invalid OTP');
+                    btn.innerText = 'Verify & Continue';
                     btn.disabled = false;
                 }
-            } catch (error) {
-                errorBox.innerText = "Server error. Please try again later.";
-                errorBox.style.display = "block";
-                btn.innerText = isLoginMode ? "Login" : "Sign Up";
+            } catch (err) {
+                showError('Server error. Try again.');
+                btn.innerText = 'Verify & Continue';
                 btn.disabled = false;
             }
         }
