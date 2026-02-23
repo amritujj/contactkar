@@ -490,7 +490,7 @@ app.get("/api/tags/:code/qrcode", async (req, res) => {
 const HARD_COPY_PRICE = 149;
 
 // Calculate Pricing API
-app.post('/api/orders/calculate', authenticateToken, (req, res) => {
+app.post('/api/orders/calculate', authRequired, async (req, res) => {
     const { vehicleQty, petQty } = req.body;
     const totalTags = (vehicleQty || 0) + (petQty || 0);
     
@@ -506,8 +506,8 @@ app.post('/api/orders/calculate', authenticateToken, (req, res) => {
 });
 
 // Place Order API
-app.post('/api/orders/place', authenticateToken, async (req, res) => {
-    const { vehicleQty, petQty, address, city, state, pincode } = req.body;
+app.post('/api/orders/place', authRequired, async (req, res) => {
+    const { vehicleQty = 0, petQty = 0, address, city, state, pincode } = req.body;
     const totalTags = (vehicleQty || 0) + (petQty || 0);
     
     if (totalTags === 0) return res.status(400).json({ error: "Please select at least 1 tag" });
@@ -523,7 +523,7 @@ app.post('/api/orders/place', authenticateToken, async (req, res) => {
         // 1. Create Order Record
         const orderResult = await pool.query(
             "INSERT INTO orders (user_id, total_amount, shipping_address, items) VALUES ($1, $2, $3, $4) RETURNING id",
-            [req.user.id, totalCost, fullAddress, JSON.stringify({ vehicle: vehicleQty, pet: petQty })]
+            [req.userId, totalCost, fullAddress, JSON.stringify({ vehicle: vehicleQty, pet: petQty })]
         );
 
         // 2. Generate Vehicle Tags
@@ -531,7 +531,7 @@ app.post('/api/orders/place', authenticateToken, async (req, res) => {
             const tagCode = 'CAR-' + Math.random().toString(36).substr(2, 6).toUpperCase();
             await pool.query(
                 "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered) VALUES ($1, $2, 'vehicle', TRUE)", 
-                [req.user.id, tagCode]
+                [req.userId, tagCode]
             );
         }
 
@@ -540,7 +540,7 @@ app.post('/api/orders/place', authenticateToken, async (req, res) => {
             const tagCode = 'PET-' + Math.random().toString(36).substr(2, 6).toUpperCase();
             await pool.query(
                 "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered) VALUES ($1, $2, 'pet', TRUE)", 
-                [req.user.id, tagCode]
+                [req.userId, tagCode]
             );
         }
 
