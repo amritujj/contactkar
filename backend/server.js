@@ -490,7 +490,7 @@ app.get("/api/tags/:code/qrcode", async (req, res) => {
 const HARD_COPY_PRICE = 149;
 
 // Calculate Pricing API
-app.post('/api/orders/calculate', authRequired, (req, res) => {
+app.post('/api/orders/calculate', authenticateToken, (req, res) => {
     const { vehicleQty, petQty } = req.body;
     const totalTags = (vehicleQty || 0) + (petQty || 0);
     
@@ -506,7 +506,7 @@ app.post('/api/orders/calculate', authRequired, (req, res) => {
 });
 
 // Place Order API
-app.post('/api/orders/place', authRequired, async (req, res) => {
+app.post('/api/orders/place', authenticateToken, async (req, res) => {
     const { vehicleQty, petQty, address, city, state, pincode } = req.body;
     const totalTags = (vehicleQty || 0) + (petQty || 0);
     
