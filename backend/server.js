@@ -341,6 +341,47 @@ app.post("/api/auth/send-change-email-otp", authRequired, async (req, res) => {
     res.status(500).json({ success: false, error: "Failed to send OTP" });
   }
 });
+app.get('/api/setup-v2', async (req, res) => {
+    try {
+        // 1. Update Users Table
+        await pool.query(`
+            ALTER TABLE users 
+            ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(20) DEFAULT 'basic',
+            ADD COLUMN IF NOT EXISTS subscription_expiry TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS address TEXT, 
+            ADD COLUMN IF NOT EXISTS city TEXT, 
+            ADD COLUMN IF NOT EXISTS state TEXT, 
+            ADD COLUMN IF NOT EXISTS pincode VARCHAR(10);
+        `);
+
+        // 2. Create Orders Table
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS orders (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER REFERENCES users(id),
+                total_amount INTEGER NOT NULL,
+                status VARCHAR(20) DEFAULT 'pending',
+                shipping_address TEXT,
+                items JSONB,
+                created_at TIMESTAMP DEFAULT NOW()
+            );
+        `);
+
+        // 3. Update Tags Table
+        await pool.query(`
+            ALTER TABLE tags 
+            ADD COLUMN IF NOT EXISTS is_hard_copy_ordered BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(20) DEFAULT 'none',
+            ADD COLUMN IF NOT EXISTS type VARCHAR(20) DEFAULT 'vehicle';
+        `);
+
+        res.json({ success: true, message: "Database updated successfully for V2!" });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ success: false, error: e.message });
+    }
+});
+
 
 app.post("/api/auth/verify-change-email-otp", authRequired, async (req, res) => {
   try {
