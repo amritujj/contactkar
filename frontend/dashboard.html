@@ -174,6 +174,49 @@
             <button class="btn btn-outline" style="margin-top: 10px;">View Shop</button>
           </div>
         </section>
+<!-- Hard Copy Order Section -->
+<div class="order-section bg-white p-6 rounded-lg shadow-md mt-6">
+    <h2 class="text-2xl font-bold mb-4">Order Hard Copy Tags</h2>
+    <p class="text-gray-600 mb-4">Get physical PVC sticker/locket tags delivered to your doorstep. ₹149 per delivery.</p>
+    
+    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
+        <strong>🔥 Bulk Offers:</strong><br>
+        Order 3 tags -> Get 1 Delivery <strong>FREE</strong><br>
+        Order 5 tags -> Get 2 Deliveries <strong>FREE</strong>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4 mb-6">
+        <div>
+            <label class="block font-bold mb-2">🚗 Vehicle Tags</label>
+            <input type="number" id="vehicleQty" min="0" value="0" class="w-full border p-2 rounded" onchange="calculateTotal()">
+        </div>
+        <div>
+            <label class="block font-bold mb-2">🐶 Pet Tags</label>
+            <input type="number" id="petQty" min="0" value="0" class="w-full border p-2 rounded" onchange="calculateTotal()">
+        </div>
+    </div>
+
+    <!-- Shipping Details -->
+    <h3 class="font-bold mb-2">Shipping Address</h3>
+    <input type="text" id="address" placeholder="Street Address" class="w-full border p-2 rounded mb-2">
+    <div class="grid grid-cols-3 gap-2 mb-6">
+        <input type="text" id="city" placeholder="City" class="border p-2 rounded">
+        <input type="text" id="state" placeholder="State" class="border p-2 rounded">
+        <input type="text" id="pincode" placeholder="Pincode" class="border p-2 rounded">
+    </div>
+
+    <!-- Price Calculator -->
+    <div class="bg-gray-50 p-4 rounded mb-6 text-lg">
+        <p>Total Tags: <span id="totalTagsDisplay" class="font-bold">0</span></p>
+        <p>Delivery Cost: <span id="costDisplay" class="font-bold text-green-600">₹0</span> 
+           <span id="savingsDisplay" class="text-sm text-red-500 ml-2 font-bold"></span>
+        </p>
+    </div>
+
+    <button onclick="placeOrder()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold w-full hover:bg-blue-700">
+        Proceed to Pay
+    </button>
+</div>
 
         <!-- SETTINGS (Restored Toggles!) -->
         <section id="settings-section" class="tab-section">
@@ -335,5 +378,6 @@ async function verifyOTP() {
     
     document.addEventListener('DOMContentLoaded', fetchMyTags);
   </script>
+<script src="dashboard.js"></script>
 </body>
 </html>

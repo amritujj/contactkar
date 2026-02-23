@@ -485,6 +485,72 @@ app.get("/api/tags/:code/qrcode", async (req, res) => {
     res.status(500).json({ success: false, error: "QR generation failed" });
   }
 });
+// Add this below your existing routes
+
+const HARD_COPY_PRICE = 149;
+
+// Calculate Pricing API
+app.post('/api/orders/calculate', authenticateToken, (req, res) => {
+    const { vehicleQty, petQty } = req.body;
+    const totalTags = (vehicleQty || 0) + (petQty || 0);
+    
+    let freeDeliveries = 0;
+    if (totalTags >= 5) freeDeliveries = 2;
+    else if (totalTags >= 3) freeDeliveries = 1;
+
+    const paidDeliveries = Math.max(0, totalTags - freeDeliveries);
+    const totalCost = paidDeliveries * HARD_COPY_PRICE;
+    const savings = freeDeliveries * HARD_COPY_PRICE;
+
+    res.json({ totalTags, totalCost, savings, freeDeliveries });
+});
+
+// Place Order API
+app.post('/api/orders/place', authenticateToken, async (req, res) => {
+    const { vehicleQty, petQty, address, city, state, pincode } = req.body;
+    const totalTags = (vehicleQty || 0) + (petQty || 0);
+    
+    if (totalTags === 0) return res.status(400).json({ error: "Please select at least 1 tag" });
+
+    // Recalculate on backend for security
+    let freeDeliveries = 0;
+    if (totalTags >= 5) freeDeliveries = 2;
+    else if (totalTags >= 3) freeDeliveries = 1;
+    const totalCost = Math.max(0, totalTags - freeDeliveries) * HARD_COPY_PRICE;
+    const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;
+
+    try {
+        // 1. Create Order Record
+        const orderResult = await pool.query(
+            "INSERT INTO orders (user_id, total_amount, shipping_address, items) VALUES ($1, $2, $3, $4) RETURNING id",
+            [req.user.id, totalCost, fullAddress, JSON.stringify({ vehicle: vehicleQty, pet: petQty })]
+        );
+
+        // 2. Generate Vehicle Tags
+        for(let i=0; i < vehicleQty; i++) {
+            const tagCode = 'CAR-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            await pool.query(
+                "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered) VALUES ($1, $2, 'vehicle', TRUE)", 
+                [req.user.id, tagCode]
+            );
+        }
+
+        // 3. Generate Pet Tags
+        for(let i=0; i < petQty; i++) {
+            const tagCode = 'PET-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+            await pool.query(
+                "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered) VALUES ($1, $2, 'pet', TRUE)", 
+                [req.user.id, tagCode]
+            );
+        }
+
+        res.json({ success: true, message: "Order placed successfully!", orderId: orderResult.rows[0].id });
+    } catch (e) {
+        console.error(e);
+        res.status(500).json({ error: "Failed to place order" });
+    }
+});
+
 
 /* -------------------- Start (ONLY ONCE) -------------------- */
 app.listen(PORT, () => {
