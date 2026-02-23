@@ -359,25 +359,79 @@ async function verifyOTP() {
 }
 
 
+    
     async function fetchMyTags() {
       const token = localStorage.getItem('token');
       const list = document.getElementById('tags-list');
-      if (!token) { document.getElementById('tags-empty').style.display = 'block'; document.getElementById('tags-loading').style.display = 'none'; return; }
+
+      if (!token) {
+          document.getElementById('tags-empty').style.display = 'block';
+          document.getElementById('tags-loading').style.display = 'none';
+          return;
+      }
+
       try {
         const res = await fetch(`${API_URL}/tags/user`, { headers: { Authorization: `Bearer ${token}` } });
         const data = await res.json();
         document.getElementById('tags-loading').style.display = 'none';
+
         if (data.success && data.tags.length > 0) {
-            // Render tags...
-            list.innerHTML = data.tags.map(tag => `<div class="panel"><h3>${tag.tag_code}</h3></div>`).join('');
+            let htmlHTML = '';
+
+            // Loop through all tags and style them differently based on 'type'
+            data.tags.forEach(tag => {
+                const isPet = tag.type === 'pet';
+                const icon = isPet ? '🐶 Pet Tag' : '🚗 Vehicle Tag';
+                const themeColor = isPet ? '#ff9800' : '#4CAF50';
+                const hardCopyBadge = tag.is_hard_copy_ordered 
+                                      ? `<span style="background:#2196F3;color:white;padding:2px 6px;border-radius:4px;font-size:12px;margin-left:10px;">📦 Hard Copy Ordered</span>` 
+                                      : '';
+
+                htmlHTML += `
+                <div class="panel" style="border-left: 5px solid ${themeColor}; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="margin: 0;">${icon} <span style="color:#666; font-size: 16px;">(${tag.tag_code})</span>${hardCopyBadge}</h3>
+                        <label class="switch">
+                            <input type="checkbox" onchange="toggleContactable(${tag.id}, this.checked)" ${tag.iscontactable ? 'checked' : ''}>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div style="margin-top: 10px; color: #555;">
+                        <p style="margin: 5px 0;"><strong>Details:</strong> ${isPet ? (tag.petname || 'Setup Pending') : (tag.vehiclenumber || 'Setup Pending')}</p>
+                        <p style="margin: 5px 0; font-size: 14px;">Created: ${new Date(tag.createdat).toLocaleDateString()}</p>
+                    </div>
+                </div>`;
+            });
+
+            list.innerHTML = htmlHTML;
+            document.getElementById('tags-empty').style.display = 'none';
         } else {
             document.getElementById('tags-empty').style.display = 'block';
         }
-      } catch (e) { document.getElementById('tags-loading').innerText = 'Failed to load tags.'; }
+      } catch (e) {
+          console.error(e);
+          document.getElementById('tags-loading').innerText = 'Failed to load tags.';
+      }
     }
-    
-    document.addEventListener('DOMContentLoaded', fetchMyTags);
-  </script>
+
+    async function toggleContactable(tagId, isContactable) {
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_URL}/tags/${tagId}/toggle`, {
+                method: 'PUT',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ isContactable })
+            });
+            const data = await res.json();
+            if(!data.success) alert("Failed to update status");
+        } catch(e) {
+            alert("Error updating status");
+        }
+    }
+</script>
 <script src="dashboard.js"></script>
 </body>
 </html>
