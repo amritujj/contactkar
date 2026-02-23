@@ -5,6 +5,104 @@
     <title>Vehicle Tags - ContactKar</title>
     <link rel="stylesheet" href="styles_v2.css">
 </head>
+<!-- 3-TIER PRICING SECTION -->
+<style>
+  .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 40px auto; padding: 20px; }
+  .tier-card { border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; text-align: center; background: white; transition: 0.3s; }
+  .tier-card:hover { border-color: #2563eb; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+  .tier-card.popular { border-color: #2563eb; position: relative; }
+  .popular-badge { background: #2563eb; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); }
+  .price { font-size: 36px; font-weight: bold; color: #111827; margin: 15px 0; }
+  .price span { font-size: 16px; color: #6b7280; font-weight: normal; }
+  .strike-price { text-decoration: line-through; color: #9ca3af; font-size: 18px; margin-right: 8px; }
+  .feature-list { list-style: none; padding: 0; margin: 20px 0; text-align: left; }
+  .feature-list li { margin-bottom: 10px; color: #374151; font-size: 15px; }
+  .feature-list li::before { content: "✅"; margin-right: 8px; }
+  .btn-buy { background: #2563eb; color: white; border: none; padding: 12px 24px; border-radius: 8px; width: 100%; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+  .btn-buy:hover { background: #1d4ed8; }
+</style>
+
+<div class="pricing-grid">
+  <!-- Basic Tier -->
+  <div class="tier-card">
+    <h3>Basic Tier</h3>
+    <p style="color:#666; font-size:14px;">Essential privacy for 1 vehicle.</p>
+    <div class="price"><span class="strike-price">₹99</span> ₹0<span>/year</span></div>
+    <p style="color:red; font-weight:bold; font-size:12px;">TESTING MODE</p>
+    <ul class="feature-list">
+      <li>1 Vehicle Tag</li>
+      <li>Voice Call Alerts</li>
+      <li>1 Emergency Contact</li>
+      <li>Soft Copy Included</li>
+    </ul>
+    <button class="btn-buy" onclick="checkout('basic')">Get Basic Free</button>
+  </div>
+
+  <!-- Plus Tier -->
+  <div class="tier-card popular">
+    <div class="popular-badge">MOST POPULAR</div>
+    <h3>Plus Tier</h3>
+    <p style="color:#666; font-size:14px;">Best for couples or 2 vehicles.</p>
+    <div class="price"><span class="strike-price">₹249</span> ₹0<span>/year</span></div>
+    <p style="color:red; font-weight:bold; font-size:12px;">TESTING MODE</p>
+    <ul class="feature-list">
+      <li>Up to 3 Tags</li>
+      <li>WhatsApp & SMS Alerts</li>
+      <li>2 Emergency Contacts</li>
+      <li>Custom Scan Page Colors</li>
+    </ul>
+    <button class="btn-buy" onclick="checkout('plus')">Get Plus Free</button>
+  </div>
+
+  <!-- Pro Tier -->
+  <div class="tier-card">
+    <h3>Pro Tier</h3>
+    <p style="color:#666; font-size:14px;">Maximum security for families.</p>
+    <div class="price"><span class="strike-price">₹499</span> ₹0<span>/year</span></div>
+    <p style="color:red; font-weight:bold; font-size:12px;">TESTING MODE</p>
+    <ul class="feature-list">
+      <li>Up to 5 Tags</li>
+      <li>Video Call Alerts</li>
+      <li>3 Emergency Contacts</li>
+      <li>Priority WhatsApp Support</li>
+    </ul>
+    <button class="btn-buy" onclick="checkout('pro')">Get Pro Free</button>
+  </div>
+</div>
+
+<script>
+  // Quick test script to assign the subscription
+  async function checkout(tier) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        alert("Please login first to buy a tag!");
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        // In testing, we just hit the upgrade API directly
+        const res = await fetch('https://contactkar.onrender.com/api/billing/upgrade', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ tier: tier })
+        });
+        
+        const data = await res.json();
+        if(data.success) {
+            alert(`Success! You are now subscribed to the ${tier.toUpperCase()} plan.`);
+            window.location.href = 'dashboard.html'; // Send them back to dashboard to get their tags
+        } else {
+            alert("Error: " + data.error);
+        }
+    } catch (e) {
+        alert("Server error. Make sure your Render backend is running!");
+    }
+  }
+</script>
 <body>
     <nav class="navbar">
         <div class="container">
