@@ -1,40 +1,257 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Dashboard - ContactKar</title>
-  <link rel="stylesheet" href="styles_v2.css" />
   <style>
-    .controls-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem;padding-top:1rem;border-top:1px solid #f3f4f6}
-    .control-item{text-align:center;background:#f9fafb;padding:.8rem;border-radius:8px}
-    .control-label{font-size:.8rem;font-weight:600;display:block;margin-bottom:.5rem;color:#4b5563}
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fb; color: #111827; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    button, input, select, textarea { font-family: inherit; }
 
-    .tab-section{display:none;animation:fadeIn .25s ease-in-out}
-    .tab-section.active-tab{display:block}
-    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    /* ===== ANIMATIONS ===== */
+    @keyframes fadeInDown  { from { opacity:0; transform:translateY(-16px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeInUp    { from { opacity:0; transform:translateY(20px);  } to { opacity:1; transform:translateY(0); } }
+    @keyframes fadeInLeft  { from { opacity:0; transform:translateX(-20px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes fadeInRight { from { opacity:0; transform:translateX(20px);  } to { opacity:1; transform:translateX(0); } }
+    @keyframes pulse       { 0%,100% { opacity:1; } 50% { opacity:.5; } }
+    @keyframes spin        { to { transform:rotate(360deg); } }
+    @keyframes shimmer     { 0% { background-position:-200% 0; } 100% { background-position:200% 0; } }
 
-    .panel{background:#fff;padding:2rem;border-radius:12px;border:1px solid var(--border);margin-bottom:1.5rem}
-    .empty-block{border:1px dashed #d1d5db;background:#fff;border-radius:12px;padding:2rem;text-align:center;color:#6b7280}
-    .empty-block h3{color:#111827;margin:.5rem 0 0.25rem}
+    /* ===== NAVBAR ===== */
+    .navbar {
+      background: #fff;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 0 1.5rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky; top: 0; z-index: 100;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      animation: fadeInDown .4s ease;
+    }
+    .nav-brand { font-size: 1.4rem; font-weight: 800; color: #111827; letter-spacing: -0.5px; }
+    .nav-brand span { color: #2563eb; }
+    .nav-right { display: flex; align-items: center; gap: .8rem; }
+    .nav-greeting { font-weight: 500; color: #374151; font-size: .95rem; }
+    .btn-logout {
+      padding: 6px 16px; border: 1.5px solid #e5e7eb; border-radius: 8px;
+      background: #fff; color: #374151; font-weight: 600; font-size: .85rem;
+      cursor: pointer; transition: all .2s;
+    }
+    .btn-logout:hover { background: #f3f4f6; border-color: #d1d5db; }
 
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
-    .form-group label{display:block;font-weight:600;margin-bottom:.5rem;color:#374151;font-size:.9rem}
-    .form-group input,.form-group select{width:100%;padding:.8rem;border:1px solid #d1d5db;border-radius:8px;font-size:1rem;outline:none}
-    .form-group input:focus,.form-group select:focus{border-color:var(--primary)}
+    /* ===== LAYOUT ===== */
+    .page-wrap { max-width: 1100px; margin: 0 auto; padding: 2rem 1.2rem; display: grid; grid-template-columns: 220px 1fr; gap: 1.5rem; align-items: start; }
 
-    .danger-zone{border:1px solid var(--danger);border-radius:12px;padding:1.5rem;background:#fef2f2}
-    .email-display { background: #f3f4f6; padding: 0.8rem; border-radius: 8px; border: 1px solid #d1d5db; display: flex; justify-content: space-between; align-items: center; }
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: .8rem 0;
+      position: sticky; top: 76px;
+      box-shadow: 0 2px 8px rgba(0,0,0,.05);
+      animation: fadeInLeft .5s ease;
+    }
+    .sidebar ul { list-style: none; }
+    .sidebar ul li a {
+      display: flex; align-items: center; gap: .7rem;
+      padding: .75rem 1.2rem;
+      font-weight: 500; font-size: .95rem; color: #374151;
+      border-radius: 0; transition: all .2s;
+      border-left: 3px solid transparent;
+    }
+    .sidebar ul li a:hover { background: #f3f4f6; color: #111827; }
+    .sidebar ul li a.active { background: #eff6ff; color: #2563eb; font-weight: 700; border-left-color: #2563eb; }
 
-    /* Toggle Switch */
-    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+    /* ===== MAIN CONTENT ===== */
+    .main-content { min-width: 0; }
+
+    /* ===== TAB SECTIONS ===== */
+    .tab-section { display: none; }
+    .tab-section.active-tab { display: block; animation: fadeInUp .35s ease; }
+
+    /* ===== PAGE HEADER ===== */
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .page-header h2 { font-size: 1.5rem; font-weight: 800; color: #111827; }
+
+    /* ===== BUTTONS ===== */
+    .btn { display: inline-flex; align-items: center; gap: .4rem; padding: .6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: .9rem; cursor: pointer; border: none; transition: all .2s; }
+    .btn-primary { background: #2563eb; color: #fff; }
+    .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37,99,235,.35); }
+    .btn-outline { background: #fff; color: #374151; border: 1.5px solid #d1d5db; }
+    .btn-outline:hover { background: #f9fafb; border-color: #9ca3af; }
+    .btn-danger { background: #fff; color: #dc2626; border: 1.5px solid #dc2626; }
+    .btn-danger:hover { background: #fef2f2; }
+
+    /* ===== PANEL / CARD ===== */
+    .panel {
+      background: #fff; border: 1px solid #e5e7eb;
+      border-radius: 14px; padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 1px 4px rgba(0,0,0,.04);
+      transition: box-shadow .25s, transform .25s;
+    }
+    .panel:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); }
+
+    /* ===== EMPTY STATE ===== */
+    .empty-state {
+      background: #fff; border: 2px dashed #d1d5db;
+      border-radius: 14px; padding: 3rem 1.5rem;
+      text-align: center; color: #6b7280;
+    }
+    .empty-state .empty-icon { font-size: 2.8rem; margin-bottom: .8rem; }
+    .empty-state h3 { color: #111827; font-size: 1.1rem; margin-bottom: .4rem; }
+    .empty-state p { font-size: .9rem; margin-bottom: 1rem; }
+
+    /* ===== TAG CARDS ===== */
+    .tag-card {
+      background: #fff; border: 1px solid #e5e7eb;
+      border-radius: 14px; padding: 1.2rem 1.4rem;
+      margin-bottom: .9rem;
+      display: flex; gap: 1rem; align-items: flex-start;
+      transition: box-shadow .25s, border-color .25s, transform .25s;
+      animation: fadeInUp .4s ease both;
+    }
+    .tag-card:hover { box-shadow: 0 8px 24px rgba(37,99,235,.12); border-color: #93c5fd; transform: translateY(-2px); }
+
+    .qr-box {
+      width: 88px; height: 88px; min-width: 88px;
+      background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+      border-radius: 10px; overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; color: #9ca3af; text-align: center;
+    }
+    .qr-box img { width: 88px; height: 88px; border-radius: 10px; cursor: pointer; display: block; transition: transform .2s; }
+    .qr-box img:hover { transform: scale(1.05); }
+
+    .qr-loading {
+      background: linear-gradient(90deg, #f3f4f6 25%, #e9eaec 50%, #f3f4f6 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 10px; width: 88px; height: 88px;
+    }
+
+    .tag-info { flex: 1; min-width: 0; }
+    .tag-code-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 7px; }
+    .tag-code-text { font-size: 1rem; font-weight: 800; color: #111827; letter-spacing: .4px; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .badge-vehicle { background: #dbeafe; color: #1d4ed8; }
+    .badge-pet     { background: #fce7f3; color: #be185d; }
+    .badge-active  { background: #d1fae5; color: #065f46; }
+    .badge-hidden  { background: #fee2e2; color: #991b1b; }
+    .tag-meta { font-size: 13px; color: #4b5563; margin-bottom: 3px; }
+    .tag-date { font-size: 11px; color: #9ca3af; margin: 5px 0 10px; }
+
+    .tag-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .act-btn {
+      padding: 5px 13px; border-radius: 7px;
+      font-size: 12px; font-weight: 600; cursor: pointer;
+      transition: all .18s; border: 1.5px solid;
+    }
+    .act-btn-primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+    .act-btn-primary:hover { background: #1d4ed8; }
+    .act-btn-outline { background: #fff; color: #374151; border-color: #d1d5db; }
+    .act-btn-outline:hover { background: #f3f4f6; border-color: #9ca3af; }
+
+    /* ===== LOADING SPINNER ===== */
+    .loading-wrap { text-align: center; padding: 2.5rem 1rem; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #e5e7eb; border-top-color: #2563eb; border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem; }
+    .loading-text { color: #6b7280; font-size: .9rem; line-height: 1.6; }
+
+    /* ===== FORMS ===== */
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+    .form-group { margin-bottom: 1.1rem; }
+    .form-group label { display: block; font-weight: 600; font-size: .875rem; color: #374151; margin-bottom: .4rem; }
+    .form-control {
+      width: 100%; padding: .7rem .9rem;
+      border: 1.5px solid #d1d5db; border-radius: 8px;
+      font-size: .95rem; color: #111827;
+      transition: border-color .2s, box-shadow .2s; outline: none;
+    }
+    .form-control:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+    .email-display {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #f9fafb; border: 1.5px solid #e5e7eb;
+      border-radius: 8px; padding: .65rem .9rem;
+    }
+
+    /* ===== OTP FLOW ===== */
+    .otp-box {
+      background: #fdf2f8; border: 1.5px solid #f9a8d4;
+      border-radius: 10px; padding: 1.2rem 1.4rem; margin-bottom: 1.2rem;
+    }
+    .otp-box h4 { color: #be185d; margin-bottom: .6rem; }
+
+    /* ===== BILLING ===== */
+    .plan-card {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 2px solid #93c5fd; border-radius: 14px;
+      padding: 1.2rem 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1rem; gap: 1rem;
+      animation: fadeInUp .4s ease;
+    }
+    .plan-name { font-size: 1.2rem; font-weight: 800; color: #1d4ed8; }
+    .plan-expiry { font-size: 13px; color: #6b7280; margin-top: 3px; }
+
+    .order-panel { background: #fff; border: 1px solid #e5e7eb; border-radius: 14px; padding: 1.4rem 1.5rem; margin-top: 1.2rem; }
+    .order-panel h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: .4rem; }
+    .offer-box { background: #fefce8; border-left: 4px solid #f59e0b; padding: .7rem 1rem; border-radius: 6px; font-size: .875rem; margin: .9rem 0; }
+    .qty-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: .9rem 0; }
+    .qty-grid label { font-weight: 600; font-size: .875rem; display: block; margin-bottom: 4px; color: #374151; }
+    .addr-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: .5rem; margin-bottom: .9rem; }
+    .price-box { background: #f9fafb; border-radius: 8px; padding: .9rem 1rem; margin-bottom: 1rem; font-size: .9rem; line-height: 1.8; border: 1px solid #e5e7eb; }
+    .price-box strong { color: #2563eb; }
+
+    /* ===== SETTINGS ===== */
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #f3f4f6; }
+    .toggle-row:last-child { border-bottom: none; }
+    .toggle-label strong { display: block; font-weight: 600; font-size: .9rem; }
+    .toggle-label span { font-size: .8rem; color: #6b7280; }
+    .switch { position: relative; display: inline-block; width: 46px; height: 24px; flex-shrink: 0; }
     .switch input { opacity: 0; width: 0; height: 0; }
-    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
-    .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-    input:checked + .slider { background-color: var(--success); }
-    input:checked + .slider:before { transform: translateX(24px); }
+    .slider { position: absolute; cursor: pointer; inset: 0; background: #d1d5db; transition: .3s; border-radius: 34px; }
+    .slider::before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: #fff; transition: .3s; border-radius: 50%; }
+    input:checked + .slider { background: #2563eb; }
+    input:checked + .slider::before { transform: translateX(22px); }
+    .danger-zone { border: 1.5px solid #fca5a5; border-radius: 12px; padding: 1.2rem 1.4rem; background: #fef2f2; margin-top: 1rem; }
+    .danger-zone h3 { color: #dc2626; margin-bottom: .4rem; font-size: 1rem; }
+    .danger-zone p { font-size: .875rem; color: #991b1b; margin-bottom: .9rem; }
 
-    @media (max-width: 768px){.controls-grid,.form-row{grid-template-columns:1fr}}
+    /* ===== QR MODAL ===== */
+    .qr-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.6); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .qr-modal-box {
+      background: #fff; border-radius: 18px; padding: 2rem;
+      max-width: 310px; width: 90%; text-align: center;
+      box-shadow: 0 24px 60px rgba(0,0,0,.3);
+      animation: fadeInUp .3s ease;
+    }
+    .qr-modal-box h3 { font-size: 1rem; font-weight: 700; margin-bottom: 3px; }
+    .qr-modal-box p { color: #6b7280; font-size: 13px; margin-bottom: 14px; }
+    .qr-modal-box img { width: 210px; height: 210px; border-radius: 12px; border: 4px solid #f3f4f6; }
+    .qr-modal-btns { display: flex; gap: 10px; justify-content: center; margin-top: 1rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 768px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .sidebar { position: static; display: flex; overflow-x: auto; padding: .5rem; }
+      .sidebar ul { display: flex; gap: .3rem; }
+      .sidebar ul li a { padding: .5rem .9rem; font-size: .85rem; border-left: none; border-bottom: 2px solid transparent; border-radius: 8px; }
+      .sidebar ul li a.active { border-bottom-color: #2563eb; }
+      .form-row, .qty-grid { grid-template-columns: 1fr; }
+      .addr-grid { grid-template-columns: 1fr; }
+      .tag-card { flex-direction: column; }
+      .qr-box, .qr-box img, .qr-loading { width: 100%; height: auto; min-height: 80px; }
+    }
   </style>
 
   <script>
@@ -44,547 +261,460 @@
   </script>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="container">
-      <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
-      <div style="display:flex;align-items:center;gap:1rem;">
-        <span style="font-weight:500;" id="user-greeting">Hi, User</span>
-        <button onclick="logout()" style="background:none;border:1px solid #ddd;padding:5px 10px;border-radius:5px;cursor:pointer;">Logout</button>
-      </div>
-    </div>
-  </nav>
 
-  <div class="container">
-    <div class="dashboard-grid">
-      <aside class="sidebar">
-        <ul>
-          <li><a href="#" id="nav-tags" class="active" onclick="switchTab('tags')">📦 My Tags</a></li>
-          <li><a href="#" id="nav-profile" onclick="switchTab('profile')">👤 Profile</a></li>
-          <li><a href="#" id="nav-billing" onclick="switchTab('billing')">💳 Billing</a></li>
-          <li><a href="#" id="nav-settings" onclick="switchTab('settings')">⚙️ Settings</a></li>
-        </ul>
-      </aside>
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+  <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+  <div class="nav-right">
+    <span class="nav-greeting" id="user-greeting">Hi, User</span>
+    <button class="btn-logout" onclick="logout()">Logout</button>
+  </div>
+</nav>
 
-      <main class="main-content">
-        <!-- TAGS -->
-        <section id="tags-section" class="tab-section active-tab">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;">
-            <h2>My Tags</h2>
-            <a href="vehicle.html" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.9rem;">+ Buy Tag</a>
-          </div>
-          <div id="tags-loading" style="text-align:center;color:#666;">Loading your tags...</div>
-          <div id="tags-empty" class="empty-block" style="display:none;">
-            <div style="font-size:2.2rem;">🛒</div>
-            <h3>No tags yet</h3>
-            <p>Buy a Vehicle Tag or Pet Tag to start using ContactKar.</p>
-            <div style="display:flex;gap:10px;justify-content:center;margin-top:1rem;flex-wrap:wrap;">
-              <a href="vehicle.html" class="btn btn-primary">Get Vehicle Tag</a>
-              <a href="pet.html" class="btn btn-pet">Get Pet Tag</a>
-            </div>
-          </div>
-          <div id="tags-list"></div>
-        </section>
-
-        <!-- PROFILE -->
-        <section id="profile-section" class="tab-section">
-          <h2 style="margin-bottom:1.5rem;">Profile</h2>
-          <div class="panel">
-            <div class="form-group" style="margin-bottom: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 1.5rem;">
-                <label>Login Email Address</label>
-                <div class="email-display">
-                    <!-- This span will now correctly show your real email -->
-                    <span id="display-email" style="font-weight: bold;">Loading...</span>
-                    <button type="button" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;" onclick="openEmailOTPFlow()">Change Email</button>
-                </div>
-                <small style="color: #6b7280; display: block; margin-top: 5px;">Your primary email used for login and invoices.</small>
-            </div>
-
-            <!-- OTP Flow -->
-            <div id="otp-flow" style="display: none; background: #fdf2f8; border: 1px solid var(--pet-color); padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem;">
-                <h4 style="margin-bottom: 10px; color: var(--pet-dark);">Verify Identity</h4>
-                
-                <!-- STEP 1 -->
-                <div id="otp-step-1">
-                    <p style="font-size: 0.9rem; color: #4b5563; margin-bottom: 10px;">We will send a One-Time Password (OTP) to: <b id="otp-target-email"></b></p>
-                    <button type="button" id="send-otp-btn" class="btn btn-primary" onclick="sendRealOTP()">Send OTP</button>
-                </div>
-
-                <!-- STEP 2 -->
-                <div id="otp-step-2" style="display: none;">
-                    <div class="form-group">
-                        <label>Enter 6-digit OTP</label>
-                        <input type="text" id="otp-input" placeholder="123456" maxlength="6" style="letter-spacing: 5px; font-weight: bold; text-align: center; margin-bottom: 10px;">
-                    </div>
-                    <button type="button" class="btn btn-primary" onclick="verifyOTP()">Verify Code</button>
-                </div>
-                
-                <!-- STEP 3 -->
-                <div id="otp-step-3" style="display: none;">
-                    <p style="color: #10b981; font-weight: bold; margin-bottom: 10px;">✅ Verified!</p>
-                    <div class="form-group">
-                        <label>Enter New Email</label>
-                        <input type="email" id="new-email-input" placeholder="new@example.com">
-                    </div>
-                    <button type="button" class="btn btn-pet" onclick="saveNewEmail()">Update Email</button>
-                </div>
-
-                <div style="margin-top: 15px;">
-                    <button type="button" class="btn btn-outline" style="border: none;" onclick="cancelEmailFlow()">Cancel</button>
-                </div>
-            </div>
-
-            <form onsubmit="saveProfile(event)">
-              <div class="form-row">
-                <div class="form-group">
-                  <label>Full name</label>
-                  <input id="profile-name" type="text" placeholder="Your name" required />
-                </div>
-                <div class="form-group">
-                  <label>Phone number</label>
-                  <input id="profile-phone" type="tel" placeholder="+91 98765 43210" />
-                </div>
-              </div>
-              <button class="btn btn-primary" type="submit" id="profile-save-btn">Save Basic Info</button>
-              <span id="profile-save-msg" style="margin-left:10px;color:#10b981;font-weight:600;"></span>
-            </form>
-          </div>
-        </section>
-
-        <!-- BILLING (Restored buttons!) -->
-        <section id="billing-section" class="tab-section">
-          <h2 style="margin-bottom:1.5rem;">Billing</h2>
-          
-          <div id="subscription-empty" class="empty-block">
-            <div style="font-size:2.2rem;">🧾</div>
-            <h3>No active subscription</h3>
-            <p>You are on the free plan.</p>
-            <button class="btn btn-primary" style="margin-top: 10px;">Upgrade Plan</button>
-          </div>
-
-          <div id="payment-empty" class="empty-block" style="margin-top: 1rem;">
-            <div style="font-size:2.2rem;">💳</div>
-            <h3>No payment methods</h3>
-            <p>Securely save cards for faster checkout.</p>
-            <button class="btn btn-outline" style="margin-top: 10px;">+ Add Card</button>
-          </div>
-
-          <div id="orders-empty" class="empty-block" style="margin-top: 1rem;">
-            <div style="font-size:2.2rem;">📦</div>
-            <h3>No orders yet</h3>
-            <button class="btn btn-outline" style="margin-top: 10px;">View Shop</button>
-          </div>
-        </section>
-<!-- Hard Copy Order Section -->
-<div class="order-section bg-white p-6 rounded-lg shadow-md mt-6">
-    <h2 class="text-2xl font-bold mb-4">Order Hard Copy Tags</h2>
-    <p class="text-gray-600 mb-4">Get physical PVC sticker/locket tags delivered to your doorstep. ₹149 per delivery.</p>
-    
-    <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6">
-        <strong>🔥 Bulk Offers:</strong><br>
-        Order 3 tags -> Get 1 Delivery <strong>FREE</strong><br>
-        Order 5 tags -> Get 2 Deliveries <strong>FREE</strong>
-    </div>
-
-    <div class="grid grid-cols-2 gap-4 mb-6">
-        <div>
-            <label class="block font-bold mb-2">🚗 Vehicle Tags</label>
-            <input type="number" id="vehicleQty" min="0" value="0" class="w-full border p-2 rounded" onchange="calculateTotal()">
-        </div>
-        <div>
-            <label class="block font-bold mb-2">🐶 Pet Tags</label>
-            <input type="number" id="petQty" min="0" value="0" class="w-full border p-2 rounded" onchange="calculateTotal()">
-        </div>
-    </div>
-
-    <!-- Shipping Details -->
-    <h3 class="font-bold mb-2">Shipping Address</h3>
-    <input type="text" id="address" placeholder="Street Address" class="w-full border p-2 rounded mb-2">
-    <div class="grid grid-cols-3 gap-2 mb-6">
-        <input type="text" id="city" placeholder="City" class="border p-2 rounded">
-        <input type="text" id="state" placeholder="State" class="border p-2 rounded">
-        <input type="text" id="pincode" placeholder="Pincode" class="border p-2 rounded">
-    </div>
-
-    <!-- Price Calculator -->
-    <div class="bg-gray-50 p-4 rounded mb-6 text-lg">
-        <p>Total Tags: <span id="totalTagsDisplay" class="font-bold">0</span></p>
-        <p>Delivery Cost: <span id="costDisplay" class="font-bold text-green-600">₹0</span> 
-           <span id="savingsDisplay" class="text-sm text-red-500 ml-2 font-bold"></span>
-        </p>
-    </div>
-
-    <button onclick="placeOrder()" class="bg-blue-600 text-white px-6 py-2 rounded font-bold w-full hover:bg-blue-700">
-        Proceed to Pay
-    </button>
-</div>
-
-        <!-- SETTINGS (Restored Toggles!) -->
-        <section id="settings-section" class="tab-section">
-          <h2 style="margin-bottom:1.5rem;">Settings</h2>
-          
-          <div class="panel">
-            <h3 style="margin-bottom:1rem;">Notifications</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid #e5e7eb;">
-              <div>
-                <strong>Email alerts</strong>
-                <div style="font-size:.9rem;color:#6b7280;">Receive email when someone contacts you.</div>
-              </div>
-              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:1rem 0;">
-              <div>
-                <strong>WhatsApp/SMS alerts</strong>
-                <div style="font-size:.9rem;color:#6b7280;">Receive WhatsApp/SMS for scans.</div>
-              </div>
-              <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
-            </div>
-          </div>
-
-          <div class="danger-zone">
-            <h3 style="color:var(--danger);margin-bottom:0.5rem;">Danger zone</h3>
-            <p style="margin-bottom:1rem;font-size:0.9rem;color:#991b1b;">Delete account will disable all your tags and remove your data.</p>
-            <button class="btn" style="background:#fff;border:1px solid var(--danger);color:var(--danger);font-weight:700;" onclick="confirmDelete()">Delete account</button>
-          </div>
-        </section>
-      </main>
+<!-- ===== QR MODAL ===== -->
+<div id="qrModalOverlay" class="qr-modal-overlay" onclick="if(event.target===this)this.style.display='none';">
+  <div class="qr-modal-box">
+    <h3 id="qrMTitle"></h3>
+    <p>Scan to open your contact page</p>
+    <img id="qrMImg" src="" alt="QR Code"/>
+    <div class="qr-modal-btns">
+      <a id="qrMDownload" download class="btn btn-primary" style="font-size:13px;padding:7px 18px;">⬇ Download</a>
+      <button onclick="document.getElementById('qrModalOverlay').style.display='none';" class="btn btn-outline" style="font-size:13px;padding:7px 18px;">✕ Close</button>
     </div>
   </div>
+</div>
 
-  <script src="nav_logic.js"></script>
-  <script>
-    const API_URL = 'https://contactkar.onrender.com/api';
+<!-- ===== MAIN LAYOUT ===== -->
+<div class="page-wrap">
 
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active-tab'));
-      document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-      document.getElementById(tabId + '-section').classList.add('active-tab');
-      document.getElementById('nav-' + tabId).classList.add('active');
-    }
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <ul>
+      <li><a href="#" id="nav-tags"     class="active" onclick="switchTab('tags');return false;">📦 My Tags</a></li>
+      <li><a href="#" id="nav-profile"           onclick="switchTab('profile');return false;">👤 Profile</a></li>
+      <li><a href="#" id="nav-billing"           onclick="switchTab('billing');return false;">💳 Billing</a></li>
+      <li><a href="#" id="nav-settings"          onclick="switchTab('settings');return false;">⚙️ Settings</a></li>
+    </ul>
+  </aside>
 
-    // --- LOAD USER DATA CORRECTLY ---
-    const userName = localStorage.getItem('userName') || 'User';
-    // FIXED: Now we check if userEmail exists, otherwise fallback to "Not Set"
-    const userEmail = localStorage.getItem('userEmail') || 'Not Set';
-    
-    document.getElementById('user-greeting').innerText = `Hi, ${userName}`;
-    document.getElementById('profile-name').value = userName;
-    document.getElementById('profile-phone').value = localStorage.getItem('userPhone') || '';
-    
-    // FIXED: Display the real email
-    document.getElementById('display-email').innerText = userEmail; 
-    document.getElementById('otp-target-email').innerText = userEmail;
+  <!-- MAIN -->
+  <main class="main-content">
 
-    function saveProfile(e) {
-      e.preventDefault();
-      const btn = document.getElementById('profile-save-btn');
-      const msg = document.getElementById('profile-save-msg');
-      btn.disabled = true;
-      msg.textContent = 'Saving...';
-      const newName = document.getElementById('profile-name').value.trim();
-      const phone = document.getElementById('profile-phone').value.trim();
-      localStorage.setItem('userName', newName);
-      localStorage.setItem('userPhone', phone);
-      document.getElementById('user-greeting').innerText = `Hi, ${newName || 'User'}`;
-      setTimeout(() => {
-        btn.disabled = false;
-        msg.textContent = 'Saved';
-        setTimeout(() => (msg.textContent = ''), 1200);
-      }, 350);
-    }
+    <!-- ========== MY TAGS ========== -->
+    <section id="tags-section" class="tab-section active-tab">
+      <div class="page-header">
+        <h2>📦 My Tags</h2>
+        <a href="vehicle.html" class="btn btn-primary">+ Buy Tag</a>
+      </div>
 
-    // --- REAL OTP LOGIC (Requires Backend Email Service) ---
-    function openEmailOTPFlow() {
-        document.getElementById('otp-flow').style.display = 'block';
-        document.getElementById('otp-step-1').style.display = 'block';
-        document.getElementById('otp-step-2').style.display = 'none';
-        document.getElementById('otp-step-3').style.display = 'none';
-    }
-    function cancelEmailFlow() {
-        document.getElementById('otp-flow').style.display = 'none';
-        document.getElementById('otp-input').value = '';
-        document.getElementById('new-email-input').value = '';
-    }
+      <div id="tags-loading" class="loading-wrap">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-msg">Connecting to server...<br><small style="color:#9ca3af;">(may take ~15s if server was sleeping)</small></div>
+        <button onclick="fetchMyTags()" style="margin-top:12px;padding:7px 18px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;">🔄 Retry</button>
+      </div>
 
-   async function sendRealOTP() {
-    const btn = document.getElementById('send-otp-btn');
-    btn.innerText = "Sending OTP...";
-    btn.disabled = true;
-    const token = localStorage.getItem('token');
+      <div id="tags-empty" class="empty-state" style="display:none;">
+        <div class="empty-icon">🛒</div>
+        <h3>No tags yet</h3>
+        <p>Buy a Vehicle Tag or Pet Tag to start using ContactKar.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+          <a href="vehicle.html" class="btn btn-primary">🚗 Get Vehicle Tag</a>
+        </div>
+      </div>
 
-    try {
-        const res = await fetch(API_URL + '/auth/send-change-email-otp', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        const data = await res.json();
-        if (data.success) {
-            alert(`OTP sent to your current email (${userEmail})! Check your inbox.`);
-            document.getElementById('otp-step-1').style.display = 'none';
-            document.getElementById('otp-step-2').style.display = 'block';
-        } else {
-            alert('Failed: ' + data.error);
-        }
-    } catch (e) {
-        alert("Server error. Check Render logs.");
-    }
-    btn.innerText = "Send OTP";
-    btn.disabled = false;
+      <div id="tags-list"></div>
+    </section>
+
+    <!-- ========== PROFILE ========== -->
+    <section id="profile-section" class="tab-section">
+      <div class="page-header"><h2>👤 Profile</h2></div>
+
+      <div class="panel">
+        <div class="form-group" style="padding-bottom:1.2rem;margin-bottom:1.2rem;border-bottom:1px solid #f3f4f6;">
+          <label>Login Email</label>
+          <div class="email-display">
+            <span id="display-email" style="font-weight:700;">Loading...</span>
+            <button class="btn btn-outline" style="font-size:.8rem;padding:5px 12px;" onclick="openEmailOTPFlow()">Change</button>
+          </div>
+          <small style="color:#9ca3af;margin-top:5px;display:block;">Used for login and notifications.</small>
+        </div>
+
+        <!-- OTP Flow -->
+        <div id="otp-flow" style="display:none;" class="otp-box">
+          <h4>🔐 Verify Identity</h4>
+          <div id="otp-step-1">
+            <p style="font-size:.875rem;color:#4b5563;margin-bottom:10px;">OTP will be sent to: <b id="otp-target-email"></b></p>
+            <button id="send-otp-btn" class="btn btn-primary" onclick="sendRealOTP()">Send OTP</button>
+          </div>
+          <div id="otp-step-2" style="display:none;">
+            <div class="form-group">
+              <label>Enter 6-digit OTP</label>
+              <input type="text" id="otp-input" placeholder="••••••" maxlength="6" class="form-control" style="letter-spacing:6px;font-weight:700;text-align:center;">
+            </div>
+            <button class="btn btn-primary" onclick="verifyOTP()">Verify Code</button>
+          </div>
+          <div id="otp-step-3" style="display:none;">
+            <p style="color:#10b981;font-weight:700;margin-bottom:10px;">✅ Verified!</p>
+            <div class="form-group">
+              <label>Enter New Email</label>
+              <input type="email" id="new-email-input" placeholder="new@example.com" class="form-control">
+            </div>
+            <button class="btn btn-primary" onclick="saveNewEmail()">Update Email</button>
+          </div>
+          <button onclick="cancelEmailFlow()" style="margin-top:10px;background:none;border:none;color:#6b7280;font-size:.85rem;cursor:pointer;">✕ Cancel</button>
+        </div>
+
+        <form onsubmit="saveProfile(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Full Name</label>
+              <input id="profile-name" type="text" class="form-control" placeholder="Your name" required/>
+            </div>
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input id="profile-phone" type="tel" class="form-control" placeholder="+91 98765 43210"/>
+            </div>
+          </div>
+          <button class="btn btn-primary" type="submit" id="profile-save-btn">Save Changes</button>
+          <span id="profile-save-msg" style="margin-left:10px;color:#10b981;font-weight:600;font-size:.875rem;"></span>
+        </form>
+      </div>
+    </section>
+
+    <!-- ========== BILLING ========== -->
+    <section id="billing-section" class="tab-section">
+      <div class="page-header"><h2>💳 Billing</h2></div>
+
+      <div id="plan-card" style="display:none;" class="plan-card">
+        <div>
+          <div class="plan-name" id="plan-name-display">Basic</div>
+          <div class="plan-expiry" id="plan-expiry-display">Valid until --</div>
+        </div>
+        <a href="vehicle.html" class="btn btn-primary">⬆ Upgrade</a>
+      </div>
+
+      <div id="no-plan" class="empty-state" style="margin-bottom:1rem;">
+        <div class="empty-icon">🧾</div>
+        <h3>No active subscription</h3>
+        <p>You are on the free plan. Upgrade to unlock more tags.</p>
+        <a href="vehicle.html" class="btn btn-primary">Choose a Plan</a>
+      </div>
+
+      <!-- Order Hard Copy -->
+      <div class="order-panel">
+        <h3>🖨️ Order Hard Copy Tags</h3>
+        <p style="color:#6b7280;font-size:.875rem;margin-top:4px;">Get physical PVC sticker tags delivered to your door. ₹149 per delivery.</p>
+        <div class="offer-box">
+          🔥 <strong>Bulk Offers:</strong> Order 3 tags → 1 FREE delivery &nbsp;|&nbsp; Order 5 tags → 2 FREE deliveries
+        </div>
+        <div class="qty-grid">
+          <div><label>🚗 Vehicle Tags</label><input type="number" id="vehicleQty" min="0" value="0" class="form-control" onchange="calculateTotal()"></div>
+          <div><label>🐾 Pet Tags</label><input type="number" id="petQty" min="0" value="0" class="form-control" onchange="calculateTotal()"></div>
+        </div>
+        <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.6rem;color:#374151;">📦 Shipping Address</h4>
+        <input type="text" id="address" placeholder="Street Address" class="form-control" style="margin-bottom:.5rem;">
+        <div class="addr-grid">
+          <input type="text" id="city"    placeholder="City"    class="form-control">
+          <input type="text" id="state"   placeholder="State"   class="form-control">
+          <input type="text" id="pincode" placeholder="Pincode" class="form-control">
+        </div>
+        <div class="price-box">
+          <div>Total Tags: <strong id="totalTagsDisplay">0</strong></div>
+          <div>Delivery Cost: <strong id="costDisplay">₹0</strong> <span id="savingsDisplay" style="color:#dc2626;font-size:12px;font-weight:700;"></span></div>
+        </div>
+        <button onclick="placeHardOrder()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.85rem;">Proceed to Pay</button>
+      </div>
+    </section>
+
+    <!-- ========== SETTINGS ========== -->
+    <section id="settings-section" class="tab-section">
+      <div class="page-header"><h2>⚙️ Settings</h2></div>
+
+      <div class="panel">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:.5rem;">🔔 Notifications</h3>
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <strong>Email Alerts</strong>
+            <span>Receive email when someone contacts you</span>
+          </div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-label">
+            <strong>WhatsApp / SMS Alerts</strong>
+            <span>Get notified via WhatsApp or SMS on tag scans</span>
+          </div>
+          <label class="switch"><input type="checkbox" checked><span class="slider"></span></label>
+        </div>
+      </div>
+
+      <div class="danger-zone">
+        <h3>⚠️ Danger Zone</h3>
+        <p>Deleting your account will permanently disable all tags and remove all your data. This cannot be undone.</p>
+        <button class="btn btn-danger" onclick="confirmDelete()">Delete Account</button>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+const API_URL = 'https://contactkar.onrender.com/api';
+
+// ---- Tab Switching ----
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active-tab'));
+  document.querySelectorAll('.sidebar ul li a').forEach(a => a.classList.remove('active'));
+  document.getElementById(tabId + '-section').classList.add('active-tab');
+  document.getElementById('nav-' + tabId).classList.add('active');
+  if (tabId === 'billing') fetchBillingPlan();
 }
 
+// ---- Init User ----
+const userName  = localStorage.getItem('userName')  || 'User';
+const userEmail = localStorage.getItem('userEmail') || 'Not Set';
+document.getElementById('user-greeting').innerText     = 'Hi, ' + userName + ' 👋';
+document.getElementById('profile-name').value          = userName;
+document.getElementById('profile-phone').value         = localStorage.getItem('userPhone') || '';
+document.getElementById('display-email').innerText     = userEmail;
+document.getElementById('otp-target-email').innerText  = userEmail;
+
+// ---- Logout ----
+function logout() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+}
+
+// ---- Profile ----
+function saveProfile(e) {
+  e.preventDefault();
+  const btn = document.getElementById('profile-save-btn');
+  const msg = document.getElementById('profile-save-msg');
+  btn.disabled = true; msg.textContent = 'Saving...';
+  const newName = document.getElementById('profile-name').value.trim();
+  const phone   = document.getElementById('profile-phone').value.trim();
+  localStorage.setItem('userName', newName);
+  localStorage.setItem('userPhone', phone);
+  document.getElementById('user-greeting').innerText = 'Hi, ' + (newName || 'User') + ' 👋';
+  setTimeout(() => { btn.disabled = false; msg.textContent = '✅ Saved!'; setTimeout(() => msg.textContent='', 2000); }, 400);
+}
+
+// ---- Email OTP ----
+function openEmailOTPFlow() {
+  document.getElementById('otp-flow').style.display   = 'block';
+  document.getElementById('otp-step-1').style.display = 'block';
+  document.getElementById('otp-step-2').style.display = 'none';
+  document.getElementById('otp-step-3').style.display = 'none';
+}
+function cancelEmailFlow() {
+  document.getElementById('otp-flow').style.display = 'none';
+  document.getElementById('otp-input').value = '';
+  document.getElementById('new-email-input').value = '';
+}
+async function sendRealOTP() {
+  const btn = document.getElementById('send-otp-btn');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  try {
+    const res  = await fetch(API_URL + '/auth/send-change-email-otp', { method:'POST', headers:{ Authorization:'Bearer '+localStorage.getItem('token') } });
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ OTP sent to ' + userEmail + '!');
+      document.getElementById('otp-step-1').style.display = 'none';
+      document.getElementById('otp-step-2').style.display = 'block';
+    } else alert('Failed: ' + data.error);
+  } catch(e) { alert('Server error. Check Render logs.'); }
+  btn.textContent = 'Send OTP'; btn.disabled = false;
+}
 async function verifyOTP() {
-    const otp = document.getElementById('otp-input').value;
-    const newEmail = document.getElementById('new-email-input').value;
-    const token = localStorage.getItem('token');
-    
-    if (otp.length !== 6) { alert('Enter a 6-digit OTP'); return; }
+  const otp      = document.getElementById('otp-input').value.trim();
+  const newEmail = document.getElementById('new-email-input').value.trim();
+  if (otp.length !== 6) { alert('Enter a 6-digit OTP'); return; }
+  try {
+    const res  = await fetch(API_URL + '/auth/verify-change-email-otp', { method:'POST', headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('token')}, body:JSON.stringify({otp,newEmail}) });
+    const data = await res.json();
+    if (data.success) { localStorage.setItem('userEmail',newEmail); document.getElementById('display-email').innerText=newEmail; alert('✅ Email updated!'); cancelEmailFlow(); }
+    else alert('Error: ' + data.error);
+  } catch(e) { alert('Server error'); }
+}
+function saveNewEmail() { verifyOTP(); }
 
-    try {
-        const res = await fetch(API_URL + '/auth/verify-change-email-otp', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ otp, newEmail })
-        });
-        const data = await res.json();
-        if (data.success) {
-            localStorage.setItem('userEmail', newEmail);
-            document.getElementById('display-email').innerText = newEmail;
-            alert('✅ Email updated!');
-            cancelEmailFlow();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    } catch (e) {
-        alert('Server error');
-    }
+// ---- QR Cache & Modal ----
+const qrCache = {};
+
+function showQRModal(tagCode, src) {
+  document.getElementById('qrMTitle').innerText = tagCode;
+  document.getElementById('qrMImg').src          = src;
+  document.getElementById('qrMDownload').href     = src;
+  document.getElementById('qrMDownload').download = 'ContactKar-QR-' + tagCode + '.png';
+  document.getElementById('qrModalOverlay').style.display = 'flex';
 }
 
+// ---- Load QR for a single tag ----
+async function loadQRCode(tagCode) {
+  const box = document.getElementById('qr-' + tagCode);
+  if (!box) return;
+  if (qrCache[tagCode]) { renderQR(tagCode, qrCache[tagCode]); return; }
+  try {
+    const res  = await fetch(API_URL + '/tags/' + tagCode + '/qrcode', { headers:{ Authorization:'Bearer '+localStorage.getItem('token') } });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    if (data.success && data.qr) { qrCache[tagCode] = data.qr; renderQR(tagCode, data.qr); }
+    else box.innerHTML = retryHTML(tagCode);
+  } catch(e) { if(box) box.innerHTML = retryHTML(tagCode); }
+}
 
-    // ======== QR CACHE ========
-    const qrCache = {};
+function renderQR(tagCode, src) {
+  const box = document.getElementById('qr-' + tagCode);
+  if (box) box.innerHTML = '<img src="'+src+'" alt="QR" onclick="showQRModal(''+tagCode+'',''+src+'')" title="Click to enlarge">';
+}
 
-    // ======== WAKE UP RENDER SERVER FIRST ========
-    async function wakeUpServer() {
-      try {
-        const ctrl = new AbortController();
-        const timeout = setTimeout(() => ctrl.abort(), 8000);
-        await fetch(API_URL.replace('/api','') + '/', { signal: ctrl.signal });
-        clearTimeout(timeout);
-      } catch(e) { /* ignore - just a wake ping */ }
+function retryHTML(code) {
+  return '<div style="text-align:center;font-size:11px;color:#ef4444;padding:6px;">⚠️ QR failed<br>'
+       + '<button onclick="loadQRCode(''+code+'')" style="margin-top:4px;padding:3px 9px;border:1px solid #ef4444;'
+       + 'border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button></div>';
+}
+
+// ---- Toggle tag contactable ----
+async function toggleContact(tagId, newState) {
+  try {
+    const res = await fetch(API_URL+'/tags/'+tagId+'/toggle', { method:'PUT', headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('token')}, body:JSON.stringify({isContactable:newState}) });
+    const d = await res.json();
+    if (d.success) fetchMyTags(); else alert('Failed: '+d.error);
+  } catch(e) { alert('Network error.'); }
+}
+
+// ---- Copy tag scan link ----
+function copyTagLink(tagCode) {
+  const url = 'https://contactkar.vercel.app/tag/' + tagCode;
+  if (navigator.clipboard) navigator.clipboard.writeText(url).then(()=>alert('✅ Scan link copied!'));
+  else prompt('Copy this link:', url);
+}
+
+// ---- Wake up Render server ----
+async function wakeUpServer() {
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 9000);
+    await fetch('https://contactkar.onrender.com/', { signal: ctrl.signal });
+  } catch(e) {}
+}
+
+// ---- Fetch & Render Tags ----
+async function fetchMyTags() {
+  const token   = localStorage.getItem('token');
+  const list    = document.getElementById('tags-list');
+  const loading = document.getElementById('tags-loading');
+  const empty   = document.getElementById('tags-empty');
+  const loadMsg = document.getElementById('loading-msg');
+
+  list.innerHTML = '';
+  empty.style.display   = 'none';
+  loading.style.display = 'block';
+  loadMsg.innerHTML = 'Connecting to server...<br><small style="color:#9ca3af;">May take ~15s if server was sleeping</small>';
+
+  if (!token) { loading.style.display='none'; empty.style.display='block'; return; }
+
+  await wakeUpServer();
+  loadMsg.textContent = 'Loading your tags...';
+
+  try {
+    const ctrl = new AbortController();
+    setTimeout(() => ctrl.abort(), 20000);
+
+    const res = await fetch(API_URL + '/tags/user', { headers:{ Authorization:'Bearer '+token }, signal: ctrl.signal });
+    if (res.status === 401) { alert('Session expired. Please login again.'); localStorage.clear(); window.location.href='login.html'; return; }
+
+    const data = await res.json();
+    loading.style.display = 'none';
+
+    if (!data.success || !data.tags || data.tags.length === 0) { empty.style.display='block'; return; }
+
+    list.innerHTML = data.tags.map((tag, i) => `
+      <div class="tag-card" style="animation-delay:${i*0.08}s;">
+        <div class="qr-box" id="qr-${tag.tag_code}"><div class="qr-loading"></div></div>
+        <div class="tag-info">
+          <div class="tag-code-row">
+            <span class="tag-code-text">${tag.tag_code}</span>
+            <span class="badge ${tag.type==='pet'?'badge-pet':'badge-vehicle'}">${tag.type==='pet'?'🐾 Pet':'🚗 Vehicle'}</span>
+            <span class="badge ${tag.is_contactable?'badge-active':'badge-hidden'}">${tag.is_contactable?'🟢 Active':'🔴 Hidden'}</span>
+          </div>
+          ${tag.vehicle_number   ? `<div class="tag-meta">🚗 <b>${tag.vehicle_number}</b></div>` : ''}
+          ${tag.owner_name       ? `<div class="tag-meta">👤 ${tag.owner_name}</div>` : ''}
+          ${tag.emergency_contact? `<div class="tag-meta">📞 ${tag.emergency_contact}</div>` : ''}
+          <div class="tag-date">Added: ${new Date(tag.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})}</div>
+          <div class="tag-actions">
+            <button class="act-btn act-btn-primary" onclick="if(qrCache['${tag.tag_code}'])showQRModal('${tag.tag_code}',qrCache['${tag.tag_code}']);else loadQRCode('${tag.tag_code}')">🔍 View QR</button>
+            <button class="act-btn act-btn-outline" onclick="copyTagLink('${tag.tag_code}')">🔗 Copy Link</button>
+            <button class="act-btn act-btn-outline" onclick="toggleContact(${tag.id},${!tag.is_contactable})">${tag.is_contactable?'🙈 Hide':'👁 Show'}</button>
+          </div>
+        </div>
+      </div>`).join('');
+
+    // Load all QR codes
+    data.tags.forEach(tag => loadQRCode(tag.tag_code));
+
+  } catch(e) {
+    loading.style.display = 'block';
+    loadMsg.innerHTML = e.name==='AbortError'
+      ? '⚠️ Server took too long. It may still be starting up.'
+      : '❌ Error: ' + e.message;
+  }
+}
+
+// ---- Billing Plan ----
+async function fetchBillingPlan() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  try {
+    const res  = await fetch(API_URL + '/billing/plan', { headers:{ Authorization:'Bearer '+token } });
+    const data = await res.json();
+    if (data.success && data.plan && data.plan.subscription_tier) {
+      const expiry = data.plan.subscription_expiry ? new Date(data.plan.subscription_expiry).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : 'N/A';
+      document.getElementById('plan-name-display').innerText   = data.plan.subscription_tier.toUpperCase() + ' Plan';
+      document.getElementById('plan-expiry-display').innerText = 'Valid until ' + expiry;
+      document.getElementById('plan-card').style.display = 'flex';
+      document.getElementById('no-plan').style.display   = 'none';
     }
+  } catch(e) {}
+}
 
-    // ======== LOAD QR IMAGE ========
-    async function loadQRCode(tagCode) {
-      const token = localStorage.getItem('token');
-      const box   = document.getElementById('qr-' + tagCode);
-      if (!box) return;
+// ---- Hard Copy Order ----
+function calculateTotal() {
+  const v = parseInt(document.getElementById('vehicleQty').value)||0;
+  const p = parseInt(document.getElementById('petQty').value)||0;
+  const total = v+p;
+  const free  = total>=5?2:(total>=3?1:0);
+  const cost  = Math.max(0,total-free)*149;
+  document.getElementById('totalTagsDisplay').innerText = total;
+  document.getElementById('costDisplay').innerText      = '₹'+cost;
+  document.getElementById('savingsDisplay').innerText   = free>0?'(Save ₹'+(free*149)+'!)':'';
+}
 
-      if (qrCache[tagCode]) {
-        box.innerHTML = qrImgHTML(tagCode, qrCache[tagCode]);
-        return;
-      }
+async function placeHardOrder() {
+  const token   = localStorage.getItem('token');
+  const v       = parseInt(document.getElementById('vehicleQty').value)||0;
+  const p       = parseInt(document.getElementById('petQty').value)||0;
+  const address = document.getElementById('address').value.trim();
+  const city    = document.getElementById('city').value.trim();
+  const state   = document.getElementById('state').value.trim();
+  const pincode = document.getElementById('pincode').value.trim();
+  if (v+p===0) { alert('Select at least 1 tag.'); return; }
+  if (!address||!city||!state||!pincode) { alert('Please fill in your full shipping address.'); return; }
+  try {
+    const res  = await fetch(API_URL+'/orders/place', { method:'POST', headers:{'Content-Type':'application/json',Authorization:'Bearer '+token}, body:JSON.stringify({vehicleQty:v,petQty:p,address,city,state,pincode}) });
+    const data = await res.json();
+    if (data.success) { alert('✅ Order placed! Tags will be delivered soon.'); switchTab('tags'); fetchMyTags(); }
+    else alert('Error: '+(data.error||'Unknown'));
+  } catch(e) { alert('Server error. Check Render backend.'); }
+}
 
-      try {
-        const res  = await fetch(API_URL + '/tags/' + tagCode + '/qrcode', {
-          headers: { Authorization: 'Bearer ' + token }
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (data.success && data.qr) {
-          qrCache[tagCode] = data.qr;
-          box.innerHTML = qrImgHTML(tagCode, data.qr);
-        } else {
-          box.innerHTML = retryBtn(tagCode);
-        }
-      } catch(e) {
-        box.innerHTML = retryBtn(tagCode);
-      }
-    }
+function confirmDelete() {
+  if (confirm('⚠️ This will permanently delete your account and all tags. Are you sure?')) alert('Feature coming soon.');
+}
 
-    function qrImgHTML(code, src) {
-      return '<img src="'+src+'" alt="QR" title="Click to enlarge" '
-           + 'style="width:90px;height:90px;border-radius:8px;cursor:pointer;display:block;" '
-           + 'onclick="showQRModal(''+code+'',''+src+'')">';
-    }
-
-    function retryBtn(code) {
-      return '<div style="text-align:center;font-size:11px;color:#ef4444;padding:4px;">'
-           + '⚠️ Failed<br>'
-           + '<button onclick="loadQRCode(''+code+'')" '
-           + 'style="margin-top:4px;padding:3px 10px;background:#fff;border:1px solid #ef4444;'
-           + 'border-radius:4px;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button></div>';
-    }
-
-    // ======== QR FULL-SCREEN MODAL ========
-    function showQRModal(tagCode, src) {
-      let m = document.getElementById('qrOverlay');
-      if (!m) {
-        m = document.createElement('div');
-        m.id = 'qrOverlay';
-        m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;'
-                        + 'display:flex;align-items:center;justify-content:center;';
-        m.innerHTML =
-          '<div style="background:#fff;border-radius:16px;padding:28px;max-width:310px;width:90%;'
-        + 'text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35);">'
-        + '<h3 id="qrMTitle" style="margin:0 0 4px;font-size:1rem;"></h3>'
-        + '<p style="color:#6b7280;font-size:13px;margin-bottom:14px;">Scan QR to open contact page</p>'
-        + '<img id="qrMImg" style="width:210px;height:210px;border-radius:10px;border:4px solid #f3f4f6;" />'
-        + '<div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">'
-        + '<a id="qrMDl" download style="padding:8px 20px;background:#2563eb;color:#fff;border-radius:8px;'
-        + 'text-decoration:none;font-weight:700;font-size:14px;">⬇ Download PNG</a>'
-        + '<button onclick="document.getElementById('qrOverlay').style.display='none';" '
-        + 'style="padding:8px 20px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;font-size:14px;">✕ Close</button>'
-        + '</div></div>';
-        m.addEventListener('click', e => { if(e.target===m) m.style.display='none'; });
-        document.body.appendChild(m);
-      }
-      document.getElementById('qrMTitle').innerText = tagCode;
-      document.getElementById('qrMImg').src          = src;
-      document.getElementById('qrMDl').href           = src;
-      document.getElementById('qrMDl').download       = 'ContactKar-QR-' + tagCode + '.png';
-      m.style.display = 'flex';
-    }
-
-    // ======== COPY LINK ========
-    function copyTagLink(tagCode) {
-      const url = 'https://contactkar.vercel.app/tag/' + tagCode;
-      if (navigator.clipboard) {
-        navigator.clipboard.writeText(url).then(() => alert('✅ Link copied!
-' + url));
-      } else {
-        prompt('Copy this link:', url);
-      }
-    }
-
-    // ======== TOGGLE CONTACTABLE ========
-    async function toggleContact(tagId, newState) {
-      const token = localStorage.getItem('token');
-      try {
-        const res = await fetch(API_URL + '/tags/' + tagId + '/toggle', {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-          body: JSON.stringify({ isContactable: newState })
-        });
-        const d = await res.json();
-        if (d.success) fetchMyTags();
-        else alert('Failed: ' + d.error);
-      } catch(e) { alert('Network error. Try again.'); }
-    }
-
-    // ======== MAIN: FETCH & RENDER TAGS ========
-    async function fetchMyTags() {
-      const token   = localStorage.getItem('token');
-      const list    = document.getElementById('tags-list');
-      const loading = document.getElementById('tags-loading');
-      const empty   = document.getElementById('tags-empty');
-
-      list.innerHTML  = '';
-      empty.style.display   = 'none';
-      loading.style.display = 'block';
-
-      if (!token) {
-        loading.style.display = 'none';
-        empty.style.display   = 'block';
-        return;
-      }
-
-      // Step 1: Wake up Render (free tier sleeps after inactivity)
-      loading.innerHTML = '⏳ Connecting to server... <span style="color:#9ca3af;font-size:13px;">(may take ~15s if server was sleeping)</span>'
-                        + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Retry</button>';
-      await wakeUpServer();
-
-      // Step 2: Fetch tags
-      try {
-        loading.innerHTML = '⏳ Loading your tags...';
-
-        const controller = new AbortController();
-        const timeoutId  = setTimeout(() => controller.abort(), 20000); // 20s timeout
-
-        const res = await fetch(API_URL + '/tags/user', {
-          headers: { Authorization: 'Bearer ' + token },
-          signal: controller.signal
-        });
-        clearTimeout(timeoutId);
-
-        if (res.status === 401) {
-          loading.style.display = 'none';
-          alert('Session expired. Please login again.');
-          localStorage.clear();
-          window.location.href = 'login.html';
-          return;
-        }
-
-        const data = await res.json();
-        loading.style.display = 'none';
-
-        if (!data.success || !data.tags || data.tags.length === 0) {
-          empty.style.display = 'block';
-          return;
-        }
-
-        // Step 3: Render tag cards
-        list.innerHTML = data.tags.map((tag, i) => {
-          const typeBadge = tag.type === 'pet'
-            ? '<span style="background:#fce7f3;color:#be185d;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🐾 Pet</span>'
-            : '<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🚗 Vehicle</span>';
-          const statusBadge = tag.is_contactable
-            ? '<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🟢 Active</span>'
-            : '<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🔴 Hidden</span>';
-
-          return `
-          <div class="panel" style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap;">
-            <div id="qr-${tag.tag_code}"
-                 style="width:90px;height:90px;min-width:90px;background:#f3f4f6;border-radius:10px;
-                        display:flex;align-items:center;justify-content:center;
-                        font-size:11px;color:#9ca3af;overflow:hidden;text-align:center;">
-              ⏳
-            </div>
-            <div style="flex:1;min-width:160px;">
-              <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
-                <strong style="font-size:1rem;">${tag.tag_code}</strong>
-                ${typeBadge} ${statusBadge}
-              </div>
-              ${tag.vehicle_number   ? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">🚗 <b>'+tag.vehicle_number+'</b></div>' : ''}
-              ${tag.owner_name       ? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">👤 '+tag.owner_name+'</div>' : ''}
-              ${tag.emergency_contact? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">📞 '+tag.emergency_contact+'</div>' : ''}
-              <div style="font-size:11px;color:#9ca3af;margin-bottom:10px;">
-                Added: ${new Date(tag.created_at).toLocaleDateString('en-IN')}
-              </div>
-              <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button onclick="if(qrCache['${tag.tag_code}'])showQRModal('${tag.tag_code}',qrCache['${tag.tag_code}']);else loadQRCode('${tag.tag_code}')"
-                  style="padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                  🔍 View QR</button>
-                <button onclick="copyTagLink('${tag.tag_code}')"
-                  style="padding:5px 12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                  🔗 Copy Link</button>
-                <button onclick="toggleContact(${tag.id},${!tag.is_contactable})"
-                  style="padding:5px 12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
-                  ${tag.is_contactable ? '🙈 Hide Tag' : '👁 Show Tag'}</button>
-              </div>
-            </div>
-          </div>`;
-        }).join('');
-
-        // Step 4: Load QR codes for ALL tags
-        data.tags.forEach(tag => loadQRCode(tag.tag_code));
-
-      } catch (e) {
-        if (e.name === 'AbortError') {
-          loading.style.display = 'block';
-          loading.innerHTML = '⚠️ Server took too long to respond (Render may be starting up).'
-                            + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;'
-                            + 'background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Try Again</button>';
-        } else {
-          loading.style.display = 'block';
-          loading.innerHTML = '❌ Error: ' + e.message
-                            + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;'
-                            + 'background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Retry</button>';
-        }
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', fetchMyTags);
-
-  </script>
-<script src="dashboard.js"></script>
+// ---- On Load ----
+document.addEventListener('DOMContentLoaded', fetchMyTags);
+</script>
 </body>
 </html>
