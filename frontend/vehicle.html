@@ -1,211 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Vehicle Tags - ContactKar</title>
-    <link rel="stylesheet" href="styles_v2.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Vehicle Tags - ContactKar</title>
+  <link rel="stylesheet" href="styles_v2.css"/>
+  <link rel="stylesheet" href="globalanimations.css"/>
+  <style>
+    .scroll-anim { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .scroll-anim.visible { opacity: 1; transform: translateY(0); }
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
+    .step-card { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); text-align: center; }
+    .step-num { background: var(--primary); color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-bottom: .8rem; }
+    .test-badge { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 6px; }
+  </style>
 </head>
+<body>
 
-
-<!-- ====== PRICING SECTION ====== -->
-<section id="pricing" style="padding:4rem 0; background:#f8faff;">
+<nav class="navbar">
   <div class="container">
-    <h2 style="text-align:center; margin-bottom:0.5rem;">Choose Your Plan</h2>
-    <p style="text-align:center; color:#6b7280; margin-bottom:2rem;">All plans include a Soft Copy QR Code. Hard copy delivery available as add-on.</p>
+    <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+    <ul class="nav-menu">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="vehicle.html" class="nav-link active">Vehicle Tags</a></li>
+      <li><a href="pet.html" class="nav-link">Pet Tags</a></li>
+    </ul>
+    <div>
+      <a href="login.html" id="loginBtn" class="btn-nav btn-login">Login / Sign Up</a>
+      <a href="dashboard.html" id="accountBtn" class="btn-nav btn-account">My Account</a>
+    </div>
+  </div>
+</nav>
 
-    <div class="pricing-grid" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:20px; max-width:900px; margin:0 auto;">
-      <!-- Basic -->
-      <div class="tier-card" style="border:2px solid #e5e7eb; border-radius:12px; padding:24px; text-align:center; background:white;">
-        <h3 style="margin:0 0 8px;">Basic</h3>
-        <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">1 Vehicle Tag</p>
-        <div style="font-size:14px; color:#9ca3af; text-decoration:line-through;">₹99/year</div>
-        <div style="font-size:36px; font-weight:800; color:#111827; margin:4px 0;">₹0</div>
-        <div style="font-size:12px; font-weight:bold; color:red; margin-bottom:16px;">TESTING MODE - FREE</div>
-        <ul style="list-style:none; padding:0; text-align:left; margin-bottom:20px;">
-          <li style="margin-bottom:8px;">✅ 1 Vehicle Tag</li>
-          <li style="margin-bottom:8px;">✅ Voice Call Alerts</li>
-          <li style="margin-bottom:8px;">✅ 1 Emergency Contact</li>
-          <li style="margin-bottom:8px;">✅ Soft Copy QR Code</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%;" onclick="openSetupModal('basic')">Get Basic Free</button>
-      </div>
+<header class="hero anim-fade-down" style="background:#eff6ff;">
+  <div class="container">
+    <div class="hero-icon" style="font-size:3.5rem;margin-bottom:1rem;">🚗</div>
+    <h1 style="color:var(--primary-dark);">Never Get Stuck in Parking Again</h1>
+    <p>Smart QR Tags + Number Plate Search for your Car, Bike, or Truck.</p>
+    <a href="#pricing" class="btn btn-primary">See Plans</a>
+  </div>
+</header>
 
-      <!-- Plus -->
-      <div class="tier-card" style="border:2px solid #2563eb; border-radius:12px; padding:24px; text-align:center; background:white; position:relative;">
-        <div style="position:absolute; top:-12px; left:50%; transform:translateX(-50%); background:#2563eb; color:white; padding:4px 14px; border-radius:20px; font-size:12px; font-weight:bold; white-space:nowrap;">MOST POPULAR</div>
-        <h3 style="margin:0 0 8px;">Plus</h3>
-        <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">Up to 3 Tags</p>
-        <div style="font-size:14px; color:#9ca3af; text-decoration:line-through;">₹249/year</div>
-        <div style="font-size:36px; font-weight:800; color:#111827; margin:4px 0;">₹0</div>
-        <div style="font-size:12px; font-weight:bold; color:red; margin-bottom:16px;">TESTING MODE - FREE</div>
-        <ul style="list-style:none; padding:0; text-align:left; margin-bottom:20px;">
-          <li style="margin-bottom:8px;">✅ Up to 3 Tags</li>
-          <li style="margin-bottom:8px;">✅ WhatsApp + SMS Alerts</li>
-          <li style="margin-bottom:8px;">✅ 2 Emergency Contacts</li>
-          <li style="margin-bottom:8px;">✅ Custom Scan Page Colors</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%;" onclick="openSetupModal('plus')">Get Plus Free</button>
-      </div>
-
-      <!-- Pro -->
-      <div class="tier-card" style="border:2px solid #e5e7eb; border-radius:12px; padding:24px; text-align:center; background:white;">
-        <h3 style="margin:0 0 8px;">Pro</h3>
-        <p style="color:#6b7280; font-size:14px; margin-bottom:16px;">Up to 5 Tags</p>
-        <div style="font-size:14px; color:#9ca3af; text-decoration:line-through;">₹499/year</div>
-        <div style="font-size:36px; font-weight:800; color:#111827; margin:4px 0;">₹0</div>
-        <div style="font-size:12px; font-weight:bold; color:red; margin-bottom:16px;">TESTING MODE - FREE</div>
-        <ul style="list-style:none; padding:0; text-align:left; margin-bottom:20px;">
-          <li style="margin-bottom:8px;">✅ Up to 5 Tags</li>
-          <li style="margin-bottom:8px;">✅ Video Call Alerts</li>
-          <li style="margin-bottom:8px;">✅ 3 Emergency Contacts</li>
-          <li style="margin-bottom:8px;">✅ Priority Support</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%;" onclick="openSetupModal('pro')">Get Pro Free</button>
-      </div>
+<!-- How it works -->
+<section class="container" style="padding:3rem 0;">
+  <h2 style="text-align:center;margin-bottom:.5rem;">How It Works</h2>
+  <p style="text-align:center;color:var(--text-light);margin-bottom:1rem;">Simple 3-step process.</p>
+  <div class="steps-grid">
+    <div class="step-card scroll-anim">
+      <div class="step-num">1</div>
+      <h3>Stick the QR</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">Place the sticker on your windshield or bumper.</p>
+    </div>
+    <div class="step-card scroll-anim">
+      <div class="step-num">2</div>
+      <h3>Someone Scans</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">Finder scans the QR or types your plate number.</p>
+    </div>
+    <div class="step-card scroll-anim">
+      <div class="step-num">3</div>
+      <h3>You Get Notified</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">Receive a private call/WhatsApp — number never revealed.</p>
     </div>
   </div>
 </section>
 
-<!-- ====== SETUP MODAL ====== -->
-<div id="setupModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.55); z-index:1000; align-items:center; justify-content:center;">
-  <div style="background:white; padding:32px; border-radius:16px; width:90%; max-width:420px; box-shadow:0 20px 40px rgba(0,0,0,0.2); animation:fadeInUp 0.3s ease;">
-    <h3 style="margin:0 0 8px; color:#111827; font-size:1.3rem;">🚗 Setup Your Vehicle Tag</h3>
-    <p style="color:#6b7280; font-size:14px; margin-bottom:20px;">Fill in your details. Your QR code will be generated instantly.</p>
+<!-- Pricing -->
+<section id="pricing" class="container" style="padding:2rem 0 4rem;">
+  <h2 style="text-align:center;margin-bottom:.4rem;">Choose Your Plan</h2>
+  <p style="text-align:center;color:var(--text-light);margin-bottom:.5rem;">All plans are FREE during testing mode.</p>
+  <div class="pricing-grid">
 
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:5px; color:#374151;">Vehicle Number *</label>
-      <input id="vehNumber" type="text" placeholder="e.g. DL-01-AB-1234" style="width:100%; padding:10px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px; text-transform:uppercase;">
+    <div class="tier-card scroll-anim">
+      <h3>Basic</h3>
+      <p style="color:#666;font-size:13px;">Essential privacy for 1 vehicle.</p>
+      <div class="price"><span class="strike-price">₹99</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>1 Vehicle Tag</li>
+        <li>QR Sticker (Soft Copy)</li>
+        <li>Voice Call Alerts</li>
+        <li>1 Emergency Contact</li>
+      </ul>
+      <button class="btn-buy" onclick="checkout('basic')">Get Basic Free</button>
     </div>
 
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:5px; color:#374151;">Vehicle Type *</label>
-      <select id="vehType" style="width:100%; padding:10px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px;">
-        <option value="Car">🚗 Car</option>
-        <option value="Bike">🏍️ Bike / Scooter</option>
-        <option value="Commercial">🚛 Commercial Vehicle</option>
-        <option value="Truck">🚚 Truck / Tempo</option>
-      </select>
+    <div class="tier-card popular scroll-anim">
+      <div class="popular-badge">MOST POPULAR</div>
+      <h3>Plus</h3>
+      <p style="color:#666;font-size:13px;">Best for couples or 2 vehicles.</p>
+      <div class="price"><span class="strike-price">₹249</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 3 Tags</li>
+        <li>WhatsApp & SMS Alerts</li>
+        <li>2 Emergency Contacts</li>
+        <li>Custom Scan Page Colors</li>
+      </ul>
+      <button class="btn-buy" onclick="checkout('plus')">Get Plus Free</button>
     </div>
 
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:5px; color:#374151;">Owner / Contact Name *</label>
-      <input id="vehOwner" type="text" placeholder="Name shown on scan page" style="width:100%; padding:10px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px;">
-    </div>
-
-    <div style="margin-bottom:14px;">
-      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:5px; color:#374151;">Emergency Contact Number *</label>
-      <input id="vehEmergency" type="tel" placeholder="+91 98765 43210" style="width:100%; padding:10px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px;">
-    </div>
-
-    <div style="margin-bottom:20px;">
-      <label style="display:block; font-weight:600; font-size:14px; margin-bottom:5px; color:#374151;">Tag Delivery</label>
-      <select id="vehDelivery" style="width:100%; padding:10px; border:1.5px solid #d1d5db; border-radius:8px; font-size:15px;">
-        <option value="soft">📄 Soft Copy (Free - Print at Home)</option>
-        <option value="hard">📦 Hard Copy PVC Sticker (+₹149)</option>
-      </select>
-    </div>
-
-    <div id="modalError" style="display:none; background:#fef2f2; color:#dc2626; padding:10px; border-radius:8px; font-size:14px; margin-bottom:14px;"></div>
-
-    <div style="display:flex; gap:10px;">
-      <button onclick="closeSetupModal()" style="flex:1; padding:12px; border:1.5px solid #d1d5db; border-radius:8px; background:white; color:#374151; font-weight:600; cursor:pointer;">Cancel</button>
-      <button id="btnGenerate" onclick="submitTagSetup()" style="flex:1; padding:12px; border:none; border-radius:8px; background:#2563eb; color:white; font-weight:700; cursor:pointer; font-size:15px;">Generate QR ✨</button>
+    <div class="tier-card scroll-anim">
+      <h3>Pro</h3>
+      <p style="color:#666;font-size:13px;">Maximum security for families.</p>
+      <div class="price"><span class="strike-price">₹499</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 5 Tags</li>
+        <li>Video Call Alerts</li>
+        <li>3 Emergency Contacts</li>
+        <li>Priority WhatsApp Support</li>
+      </ul>
+      <button class="btn-buy" onclick="checkout('pro')">Get Pro Free</button>
     </div>
   </div>
-</div>
+</section>
 
-<!-- ====== SCRIPTS ====== -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-col"><h3>ContactKar</h3><p>Connecting people, protecting privacy.</p></div>
+      <div class="footer-col"><h3>Products</h3><a href="vehicle.html">Vehicle Tags</a><a href="pet.html">Pet Tags</a></div>
+      <div class="footer-col"><h3>Account</h3><a href="login.html">Login</a><a href="dashboard.html">Dashboard</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 ContactKar. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="nav_logic.js"></script>
+<script src="animations.js"></script>
 <script>
-  const API_URL = 'https://contactkar.onrender.com/api';
-  let selectedTier = '';
-
-  function openSetupModal(tier) {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert("Please login first!");
-      window.location.href = 'login.html';
-      return;
-    }
-    selectedTier = tier;
-    const userName = localStorage.getItem('userName');
-    if (userName) document.getElementById('vehOwner').value = userName;
-    document.getElementById('setupModal').style.display = 'flex';
-    document.getElementById('modalError').style.display = 'none';
-  }
-
-  function closeSetupModal() {
-    document.getElementById('setupModal').style.display = 'none';
-  }
-
-  async function submitTagSetup() {
-    const vehNumber   = document.getElementById('vehNumber').value.trim().toUpperCase();
-    const vehType     = document.getElementById('vehType').value;
-    const vehOwner    = document.getElementById('vehOwner').value.trim();
-    const vehEmergency = document.getElementById('vehEmergency').value.trim();
-    const delivery    = document.getElementById('vehDelivery').value;
-    const errBox      = document.getElementById('modalError');
-
-    if (!vehNumber || !vehOwner || !vehEmergency) {
-      errBox.style.display = 'block';
-      errBox.innerText = '⚠️ Please fill in all required fields.';
-      return;
-    }
-
-    const btn = document.getElementById('btnGenerate');
-    btn.innerText = 'Generating...';
-    btn.disabled = true;
-    errBox.style.display = 'none';
-
-    try {
-      const token = localStorage.getItem('token');
-
-      // Step 1: Upgrade/assign subscription
-      await fetch(`${API_URL}/billing/upgrade`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ tier: selectedTier })
-      });
-
-      // Step 2: Create the tag with vehicle details
-      const orderRes = await fetch(`${API_URL}/orders/place`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({
-          vehicleQty: 1,
-          petQty: 0,
-          address: delivery === 'soft' ? 'Soft Copy' : 'Hard Copy',
-          city: 'N/A', state: 'N/A', pincode: '000000',
-          vehiclenumber: vehNumber,
-          vehicletype: vehType,
-          ownername: vehOwner,
-          emergency: vehEmergency
-        })
-      });
-
-      const data = await orderRes.json();
-
-      if (data.success) {
-        closeSetupModal();
-        alert(`✅ Tag created for ${vehNumber}! Go to your Dashboard to view and download your QR Code.`);
-        window.location.href = 'dashboard.html';
-      } else {
-        errBox.style.display = 'block';
-        errBox.innerText = '❌ Error: ' + (data.error || 'Unknown error');
-      }
-    } catch (e) {
-      errBox.style.display = 'block';
-      errBox.innerText = '❌ Server error. Make sure your Render backend is running!';
-    } finally {
-      btn.innerText = 'Generate QR ✨';
-      btn.disabled = false;
-    }
-  }
-
-  // Close modal on overlay click
-  document.getElementById('setupModal').addEventListener('click', function(e) {
-    if (e.target === this) closeSetupModal();
-  });
+const API_URL = 'https://contactkar.onrender.com/api';
+async function checkout(tier) {
+  const token = localStorage.getItem('token');
+  if (!token) { alert('Please login first!'); window.location.href = 'login.html'; return; }
+  const btn = event.target;
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  try {
+    const res  = await fetch(API_URL + '/billing/upgrade', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ tier })
+    });
+    const data = await res.json();
+    if (data.success) { alert('✅ You are now on the ' + tier.toUpperCase() + ' plan!'); window.location.href = 'dashboard.html'; }
+    else { alert('Error: ' + data.error); btn.textContent = 'Try Again'; btn.disabled = false; }
+  } catch(e) { alert('Server error. Render may be starting up — try again in 30s.'); btn.textContent = 'Get ' + tier; btn.disabled = false; }
+}
 </script>
-
 </body>
 </html>

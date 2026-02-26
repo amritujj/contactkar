@@ -1,53 +1,151 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="stylesheet" href="globalanimations.css">
-    <meta charset="UTF-8">
-    <title>Pet Tags - ContactKar</title>
-    <link rel="stylesheet" href="styles_v2.css">
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Pet Tags - ContactKar</title>
+  <link rel="stylesheet" href="styles_v2.css"/>
+  <link rel="stylesheet" href="globalanimations.css"/>
+  <style>
+    .scroll-anim { opacity:0; transform:translateY(24px); transition: opacity .6s ease, transform .6s ease; }
+    .scroll-anim.visible { opacity:1; transform:translateY(0); }
+    .pet-hero { background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); }
+    .pet-tier-card { border: 2px solid var(--border); border-radius: 14px; padding: 2rem; text-align: center; background: white; transition: .3s; position: relative; }
+    .pet-tier-card:hover { border-color: var(--pet-color); transform: translateY(-6px); box-shadow: 0 14px 32px rgba(236,72,153,.14); }
+    .pet-tier-card.popular { border-color: var(--pet-color); }
+    .pet-badge { background: var(--pet-color); color: white; padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; position: absolute; top: -13px; left: 50%; transform: translateX(-50%); }
+    .test-badge { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 6px; }
+    .btn-buy-pet { background: var(--pet-color); color: white; border: none; padding: .75rem 1.5rem; border-radius: 8px; width: 100%; font-size: .95rem; font-weight: 700; cursor: pointer; transition: .2s; }
+    .btn-buy-pet:hover { background: var(--pet-dark); }
+    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 1.5rem; padding: 2rem 0; }
+    .step-card { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); text-align: center; }
+    .step-num-pet { background: var(--pet-color); color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-bottom: .8rem; }
+  </style>
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
-            <ul class="nav-menu">
-                <li><a href="index.html" class="nav-link">Home</a></li>
-                <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
-                <li><a href="pet.html" class="nav-link active" style="color: var(--pet-color);">Pet Tags</a></li>
-            </ul>
-            <div>
-                <a href="login.html" id="loginBtn" class="btn-nav btn-login">Login</a>
-                <a href="dashboard.html" id="accountBtn" class="btn-nav btn-account">My Account</a>
-            </div>
-        </div>
-    </nav>
 
-    <header class="hero" style="background: #fdf2f8;">
-        <div class="container">
-            <h1 style="color: var(--pet-dark);">Keep Your Best Friend Safe</h1>
-            <p>Smart Digital Lockets. The fastest way to reunite with a lost pet.</p>
-            <a href="login.html" class="btn btn-pet">Buy Now - ₹149</a>
-        </div>
-    </header>
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+    <ul class="nav-menu">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
+      <li><a href="pet.html" class="nav-link active">Pet Tags</a></li>
+    </ul>
+    <div>
+      <a href="login.html" id="loginBtn" class="btn-nav btn-login">Login / Sign Up</a>
+      <a href="dashboard.html" id="accountBtn" class="btn-nav btn-account">My Account</a>
+    </div>
+  </div>
+</nav>
 
-    <section class="container" style="padding: 4rem 0;">
-        <div class="features-grid">
-            <div class="feature-card" style="border-color: var(--pet-color);">
-                <h3>🗺️ Lost Mode</h3>
-                <p>If scanned, the finder gets a "Call Owner" button instantly.</p>
-            </div>
-            <div class="feature-card" style="border-color: var(--pet-color);">
-                <h3>🏥 Medical Info</h3>
-                <p>Store vet details, allergies, and vaccination status.</p>
-            </div>
-            <div class="feature-card" style="border-color: var(--pet-color);">
-                <h3>💦 Waterproof</h3>
-                <p>Durable digital tag designed for active pets.</p>
-            </div>
-        </div>
-    </section>
+<header class="hero pet-hero anim-fade-down">
+  <div class="container">
+    <div class="hero-icon" style="font-size:3.5rem;margin-bottom:1rem;">🐾</div>
+    <h1 style="color:var(--pet-dark);">Keep Your Pet Safe, Always</h1>
+    <p>Smart digital lockets for dogs & cats. If your pet is lost, finder scans to reach you instantly — privately.</p>
+    <a href="#pet-pricing" class="btn btn-pet">See Plans</a>
+  </div>
+</header>
 
-    <script src="nav_logic.js"></script>
+<section class="container" style="padding:3rem 0;">
+  <h2 style="text-align:center;margin-bottom:.5rem;">How It Works</h2>
+  <p style="text-align:center;color:var(--text-light);margin-bottom:1rem;">Simple steps to protect your pet.</p>
+  <div class="steps-grid">
+    <div class="step-card scroll-anim">
+      <div class="step-num-pet">1</div>
+      <h3>Attach the Tag</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">Put the QR locket on your pet's collar.</p>
+    </div>
+    <div class="step-card scroll-anim">
+      <div class="step-num-pet">2</div>
+      <h3>Pet Gets Lost</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">Finder spots the locket and scans the QR code.</p>
+    </div>
+    <div class="step-card scroll-anim">
+      <div class="step-num-pet">3</div>
+      <h3>You're Contacted</h3>
+      <p style="font-size:.9rem;color:var(--text-light);">You receive an alert call or WhatsApp — instantly.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pet-pricing" class="container" style="padding:2rem 0 4rem;">
+  <h2 style="text-align:center;margin-bottom:.4rem;">Choose Your Plan</h2>
+  <p style="text-align:center;color:var(--text-light);margin-bottom:.5rem;">All plans are FREE during testing mode.</p>
+  <div class="pricing-grid">
+    <div class="pet-tier-card scroll-anim">
+      <h3>Basic</h3>
+      <p style="color:#666;font-size:13px;">For 1 pet — dogs or cats.</p>
+      <div class="price"><span class="strike-price">₹99</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>1 Pet Tag / Locket</li>
+        <li>QR Soft Copy</li>
+        <li>Voice Call Alert</li>
+        <li>1 Emergency Contact</li>
+      </ul>
+      <button class="btn-buy-pet" onclick="checkoutPet('basic')">Get Basic Free</button>
+    </div>
+
+    <div class="pet-tier-card popular scroll-anim">
+      <div class="pet-badge">MOST POPULAR</div>
+      <h3>Plus</h3>
+      <p style="color:#666;font-size:13px;">For households with 2 pets.</p>
+      <div class="price"><span class="strike-price">₹249</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 3 Pet Tags</li>
+        <li>WhatsApp & SMS Alerts</li>
+        <li>2 Emergency Contacts</li>
+        <li>Custom Locket Colors</li>
+      </ul>
+      <button class="btn-buy-pet" onclick="checkoutPet('plus')">Get Plus Free</button>
+    </div>
+
+    <div class="pet-tier-card scroll-anim">
+      <h3>Pro</h3>
+      <p style="color:#666;font-size:13px;">For breeders & multi-pet families.</p>
+      <div class="price"><span class="strike-price">₹499</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 5 Pet Tags</li>
+        <li>Priority WhatsApp Support</li>
+        <li>3 Emergency Contacts</li>
+        <li>Location Sharing Page</li>
+      </ul>
+      <button class="btn-buy-pet" onclick="checkoutPet('pro')">Get Pro Free</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-col"><h3>ContactKar</h3><p>Connecting people, protecting privacy.</p></div>
+      <div class="footer-col"><h3>Products</h3><a href="vehicle.html">Vehicle Tags</a><a href="pet.html">Pet Tags</a></div>
+      <div class="footer-col"><h3>Account</h3><a href="login.html">Login</a><a href="dashboard.html">Dashboard</a></div>
+    </div>
+    <div class="footer-bottom">© 2026 ContactKar. All rights reserved.</div>
+  </div>
+</footer>
+
+<script src="nav_logic.js"></script>
 <script src="animations.js"></script>
+<script>
+const API_URL = 'https://contactkar.onrender.com/api';
+async function checkoutPet(tier) {
+  const token = localStorage.getItem('token');
+  if (!token) { alert('Please login first!'); window.location.href = 'login.html'; return; }
+  const btn = event.target;
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  try {
+    const res  = await fetch(API_URL + '/billing/upgrade', { method:'POST', headers:{'Content-Type':'application/json', Authorization:'Bearer '+token}, body: JSON.stringify({ tier }) });
+    const data = await res.json();
+    if (data.success) { alert('✅ You are now on the ' + tier.toUpperCase() + ' plan!'); window.location.href = 'dashboard.html'; }
+    else { alert('Error: ' + data.error); btn.textContent = 'Try Again'; btn.disabled = false; }
+  } catch(e) { alert('Server error.'); btn.textContent = 'Get ' + tier; btn.disabled = false; }
+}
+</script>
 </body>
 </html>

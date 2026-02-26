@@ -1,68 +1,48 @@
-// dashboard.js
+const API_BASE = 'https://contactkar.onrender.com/api';
 
-// 1. Real-time calculator for the UI
 function calculateTotal() {
-    const vehicleQty = parseInt(document.getElementById('vehicleQty').value) || 0;
-    const petQty = parseInt(document.getElementById('petQty').value) || 0;
-    const totalTags = vehicleQty + petQty;
-
-    let freeDeliveries = 0;
-    if (totalTags >= 5) freeDeliveries = 2;
-    else if (totalTags >= 3) freeDeliveries = 1;
-
-    const paidDeliveries = Math.max(0, totalTags - freeDeliveries);
-    const totalCost = paidDeliveries * 149; // ₹149 per tag delivery
-    const savings = freeDeliveries * 149;
-
-    document.getElementById('totalTagsDisplay').innerText = totalTags;
-    document.getElementById('costDisplay').innerText = `₹${totalCost}`;
-
-    if (savings > 0) {
-        document.getElementById('savingsDisplay').innerText = `(You saved ₹${savings}!)`;
-    } else {
-        document.getElementById('savingsDisplay').innerText = '';
-    }
+  const v = parseInt(document.getElementById('vehicleQty').value) || 0;
+  const p = parseInt(document.getElementById('petQty').value) || 0;
+  const total = v + p;
+  const free  = total >= 5 ? 2 : (total >= 3 ? 1 : 0);
+  const cost  = Math.max(0, total - free) * 149;
+  document.getElementById('totalTagsDisplay').innerText = total;
+  document.getElementById('costDisplay').innerText = '₹' + cost;
+  document.getElementById('savingsDisplay').innerText = free > 0 ? '(Save ₹' + (free * 149) + '!)' : '';
 }
 
-// 2. Submit order to backend
 async function placeOrder() {
-    const data = {
-        vehicleQty: parseInt(document.getElementById('vehicleQty').value) || 0,
-        petQty: parseInt(document.getElementById('petQty').value) || 0,
-        address: document.getElementById('address').value,
-        city: document.getElementById('city').value,
-        state: document.getElementById('state').value,
-        pincode: document.getElementById('pincode').value
-    };
+  const token   = localStorage.getItem('token');
+  const v       = parseInt(document.getElementById('vehicleQty').value) || 0;
+  const p       = parseInt(document.getElementById('petQty').value) || 0;
+  const address = document.getElementById('address').value.trim();
+  const city    = document.getElementById('city').value.trim();
+  const state   = document.getElementById('state').value.trim();
+  const pincode = document.getElementById('pincode').value.trim();
 
-    if (data.vehicleQty + data.petQty === 0) {
-        return alert("Please add at least 1 tag.");
+  if (v + p === 0)                         { alert('Please add at least 1 tag.');              return; }
+  if (!address || !city || !state || !pincode) { alert('Please fill in your full shipping address.'); return; }
+
+  try {
+    const res  = await fetch(API_BASE + '/orders/place', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+      body: JSON.stringify({ vehicleQty: v, petQty: p, address, city, state, pincode })
+    });
+    const data = await res.json();
+    if (data.success) {
+      alert('✅ Order placed! Your tags will be delivered to your door.');
+      window.location.href = 'dashboard.html';
+    } else {
+      alert('Error: ' + (data.error || 'Something went wrong.'));
     }
-    if (!data.address || !data.city || !data.pincode) {
-        return alert("Please fill in your complete shipping address.");
-    }
+  } catch (e) {
+    alert('Server error. Make sure your Render backend is running!');
+  }
+}
 
-    try {
-        const response = await fetch('/api/orders/place', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // Assuming you use JWT tokens for login:
-                'Authorization': `Bearer ${localStorage.getItem('token')}` 
-            },
-            body: JSON.stringify(data)
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-            alert("Order placed successfully! Your tags have been added to your dashboard.");
-            window.location.reload(); // Refresh to show new tags
-        } else {
-            alert("Error: " + result.error);
-        }
-    } catch (error) {
-        console.error("Order failed:", error);
-        alert("Something went wrong. Please check your backend terminal for errors.");
-    }
+function confirmDelete() {
+  if (confirm('⚠️ This will permanently delete your account and ALL your tags. This cannot be undone.\n\nAre you absolutely sure?')) {
+    alert('Account deletion coming soon. Contact support for now.');
+  }
 }
