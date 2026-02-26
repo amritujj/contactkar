@@ -7,161 +7,122 @@
   <link rel="stylesheet" href="styles_v2.css"/>
   <link rel="stylesheet" href="globalanimations.css"/>
   <style>
-    /* ===== DASHBOARD-SPECIFIC STYLES ===== */
-    :root {
-      --primary: #2563eb; --primary-dark: #1e40af;
-      --pet-color: #ec4899; --pet-dark: #db2777;
-      --success: #10b981; --danger: #ef4444;
-      --border: #e5e7eb; --text-dark: #1f2937;
-      --text-light: #6b7280; --bg-light: #f5f7fb;
-    }
+    /* ===== TAB SYSTEM ===== */
+    .tab-section { display:none !important; }
+    .tab-section.active-tab { display:block !important; animation:tabIn .3s ease both; }
+    @keyframes tabIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
 
-    /* Tab animation */
-    .tab-section { display: none; }
-    .tab-section.active-tab { display: block; animation: tabFadeIn .3s ease both; }
-    @keyframes tabFadeIn { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
-
-    /* Page header row */
+    /* ===== PAGE HEADER ===== */
     .page-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:.8rem; }
-    .page-header h2 { font-size:1.4rem; font-weight:800; color:#111827; margin:0; }
+    .page-header h2 { font-size:1.35rem; font-weight:800; margin:0; }
 
-    /* Panel card */
-    .panel { background:#fff; padding:1.5rem; border-radius:14px; border:1px solid var(--border); margin-bottom:1rem; box-shadow:0 1px 4px rgba(0,0,0,.04); transition:box-shadow .25s,transform .25s; }
-    .panel:hover { box-shadow:0 6px 22px rgba(0,0,0,.08); transform:translateY(-2px); }
+    /* ===== PANEL ===== */
+    .panel { background:#fff; padding:1.5rem; border-radius:14px; border:1px solid var(--border); margin-bottom:1rem; box-shadow:0 1px 6px rgba(0,0,0,.04); transition:box-shadow .25s,transform .25s; }
+    .panel:hover { box-shadow:0 6px 22px rgba(0,0,0,.08); transform:translateY(-1px); }
 
-    /* Empty state */
+    /* ===== EMPTY STATE ===== */
     .empty-block { border:2px dashed #d1d5db; background:#fff; border-radius:14px; padding:2.5rem 1.5rem; text-align:center; color:var(--text-light); margin-bottom:1rem; }
-    .empty-block .empty-icon { font-size:2.8rem; margin-bottom:.7rem; }
-    .empty-block h3 { color:#111827; font-size:1.05rem; margin-bottom:.4rem; }
+    .empty-block .e-icon { font-size:2.8rem; margin-bottom:.7rem; }
+    .empty-block h3 { color:#111827; font-size:1rem; margin-bottom:.4rem; }
     .empty-block p { font-size:.875rem; margin-bottom:1rem; }
 
-    /* Tag card */
-    .tag-card {
-      background:#fff; border:1px solid var(--border); border-radius:14px;
-      padding:1.2rem 1.4rem; margin-bottom:.9rem;
-      display:flex; gap:1rem; align-items:flex-start; flex-wrap:wrap;
-      transition:box-shadow .25s,border-color .25s,transform .25s;
-      animation:tagSlideIn .4s ease both;
-    }
-    .tag-card:hover { box-shadow:0 8px 28px rgba(37,99,235,.13); border-color:#93c5fd; transform:translateY(-2px); }
-    @keyframes tagSlideIn { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);} }
+    /* ===== TAG CARD ===== */
+    .tag-card { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.2rem 1.4rem; margin-bottom:.9rem; display:flex; gap:1.1rem; align-items:flex-start; flex-wrap:wrap; transition:box-shadow .25s,transform .25s,border-color .25s; animation:tagIn .4s ease both; }
+    .tag-card:hover { box-shadow:0 8px 28px rgba(37,99,235,.12); border-color:#93c5fd; transform:translateY(-2px); }
+    @keyframes tagIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
-    /* QR box */
-    .qr-box {
-      width:90px; height:90px; min-width:90px;
-      border-radius:10px; overflow:hidden;
-      display:flex; align-items:center; justify-content:center;
-      font-size:11px; color:#9ca3af; text-align:center;
-      background: linear-gradient(135deg,#f3f4f6,#e9eaec);
-    }
-    .qr-box img { width:90px; height:90px; border-radius:10px; cursor:pointer; display:block; transition:transform .2s; }
-    .qr-box img:hover { transform:scale(1.06); }
-    .qr-shimmer {
-      width:90px; height:90px; border-radius:10px;
-      background:linear-gradient(90deg,#f3f4f6 25%,#e0e1e3 50%,#f3f4f6 75%);
-      background-size:200% 100%;
-      animation:shimmerAnim 1.4s infinite;
-    }
-    @keyframes shimmerAnim { 0%{background-position:-200% 0}100%{background-position:200% 0} }
+    /* ===== QR BOX ===== */
+    .qr-box { width:88px; height:88px; min-width:88px; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#f3f4f6; }
+    .qr-box img { width:88px; height:88px; cursor:pointer; border-radius:10px; display:block; transition:transform .2s; }
+    .qr-box img:hover { transform:scale(1.07); }
+    .qr-shimmer { width:88px; height:88px; border-radius:10px; background:linear-gradient(90deg,#f3f4f6 25%,#e2e3e5 50%,#f3f4f6 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
+    .qr-err { font-size:11px; color:#ef4444; text-align:center; padding:6px; }
 
-    /* Tag info */
+    /* ===== TAG INFO ===== */
     .tag-info { flex:1; min-width:160px; }
-    .tag-code-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:7px; }
-    .tag-code-text { font-size:1rem; font-weight:800; color:#111827; letter-spacing:.4px; }
-    .badge { display:inline-block; padding:2px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; }
-    .badge-vehicle { background:#dbeafe; color:#1d4ed8; }
-    .badge-pet     { background:#fce7f3; color:#be185d; }
-    .badge-active  { background:#d1fae5; color:#065f46; }
-    .badge-hidden  { background:#fee2e2; color:#991b1b; }
-    .tag-meta { font-size:13px; color:#4b5563; margin-bottom:3px; }
-    .tag-date { font-size:11px; color:#9ca3af; margin:5px 0 10px; }
-
-    /* Tag action buttons */
+    .tag-code-row { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px; }
+    .tag-code { font-size:.95rem; font-weight:800; color:#111827; letter-spacing:.3px; }
+    .badge { display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:700; }
+    .badge-v  { background:#dbeafe; color:#1d4ed8; }
+    .badge-p  { background:#fce7f3; color:#be185d; }
+    .badge-on { background:#d1fae5; color:#065f46; }
+    .badge-off{ background:#fee2e2; color:#991b1b; }
+    .tag-meta { font-size:13px; color:#4b5563; margin-bottom:2px; }
+    .tag-date { font-size:11px; color:#9ca3af; margin:4px 0 8px; }
     .tag-actions { display:flex; gap:6px; flex-wrap:wrap; }
-    .act-btn { padding:5px 13px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; border:1.5px solid; }
-    .act-btn-primary { background:#2563eb; color:#fff; border-color:#2563eb; }
-    .act-btn-primary:hover { background:#1d4ed8; }
-    .act-btn-outline { background:#fff; color:#374151; border-color:#d1d5db; }
-    .act-btn-outline:hover { background:#f3f4f6; border-color:#9ca3af; }
+    .abtn { padding:5px 13px; border-radius:7px; font-size:12px; font-weight:600; cursor:pointer; transition:all .18s; border:1.5px solid; }
+    .abtn-blue { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .abtn-blue:hover { background:#1d4ed8; }
+    .abtn-grey { background:#fff; color:#374151; border-color:#d1d5db; }
+    .abtn-grey:hover { background:#f3f4f6; }
 
-    /* Loading spinner */
-    .loading-wrap { text-align:center; padding:3rem 1rem; }
-    .spinner { width:38px; height:38px; border:3px solid #e5e7eb; border-top-color:#2563eb; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 1rem; }
+    /* ===== LOADING ===== */
+    .load-wrap { text-align:center; padding:3rem 1rem; }
+    .spinner { width:36px; height:36px; border:3px solid #e5e7eb; border-top-color:#2563eb; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 1rem; }
     @keyframes spin { to{transform:rotate(360deg)} }
-    .loading-text { color:var(--text-light); font-size:.9rem; line-height:1.7; }
+    .load-msg { color:var(--text-light); font-size:.875rem; line-height:1.7; }
 
-    /* Forms */
+    /* ===== FORMS ===== */
     .form-row { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-bottom:1.2rem; }
-    .form-group { margin-bottom:1.1rem; }
-    .form-group label { display:block; font-weight:600; font-size:.875rem; color:#374151; margin-bottom:.4rem; }
-    .form-control { width:100%; padding:.72rem .9rem; border:1.5px solid #d1d5db; border-radius:8px; font-size:.95rem; color:#111827; transition:border-color .2s,box-shadow .2s; outline:none; font-family:inherit; }
-    .form-control:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
-    .email-display { display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:8px; padding:.65rem .9rem; }
+    .fg { margin-bottom:1rem; }
+    .fg label { display:block; font-weight:600; font-size:.85rem; color:#374151; margin-bottom:.4rem; }
+    .fc { width:100%; padding:.7rem .9rem; border:1.5px solid #d1d5db; border-radius:8px; font-size:.9rem; outline:none; transition:border-color .2s,box-shadow .2s; font-family:inherit; }
+    .fc:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+    .email-row { display:flex; justify-content:space-between; align-items:center; background:#f9fafb; border:1.5px solid #e5e7eb; border-radius:8px; padding:.65rem .9rem; }
 
-    /* OTP flow */
+    /* ===== OTP FLOW ===== */
     .otp-box { background:#fdf2f8; border:1.5px solid #f9a8d4; border-radius:10px; padding:1.2rem 1.4rem; margin-bottom:1.2rem; }
-    .otp-box h4 { color:#be185d; margin-bottom:.6rem; font-size:.95rem; }
+    .otp-box h4 { color:#be185d; margin-bottom:.6rem; font-size:.9rem; }
 
-    /* Billing plan card */
-    .plan-card { background:linear-gradient(135deg,#eff6ff,#dbeafe); border:2px solid #93c5fd; border-radius:14px; padding:1.2rem 1.5rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; gap:1rem; flex-wrap:wrap; animation:tabFadeIn .4s ease; }
-    .plan-name { font-size:1.2rem; font-weight:800; color:#1d4ed8; }
-    .plan-expiry { font-size:13px; color:var(--text-light); margin-top:3px; }
+    /* ===== BILLING ===== */
+    .plan-banner { background:linear-gradient(135deg,#eff6ff,#dbeafe); border:2px solid #93c5fd; border-radius:14px; padding:1.2rem 1.5rem; display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem; }
+    .plan-name-txt { font-size:1.1rem; font-weight:800; color:#1d4ed8; }
+    .plan-exp { font-size:12px; color:var(--text-light); margin-top:2px; }
+    .order-panel { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.4rem 1.5rem; margin-top:1rem; }
+    .order-panel h3 { font-size:1rem; font-weight:700; margin-bottom:.4rem; }
+    .offer-box { background:#fefce8; border-left:4px solid #f59e0b; padding:.65rem 1rem; border-radius:6px; font-size:.85rem; margin:.8rem 0; color:#78350f; }
+    .qty-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:.8rem 0; }
+    .qty-row label { font-weight:600; font-size:.85rem; display:block; margin-bottom:4px; }
+    .addr-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; margin-bottom:.8rem; }
+    .price-box { background:#f9fafb; border:1px solid var(--border); border-radius:8px; padding:.85rem 1rem; margin-bottom:.9rem; font-size:.875rem; line-height:2; }
+    .price-box b { color:#2563eb; }
 
-    /* Order panel */
-    .order-panel { background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.4rem 1.5rem; margin-top:1.2rem; }
-    .order-panel h3 { font-size:1.05rem; font-weight:700; margin-bottom:.4rem; }
-    .offer-box { background:#fefce8; border-left:4px solid #f59e0b; padding:.7rem 1rem; border-radius:6px; font-size:.875rem; margin:.9rem 0; color:#78350f; }
-    .qty-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin:.9rem 0; }
-    .qty-grid label { font-weight:600; font-size:.875rem; display:block; margin-bottom:4px; color:#374151; }
-    .addr-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:.5rem; margin-bottom:.9rem; }
-    .price-box { background:#f9fafb; border:1px solid var(--border); border-radius:8px; padding:.9rem 1rem; margin-bottom:1rem; font-size:.9rem; line-height:1.9; }
-    .price-box strong { color:#2563eb; font-size:1rem; }
-
-    /* Settings toggle row */
-    .toggle-row { display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid #f3f4f6; }
-    .toggle-row:last-child { border-bottom:none; }
-    .toggle-label strong { display:block; font-weight:600; font-size:.9rem; }
-    .toggle-label span { font-size:.8rem; color:var(--text-light); }
-    .switch { position:relative; display:inline-block; width:48px; height:24px; flex-shrink:0; }
+    /* ===== SETTINGS ===== */
+    .trow { display:flex; justify-content:space-between; align-items:center; padding:.9rem 0; border-bottom:1px solid #f3f4f6; }
+    .trow:last-child { border:none; }
+    .trow strong { display:block; font-size:.9rem; }
+    .trow small { color:var(--text-light); font-size:.8rem; }
+    .switch { position:relative; display:inline-block; width:46px; height:24px; flex-shrink:0; }
     .switch input { opacity:0; width:0; height:0; }
-    .slider { position:absolute; cursor:pointer; inset:0; background:#d1d5db; transition:.3s; border-radius:34px; }
+    .slider { position:absolute; cursor:pointer; inset:0; background:#d1d5db; transition:.3s; border-radius:20px; }
     .slider::before { position:absolute; content:""; height:18px; width:18px; left:3px; bottom:3px; background:#fff; transition:.3s; border-radius:50%; box-shadow:0 1px 3px rgba(0,0,0,.2); }
-    input:checked + .slider { background:var(--success); }
-    input:checked + .slider::before { transform:translateX(22px); }
-
-    /* Danger zone */
+    input:checked + .slider { background:#10b981; }
+    input:checked + .slider::before { transform:translateX(20px); }
     .danger-zone { border:1.5px solid #fca5a5; border-radius:12px; padding:1.4rem; background:#fef2f2; margin-top:1rem; }
-    .danger-zone h3 { color:var(--danger); margin-bottom:.4rem; font-size:1rem; }
-    .danger-zone p { font-size:.875rem; color:#991b1b; margin-bottom:.9rem; }
+    .danger-zone h3 { color:#ef4444; margin-bottom:.4rem; font-size:1rem; }
+    .danger-zone p { font-size:.85rem; color:#991b1b; margin-bottom:.9rem; }
 
-    /* QR modal */
-    .qr-modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center; }
-    .qr-modal-overlay.open { display:flex; }
-    .qr-modal-box { background:#fff; border-radius:18px; padding:2rem; max-width:320px; width:90%; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.3); animation:tabFadeIn .3s ease; }
-    .qr-modal-box h3 { font-size:1rem; font-weight:700; margin-bottom:3px; }
-    .qr-modal-box p { color:var(--text-light); font-size:13px; margin-bottom:14px; }
-    .qr-modal-box img { width:210px; height:210px; border-radius:12px; border:4px solid #f3f4f6; }
-    .qr-modal-btns { display:flex; gap:10px; justify-content:center; margin-top:1rem; flex-wrap:wrap; }
+    /* ===== QR MODAL ===== */
+    .qr-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:9999; align-items:center; justify-content:center; }
+    .qr-overlay.open { display:flex; }
+    .qr-modal { background:#fff; border-radius:18px; padding:2rem 1.5rem; max-width:300px; width:90%; text-align:center; box-shadow:0 24px 60px rgba(0,0,0,.3); animation:tabIn .3s ease; }
+    .qr-modal h3 { font-size:.95rem; font-weight:700; margin-bottom:4px; }
+    .qr-modal p { color:var(--text-light); font-size:12px; margin-bottom:12px; }
+    .qr-modal img { width:200px; height:200px; border-radius:12px; border:3px solid #f3f4f6; }
+    .qr-modal-btns { display:flex; gap:8px; justify-content:center; margin-top:1rem; flex-wrap:wrap; }
 
-    /* Sidebar stagger */
-    .sidebar ul li:nth-child(1) a { animation-delay:.05s; }
-    .sidebar ul li:nth-child(2) a { animation-delay:.12s; }
-    .sidebar ul li:nth-child(3) a { animation-delay:.19s; }
-    .sidebar ul li:nth-child(4) a { animation-delay:.26s; }
+    /* ===== TOAST ===== */
+    #ck-toast { position:fixed; bottom:24px; right:20px; z-index:99999; padding:11px 18px; border-radius:10px; font-weight:600; font-size:.85rem; color:#fff; box-shadow:0 8px 24px rgba(0,0,0,.2); max-width:280px; pointer-events:none; transition:opacity .4s; }
 
-    /* Responsive */
+    /* ===== RESPONSIVE ===== */
     @media(max-width:768px){
-      .form-row, .qty-grid { grid-template-columns:1fr; }
-      .addr-grid { grid-template-columns:1fr; }
-      .tag-card { flex-direction:column; }
-      .qr-box, .qr-box img, .qr-shimmer { width:100%; height:auto; min-height:80px; min-width:unset; }
-      .plan-card { flex-direction:column; text-align:center; }
-      .page-header { flex-direction:column; align-items:flex-start; }
+      .form-row,.qty-row,.addr-row{grid-template-columns:1fr}
+      .tag-card{flex-direction:column}
+      .plan-banner{flex-direction:column;text-align:center}
     }
   </style>
-
   <script>
-    // Redirect to login if not logged in
     if (localStorage.getItem('isLoggedIn') !== 'true') {
       window.location.href = 'login.html';
     }
@@ -169,236 +130,211 @@
 </head>
 <body>
 
-<!-- ===== NAVBAR ===== -->
+<!-- NAVBAR -->
 <nav class="navbar anim-fade-down">
   <div class="container">
     <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
     <div style="display:flex;align-items:center;gap:1rem;">
-      <span style="font-weight:600;color:#374151;" id="user-greeting">Hi, User 👋</span>
-      <button onclick="logout()" style="padding:6px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;transition:all .2s;"
-        onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#fff'">Logout</button>
+      <span id="user-greeting" style="font-weight:600;color:#374151;">Hi, User</span>
+      <button id="logout-btn"
+        style="padding:6px 15px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s;"
+        onmouseover="this.style.background='#f3f4f6'"
+        onmouseout="this.style.background='#fff'">Logout</button>
     </div>
   </div>
 </nav>
 
-<!-- ===== QR MODAL ===== -->
-<div id="qrModalOverlay" class="qr-modal-overlay" onclick="if(event.target===this)closeQRModal()">
-  <div class="qr-modal-box">
-    <h3 id="qrMTitle"></h3>
+<!-- QR MODAL -->
+<div id="qrOverlay" class="qr-overlay" onclick="if(event.target===this)closeQR()">
+  <div class="qr-modal">
+    <h3 id="qrTitle"></h3>
     <p>Scan to open your contact page</p>
-    <img id="qrMImg" src="" alt="QR Code"/>
+    <img id="qrImg" src="" alt="QR Code"/>
     <div class="qr-modal-btns">
-      <a id="qrMDownload" download class="btn btn-primary" style="font-size:13px;padding:8px 18px;">⬇ Download PNG</a>
-      <button onclick="closeQRModal()" class="btn btn-outline" style="font-size:13px;padding:8px 18px;">✕ Close</button>
+      <a id="qrDl" download class="btn btn-primary" style="font-size:13px;padding:7px 16px;">Download</a>
+      <button onclick="closeQR()" class="btn btn-outline" style="font-size:13px;padding:7px 16px;">Close</button>
     </div>
   </div>
 </div>
 
-<!-- ===== DASHBOARD LAYOUT ===== -->
+<!-- LAYOUT -->
 <div class="container">
   <div class="dashboard-grid">
 
     <!-- SIDEBAR -->
     <aside class="sidebar anim-fade-left">
       <ul>
-        <li><a href="#" id="nav-tags"     class="active anim-fade-left" onclick="switchTab('tags');return false;">📦 My Tags</a></li>
-        <li><a href="#" id="nav-profile"           class="anim-fade-left" onclick="switchTab('profile');return false;">👤 Profile</a></li>
-        <li><a href="#" id="nav-billing"            class="anim-fade-left" onclick="switchTab('billing');return false;">💳 Billing</a></li>
-        <li><a href="#" id="nav-settings"           class="anim-fade-left" onclick="switchTab('settings');return false;">⚙️ Settings</a></li>
+        <li><a href="javascript:void(0)" id="nav-tags"     class="active"  onclick="switchTab('tags')">&#128230; My Tags</a></li>
+        <li><a href="javascript:void(0)" id="nav-profile"                  onclick="switchTab('profile')">&#128100; Profile</a></li>
+        <li><a href="javascript:void(0)" id="nav-billing"                  onclick="switchTab('billing')">&#128179; Billing</a></li>
+        <li><a href="javascript:void(0)" id="nav-settings"                 onclick="switchTab('settings')">&#9881;&#65039; Settings</a></li>
       </ul>
     </aside>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <main class="main-content">
 
-      <!-- ============ MY TAGS ============ -->
+      <!-- MY TAGS -->
       <section id="tags-section" class="tab-section active-tab">
         <div class="page-header">
-          <h2>📦 My Tags</h2>
+          <h2>My Tags</h2>
           <a href="vehicle.html" class="btn btn-primary">+ Buy Tag</a>
         </div>
-
-        <!-- Loading state -->
-        <div id="tags-loading" class="loading-wrap">
+        <div id="tags-loading" class="load-wrap">
           <div class="spinner"></div>
-          <div class="loading-text" id="loading-msg">
+          <div class="load-msg" id="load-msg">
             Connecting to server...<br>
-            <small style="color:#9ca3af;">May take ~15s if server was sleeping</small>
+            <small style="color:#9ca3af">May take ~15s if server is asleep</small>
           </div>
-          <button onclick="fetchMyTags()" style="margin-top:12px;padding:7px 18px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600;font-size:.85rem;">🔄 Retry</button>
+          <button onclick="fetchMyTags()"
+            style="margin-top:10px;padding:6px 16px;background:#2563eb;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.85rem;font-weight:600;">
+            Retry
+          </button>
         </div>
-
-        <!-- Empty state -->
         <div id="tags-empty" class="empty-block" style="display:none;">
-          <div class="empty-icon">🛒</div>
+          <div class="e-icon">&#128666;</div>
           <h3>No tags yet</h3>
           <p>Buy a Vehicle Tag or Pet Tag to get started.</p>
           <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-            <a href="vehicle.html" class="btn btn-primary">🚗 Get Vehicle Tag</a>
-            <a href="pet.html" class="btn btn-pet">🐾 Get Pet Tag</a>
+            <a href="vehicle.html" class="btn btn-primary">Get Vehicle Tag</a>
+            <a href="pet.html"     class="btn btn-pet">Get Pet Tag</a>
           </div>
         </div>
-
-        <!-- Tags list -->
         <div id="tags-list"></div>
       </section>
 
-      <!-- ============ PROFILE ============ -->
+      <!-- PROFILE -->
       <section id="profile-section" class="tab-section">
-        <div class="page-header"><h2>👤 Profile</h2></div>
-
+        <div class="page-header"><h2>Profile</h2></div>
         <div class="panel">
-          <!-- Email display -->
-          <div class="form-group" style="padding-bottom:1.2rem;margin-bottom:1.2rem;border-bottom:1px solid #f3f4f6;">
+
+          <div class="fg" style="padding-bottom:1.1rem;margin-bottom:1.1rem;border-bottom:1px solid #f3f4f6;">
             <label>Login Email Address</label>
-            <div class="email-display">
+            <div class="email-row">
               <span id="display-email" style="font-weight:700;">Loading...</span>
-              <button class="btn btn-outline" style="font-size:.8rem;padding:5px 12px;" onclick="openEmailOTPFlow()">Change</button>
+              <button class="btn btn-outline" style="font-size:.8rem;padding:4px 12px;" onclick="openOTPFlow()">Change</button>
             </div>
-            <small style="color:#9ca3af;margin-top:5px;display:block;">Used for login, OTPs, and notifications.</small>
+            <small style="color:#9ca3af;margin-top:5px;display:block;">Used for login, OTPs, and alerts.</small>
           </div>
 
-          <!-- OTP Flow (hidden by default) -->
           <div id="otp-flow" style="display:none;" class="otp-box">
-            <h4>🔐 Verify Your Identity</h4>
-
-            <!-- Step 1: Send OTP -->
-            <div id="otp-step-1">
-              <p style="font-size:.875rem;color:#4b5563;margin-bottom:10px;">
-                An OTP will be sent to: <b id="otp-target-email"></b>
-              </p>
-              <button id="send-otp-btn" class="btn btn-primary" onclick="sendRealOTP()">Send OTP</button>
+            <h4>Verify Your Identity</h4>
+            <div id="otp-s1">
+              <p style="font-size:.85rem;color:#4b5563;margin-bottom:10px;">OTP will be sent to: <b id="otp-email"></b></p>
+              <button id="send-otp-btn" class="btn btn-primary" style="font-size:.875rem;" onclick="sendOTPEmail()">Send OTP</button>
             </div>
-
-            <!-- Step 2: Enter OTP -->
-            <div id="otp-step-2" style="display:none;">
-              <div class="form-group">
+            <div id="otp-s2" style="display:none;">
+              <div class="fg">
                 <label>Enter 6-digit OTP</label>
-                <input type="text" id="otp-input" placeholder="••••••" maxlength="6" class="form-control"
-                  style="letter-spacing:6px;font-weight:700;text-align:center;font-size:1.2rem;">
+                <input type="text" id="otp-input" maxlength="6" class="fc" placeholder="123456"
+                  style="letter-spacing:6px;font-weight:700;text-align:center;font-size:1.1rem;">
               </div>
-              <button class="btn btn-primary" onclick="verifyOTP()">Verify Code</button>
+              <button class="btn btn-primary" style="font-size:.875rem;" onclick="verifyOTPCode()">Verify Code</button>
             </div>
-
-            <!-- Step 3: Enter new email -->
-            <div id="otp-step-3" style="display:none;">
-              <p style="color:var(--success);font-weight:700;margin-bottom:10px;">✅ Identity Verified!</p>
-              <div class="form-group">
-                <label>Enter New Email Address</label>
-                <input type="email" id="new-email-input" placeholder="new@example.com" class="form-control">
+            <div id="otp-s3" style="display:none;">
+              <p style="color:#10b981;font-weight:700;margin-bottom:10px;">Identity Verified!</p>
+              <div class="fg">
+                <label>Enter New Email</label>
+                <input type="email" id="new-email" placeholder="new@example.com" class="fc">
               </div>
-              <button class="btn btn-primary" onclick="saveNewEmail()">Update Email</button>
+              <button class="btn btn-primary" style="font-size:.875rem;" onclick="saveNewEmail()">Update Email</button>
             </div>
-
-            <button onclick="cancelEmailFlow()" style="margin-top:12px;background:none;border:none;color:var(--text-light);font-size:.85rem;cursor:pointer;">✕ Cancel</button>
+            <button onclick="cancelOTP()" style="margin-top:10px;background:none;border:none;color:var(--text-light);font-size:.85rem;cursor:pointer;">Cancel</button>
           </div>
 
-          <!-- Profile form -->
-          <form onsubmit="saveProfile(event)">
-            <div class="form-row">
-              <div class="form-group">
-                <label>Full Name</label>
-                <input id="profile-name" type="text" class="form-control" placeholder="Your name" required/>
-              </div>
-              <div class="form-group">
-                <label>Phone Number</label>
-                <input id="profile-phone" type="tel" class="form-control" placeholder="+91 98765 43210"/>
-              </div>
+          <div class="form-row">
+            <div class="fg">
+              <label>Full Name</label>
+              <input id="profile-name" type="text" class="fc" placeholder="Your name">
             </div>
-            <button class="btn btn-primary" type="submit" id="profile-save-btn">Save Changes</button>
-            <span id="profile-save-msg" style="margin-left:10px;color:var(--success);font-weight:600;font-size:.875rem;"></span>
-          </form>
+            <div class="fg">
+              <label>Phone Number</label>
+              <input id="profile-phone" type="tel" class="fc" placeholder="+91 98765 43210">
+            </div>
+          </div>
+          <button type="button" id="save-profile-btn" class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+          <span id="save-msg" style="margin-left:10px;color:#10b981;font-weight:600;font-size:.85rem;"></span>
         </div>
       </section>
 
-      <!-- ============ BILLING ============ -->
+      <!-- BILLING -->
       <section id="billing-section" class="tab-section">
-        <div class="page-header"><h2>💳 Billing</h2></div>
+        <div class="page-header"><h2>Billing</h2></div>
 
-        <!-- Active plan (shown when subscribed) -->
-        <div id="plan-card" style="display:none;" class="plan-card">
+        <div id="plan-banner" style="display:none;" class="plan-banner">
           <div>
-            <div class="plan-name" id="plan-name-display">Basic Plan</div>
-            <div class="plan-expiry" id="plan-expiry-display">Valid until --</div>
+            <div class="plan-name-txt" id="plan-name">Basic Plan</div>
+            <div class="plan-exp" id="plan-exp">Valid until --</div>
           </div>
-          <a href="vehicle.html" class="btn btn-primary">⬆ Upgrade</a>
+          <a href="vehicle.html" class="btn btn-primary" style="font-size:.875rem;">Upgrade</a>
         </div>
 
-        <!-- No plan (shown on free tier) -->
         <div id="no-plan" class="empty-block">
-          <div class="empty-icon">🧾</div>
+          <div class="e-icon">&#129534;</div>
           <h3>No active subscription</h3>
-          <p>You are on the free plan. Upgrade to unlock more tags and features.</p>
+          <p>You are on the free plan. Upgrade to unlock more tags.</p>
           <a href="vehicle.html" class="btn btn-primary">Choose a Plan</a>
         </div>
 
-        <!-- Hard Copy Order -->
         <div class="order-panel">
-          <h3>🖨️ Order Hard Copy Tags</h3>
-          <p style="color:var(--text-light);font-size:.875rem;margin-top:4px;">Get physical PVC sticker / locket tags delivered. ₹149 per delivery.</p>
-
+          <h3>Order Hard Copy Tags</h3>
+          <p style="color:var(--text-light);font-size:.85rem;margin-top:4px;">Physical PVC sticker / locket delivered to your door. Rs.149 per delivery.</p>
           <div class="offer-box">
-            🔥 <strong>Bulk Offer:</strong>&nbsp; Order 3 tags → 1 delivery FREE &nbsp;|&nbsp; Order 5 tags → 2 deliveries FREE
+            Bulk Offer: Order 3 tags &rarr; 1 delivery FREE &nbsp;|&nbsp; Order 5 tags &rarr; 2 deliveries FREE
           </div>
-
-          <div class="qty-grid">
+          <div class="qty-row">
             <div>
-              <label>🚗 Vehicle Tags</label>
-              <input type="number" id="vehicleQty" min="0" value="0" class="form-control" oninput="calculateTotal()">
+              <label>Vehicle Tags</label>
+              <input type="number" id="vehicleQty" min="0" value="0" class="fc" oninput="calcTotal()">
             </div>
             <div>
-              <label>🐾 Pet Tags</label>
-              <input type="number" id="petQty" min="0" value="0" class="form-control" oninput="calculateTotal()">
+              <label>Pet Tags</label>
+              <input type="number" id="petQty" min="0" value="0" class="fc" oninput="calcTotal()">
             </div>
           </div>
-
-          <h4 style="font-size:.9rem;font-weight:700;margin-bottom:.6rem;color:#374151;">📦 Shipping Address</h4>
-          <input type="text" id="address" placeholder="Street Address" class="form-control" style="margin-bottom:.5rem;">
-          <div class="addr-grid">
-            <input type="text" id="city"    placeholder="City"    class="form-control">
-            <input type="text" id="state"   placeholder="State"   class="form-control">
-            <input type="text" id="pincode" placeholder="Pincode" class="form-control">
+          <h4 style="font-size:.875rem;font-weight:700;margin-bottom:.5rem;">Shipping Address</h4>
+          <input type="text" id="ship-addr" placeholder="Street Address" class="fc" style="margin-bottom:.5rem;">
+          <div class="addr-row">
+            <input type="text" id="ship-city"  placeholder="City"    class="fc">
+            <input type="text" id="ship-state" placeholder="State"   class="fc">
+            <input type="text" id="ship-pin"   placeholder="Pincode" class="fc">
           </div>
-
           <div class="price-box">
-            <div>Total Tags: <strong id="totalTagsDisplay">0</strong></div>
-            <div>Delivery Cost: <strong id="costDisplay">₹0</strong>
-              <span id="savingsDisplay" style="color:#dc2626;font-size:12px;font-weight:700;margin-left:6px;"></span>
-            </div>
+            Total Tags: <b id="tot-tags">0</b><br>
+            Delivery Cost: <b id="tot-cost">Rs.0</b>
+            <span id="savings-txt" style="color:#dc2626;font-size:12px;font-weight:700;margin-left:6px;"></span>
           </div>
-
-          <button onclick="placeOrder()" class="btn btn-primary" style="width:100%;justify-content:center;padding:.9rem;font-size:1rem;">Proceed to Pay</button>
+          <button onclick="placeOrder()" class="btn btn-primary"
+            style="width:100%;justify-content:center;padding:.85rem;font-size:1rem;">
+            Proceed to Pay
+          </button>
         </div>
       </section>
 
-      <!-- ============ SETTINGS ============ -->
+      <!-- SETTINGS -->
       <section id="settings-section" class="tab-section">
-        <div class="page-header"><h2>⚙️ Settings</h2></div>
-
+        <div class="page-header"><h2>Settings</h2></div>
         <div class="panel">
-          <h3 style="font-size:1rem;font-weight:700;margin-bottom:.6rem;">🔔 Notifications</h3>
-
-          <div class="toggle-row">
-            <div class="toggle-label">
+          <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.5rem;">Notifications</h3>
+          <div class="trow">
+            <div>
               <strong>Email Alerts</strong>
-              <span>Get an email whenever someone scans your tag</span>
+              <small>Get an email whenever someone scans your tag</small>
             </div>
-            <label class="switch"><input type="checkbox" id="toggle-email" checked><span class="slider"></span></label>
+            <label class="switch"><input type="checkbox" id="tog-email" checked><span class="slider"></span></label>
           </div>
-
-          <div class="toggle-row">
-            <div class="toggle-label">
+          <div class="trow">
+            <div>
               <strong>WhatsApp / SMS Alerts</strong>
-              <span>Get a WhatsApp or SMS message on every scan</span>
+              <small>Receive a message on every scan</small>
             </div>
-            <label class="switch"><input type="checkbox" id="toggle-whatsapp" checked><span class="slider"></span></label>
+            <label class="switch"><input type="checkbox" id="tog-wa" checked><span class="slider"></span></label>
           </div>
         </div>
-
         <div class="danger-zone">
-          <h3>⚠️ Danger Zone</h3>
-          <p>Permanently deletes your account, all tags, and data. This action <strong>cannot be undone.</strong></p>
-          <button class="btn btn-danger" onclick="confirmDelete()">Delete My Account</button>
+          <h3>Danger Zone</h3>
+          <p>Permanently deletes your account, all tags, and data. <b>This cannot be undone.</b></p>
+          <button class="btn" style="background:#fff;color:#ef4444;border:1.5px solid #ef4444;" onclick="confirmDelete()">Delete My Account</button>
         </div>
       </section>
 
@@ -406,260 +342,231 @@
   </div>
 </div>
 
-<!-- ===== SCRIPTS ===== -->
+<!-- SCRIPTS — nav_logic first, then animations, then our controller -->
 <script src="nav_logic.js"></script>
 <script src="animations.js"></script>
-<script src="dashboard.js"></script>
 
 <script>
-// ================================================================
-//  DASHBOARD CONTROLLER — ContactKar
-// ================================================================
-const API_URL = 'https://contactkar.onrender.com/api';
+/* ==========================================================
+   CONTACTKAR DASHBOARD CONTROLLER
+   Single script — no duplicates, no external dashboard.js
+   ========================================================== */
 
-// ---- QR Cache ----
-const qrCache = {};
+var API = 'https://contactkar.onrender.com/api';
+var qrCache = {};
 
-// ---- Tab Switching ----
-function switchTab(tabId) {
-  document.querySelectorAll('.tab-section').forEach(s => s.classList.remove('active-tab'));
-  document.querySelectorAll('.sidebar ul li a').forEach(a => a.classList.remove('active'));
-  document.getElementById(tabId + '-section').classList.add('active-tab');
-  document.getElementById('nav-' + tabId).classList.add('active');
-  if (tabId === 'billing') fetchBillingPlan();
+/* ---------- TAB SWITCHER ---------- */
+function switchTab(id) {
+  var sections = document.querySelectorAll('.tab-section');
+  for (var i = 0; i < sections.length; i++) {
+    sections[i].classList.remove('active-tab');
+  }
+  var links = document.querySelectorAll('.sidebar ul li a');
+  for (var j = 0; j < links.length; j++) {
+    links[j].classList.remove('active');
+  }
+  document.getElementById(id + '-section').classList.add('active-tab');
+  document.getElementById('nav-' + id).classList.add('active');
+  if (id === 'billing') loadBillingPlan();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ---- Init: Load User Info ----
-(function initUser() {
-  const name  = localStorage.getItem('userName')  || 'User';
-  const email = localStorage.getItem('userEmail') || 'Not Set';
-  document.getElementById('user-greeting').innerText    = 'Hi, ' + name + ' 👋';
-  document.getElementById('profile-name').value         = name;
-  document.getElementById('profile-phone').value        = localStorage.getItem('userPhone') || '';
-  document.getElementById('display-email').innerText    = email;
-  document.getElementById('otp-target-email').innerText = email;
-})();
-
-// ---- Logout ----
-function logout() {
+/* ---------- LOGOUT ---------- */
+document.getElementById('logout-btn').addEventListener('click', function () {
   localStorage.clear();
   window.location.href = 'login.html';
-}
+});
 
-// ---- Save Profile ----
-function saveProfile(e) {
-  e.preventDefault();
-  const btn  = document.getElementById('profile-save-btn');
-  const msg  = document.getElementById('profile-save-msg');
-  const name = document.getElementById('profile-name').value.trim();
-  const phone= document.getElementById('profile-phone').value.trim();
+/* ---------- INIT USER ---------- */
+(function initUser() {
+  var name  = localStorage.getItem('userName')  || 'User';
+  var email = localStorage.getItem('userEmail') || '';
+  document.getElementById('user-greeting').textContent   = 'Hi, ' + name;
+  document.getElementById('profile-name').value          = name;
+  document.getElementById('profile-phone').value         = localStorage.getItem('userPhone') || '';
+  document.getElementById('display-email').textContent   = email || 'Not set';
+  document.getElementById('otp-email').textContent       = email;
+})();
+
+/* ---------- SAVE PROFILE ---------- */
+function saveProfile() {
+  var btn   = document.getElementById('save-profile-btn');
+  var msg   = document.getElementById('save-msg');
+  var name  = document.getElementById('profile-name').value.trim();
+  var phone = document.getElementById('profile-phone').value.trim();
   btn.disabled = true;
-  msg.textContent = 'Saving...';
   localStorage.setItem('userName',  name);
   localStorage.setItem('userPhone', phone);
-  document.getElementById('user-greeting').innerText = 'Hi, ' + (name || 'User') + ' 👋';
-  setTimeout(() => {
+  document.getElementById('user-greeting').textContent = 'Hi, ' + (name || 'User');
+  setTimeout(function () {
+    msg.textContent  = 'Saved!';
     btn.disabled = false;
-    msg.textContent = '✅ Saved!';
-    setTimeout(() => msg.textContent = '', 2000);
-  }, 400);
+    setTimeout(function () { msg.textContent = ''; }, 2000);
+  }, 300);
 }
 
-// ---- Email OTP Flow ----
-function openEmailOTPFlow() {
-  document.getElementById('otp-flow').style.display    = 'block';
-  document.getElementById('otp-step-1').style.display  = 'block';
-  document.getElementById('otp-step-2').style.display  = 'none';
-  document.getElementById('otp-step-3').style.display  = 'none';
-  document.getElementById('otp-input').value = '';
-  document.getElementById('new-email-input').value = '';
+/* ---------- OTP FLOW ---------- */
+function openOTPFlow() {
+  document.getElementById('otp-flow').style.display = 'block';
+  document.getElementById('otp-s1').style.display   = 'block';
+  document.getElementById('otp-s2').style.display   = 'none';
+  document.getElementById('otp-s3').style.display   = 'none';
+  document.getElementById('otp-input').value         = '';
+  document.getElementById('new-email').value         = '';
 }
-function cancelEmailFlow() {
-  document.getElementById('otp-flow').style.display = 'none';
-}
-async function sendRealOTP() {
-  const btn = document.getElementById('send-otp-btn');
-  btn.textContent = 'Sending...';
-  btn.disabled    = true;
-  try {
-    const res  = await fetch(API_URL + '/auth/send-change-email-otp', {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
-    });
-    const data = await res.json();
+function cancelOTP() { document.getElementById('otp-flow').style.display = 'none'; }
+
+function sendOTPEmail() {
+  var btn = document.getElementById('send-otp-btn');
+  btn.textContent = 'Sending...'; btn.disabled = true;
+  fetch(API + '/auth/send-change-email-otp', {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+  }).then(function (r) { return r.json(); }).then(function (data) {
     if (data.success) {
-      document.getElementById('otp-step-1').style.display = 'none';
-      document.getElementById('otp-step-2').style.display = 'block';
+      document.getElementById('otp-s1').style.display = 'none';
+      document.getElementById('otp-s2').style.display = 'block';
       document.getElementById('otp-input').focus();
-      showToast('OTP sent! Check your email inbox.', 'success');
-    } else {
-      showToast('Failed: ' + data.error, 'error');
-    }
-  } catch(e) { showToast('Server error. Try again.', 'error'); }
-  btn.textContent = 'Send OTP';
-  btn.disabled    = false;
+      showToast('OTP sent! Check your inbox.', 'green');
+    } else { showToast('Error: ' + data.error, 'red'); }
+  }).catch(function () { showToast('Server error. Try again.', 'red'); })
+  .finally(function () { btn.textContent = 'Send OTP'; btn.disabled = false; });
 }
-async function verifyOTP() {
-  const otp   = document.getElementById('otp-input').value.trim();
-  const token = localStorage.getItem('token');
-  if (otp.length !== 6) { showToast('Please enter a 6-digit OTP.', 'error'); return; }
-  try {
-    const res  = await fetch(API_URL + '/auth/verify-change-email-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({ otp, newEmail: '' })
-    });
-    const data = await res.json();
+
+function verifyOTPCode() {
+  var otp = document.getElementById('otp-input').value.trim();
+  if (otp.length !== 6) { showToast('Enter a 6-digit OTP.', 'red'); return; }
+  fetch(API + '/auth/verify-change-email-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+    body: JSON.stringify({ otp: otp, newEmail: '' })
+  }).then(function (r) { return r.json(); }).then(function (data) {
     if (data.success || data.verified) {
-      document.getElementById('otp-step-2').style.display = 'none';
-      document.getElementById('otp-step-3').style.display = 'block';
-    } else { showToast('Invalid OTP. Try again.', 'error'); }
-  } catch(e) { showToast('Server error.', 'error'); }
+      document.getElementById('otp-s2').style.display = 'none';
+      document.getElementById('otp-s3').style.display = 'block';
+    } else { showToast('Invalid OTP. Try again.', 'red'); }
+  }).catch(function () { showToast('Server error.', 'red'); });
 }
-async function saveNewEmail() {
-  const otp      = document.getElementById('otp-input').value.trim();
-  const newEmail = document.getElementById('new-email-input').value.trim();
-  const token    = localStorage.getItem('token');
-  if (!newEmail || !newEmail.includes('@')) { showToast('Enter a valid email address.', 'error'); return; }
-  try {
-    const res  = await fetch(API_URL + '/auth/verify-change-email-otp', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({ otp, newEmail })
-    });
-    const data = await res.json();
+
+function saveNewEmail() {
+  var otp = document.getElementById('otp-input').value.trim();
+  var em  = document.getElementById('new-email').value.trim();
+  if (!em.includes('@')) { showToast('Enter a valid email.', 'red'); return; }
+  fetch(API + '/auth/verify-change-email-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+    body: JSON.stringify({ otp: otp, newEmail: em })
+  }).then(function (r) { return r.json(); }).then(function (data) {
     if (data.success) {
-      localStorage.setItem('userEmail', newEmail);
-      document.getElementById('display-email').innerText    = newEmail;
-      document.getElementById('otp-target-email').innerText = newEmail;
-      cancelEmailFlow();
-      showToast('✅ Email updated successfully!', 'success');
-    } else { showToast('Error: ' + data.error, 'error'); }
-  } catch(e) { showToast('Server error.', 'error'); }
+      localStorage.setItem('userEmail', em);
+      document.getElementById('display-email').textContent = em;
+      document.getElementById('otp-email').textContent     = em;
+      cancelOTP();
+      showToast('Email updated successfully!', 'green');
+    } else { showToast('Error: ' + data.error, 'red'); }
+  }).catch(function () { showToast('Server error.', 'red'); });
 }
 
-// ---- QR Modal ----
-function openQRModal(tagCode, src) {
-  document.getElementById('qrMTitle').innerText     = tagCode;
-  document.getElementById('qrMImg').src              = src;
-  document.getElementById('qrMDownload').href        = src;
-  document.getElementById('qrMDownload').download    = 'ContactKar-QR-' + tagCode + '.png';
-  document.getElementById('qrModalOverlay').classList.add('open');
+/* ---------- QR MODAL ---------- */
+function openQR(code, src) {
+  if (!src) { showToast('QR still loading. Try again in a moment.', 'blue'); return; }
+  document.getElementById('qrTitle').textContent = code;
+  document.getElementById('qrImg').src            = src;
+  document.getElementById('qrDl').href            = src;
+  document.getElementById('qrDl').download        = 'CK-QR-' + code + '.png';
+  document.getElementById('qrOverlay').classList.add('open');
 }
-function closeQRModal() {
-  document.getElementById('qrModalOverlay').classList.remove('open');
-}
-document.addEventListener('keydown', e => { if(e.key==='Escape') closeQRModal(); });
+function closeQR() { document.getElementById('qrOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeQR(); });
 
-// ---- Load QR for one tag ----
-async function loadQRCode(tagCode) {
-  const box = document.getElementById('qr-' + tagCode);
+/* ---------- LOAD QR IMAGE ---------- */
+function loadQR(code) {
+  var box = document.getElementById('qr-' + code);
   if (!box) return;
-  if (qrCache[tagCode]) { renderQRImg(tagCode, qrCache[tagCode]); return; }
-  try {
-    const res  = await fetch(API_URL + '/tags/' + tagCode + '/qrcode', {
-      headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    if (data.success && data.qr) {
-      qrCache[tagCode] = data.qr;
-      renderQRImg(tagCode, data.qr);
-    } else { renderQRError(tagCode); }
-  } catch(e) { renderQRError(tagCode); }
+  if (qrCache[code]) { renderQR(code, qrCache[code]); return; }
+  fetch(API + '/tags/' + code + '/qrcode', {
+    headers: { Authorization: 'Bearer ' + localStorage.getItem('token') }
+  }).then(function (r) {
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    return r.json();
+  }).then(function (d) {
+    if (d.success && d.qr) { qrCache[code] = d.qr; renderQR(code, d.qr); }
+    else qrFail(code);
+  }).catch(function () { qrFail(code); });
+}
+function renderQR(code, src) {
+  var b = document.getElementById('qr-' + code);
+  if (!b) return;
+  b.innerHTML = '<img src="' + src + '" alt="QR" title="Click to enlarge" '
+    + 'onclick="openQR('' + code + '','' + src + '')">';
+}
+function qrFail(code) {
+  var b = document.getElementById('qr-' + code);
+  if (!b) return;
+  b.innerHTML = '<div class="qr-err">Failed<br>'
+    + '<button onclick="loadQR('' + code + '')" '
+    + 'style="margin-top:4px;padding:2px 8px;border:1px solid #ef4444;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;font-size:11px;">'
+    + 'Retry</button></div>';
 }
 
-function renderQRImg(tagCode, src) {
-  const box = document.getElementById('qr-' + tagCode);
-  if (!box) return;
-  box.innerHTML = '<img src="' + src + '" alt="QR Code" '
-    + 'title="Click to enlarge" '
-    + 'onclick="openQRModal('' + tagCode + '','' + src + '')">';
-}
-
-function renderQRError(tagCode) {
-  const box = document.getElementById('qr-' + tagCode);
-  if (!box) return;
-  box.innerHTML =
-    '<div style="text-align:center;font-size:11px;color:#ef4444;padding:6px;">'
-    + '⚠️ Failed<br>'
-    + '<button onclick="loadQRCode('' + tagCode + '')" '
-    + 'style="margin-top:4px;padding:3px 9px;border:1px solid #ef4444;border-radius:5px;background:#fff;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button>'
-    + '</div>';
-}
-
-// ---- Copy scan link ----
-function copyTagLink(tagCode) {
-  const url = 'https://contactkar.vercel.app/tag/' + tagCode;
+/* ---------- COPY LINK ---------- */
+function copyLink(code) {
+  var url = 'https://contactkar.vercel.app/tag/' + code;
   if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(() => showToast('🔗 Scan link copied!', 'success'));
+    navigator.clipboard.writeText(url).then(function () { showToast('Link copied!', 'blue'); });
   } else { prompt('Copy this link:', url); }
 }
 
-// ---- Toggle tag contactable ----
-async function toggleContact(tagId, newState) {
-  const token = localStorage.getItem('token');
-  try {
-    const res  = await fetch(API_URL + '/tags/' + tagId + '/toggle', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({ isContactable: newState })
-    });
-    const data = await res.json();
-    if (data.success) { fetchMyTags(); showToast(newState ? '👁 Tag is now visible.' : '🙈 Tag is now hidden.', 'success'); }
-    else showToast('Failed: ' + data.error, 'error');
-  } catch(e) { showToast('Network error. Try again.', 'error'); }
+/* ---------- TOGGLE CONTACTABLE ---------- */
+function toggleContact(id, state) {
+  fetch(API + '/tags/' + id + '/toggle', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+    body: JSON.stringify({ isContactable: state })
+  }).then(function (r) { return r.json(); }).then(function (data) {
+    if (data.success) {
+      fetchMyTags();
+      showToast(state ? 'Tag is now visible.' : 'Tag is now hidden.', 'green');
+    } else { showToast('Failed: ' + data.error, 'red'); }
+  }).catch(function () { showToast('Network error.', 'red'); });
 }
 
-// ---- Wake up Render server ----
-async function wakeUpServer() {
-  try {
-    const ctrl = new AbortController();
-    setTimeout(() => ctrl.abort(), 9000);
-    await fetch('https://contactkar.onrender.com/', { signal: ctrl.signal });
-  } catch(e) { /* ignore — just a wakeup ping */ }
-}
+/* ---------- FETCH TAGS ---------- */
+function fetchMyTags() {
+  var token   = localStorage.getItem('token');
+  var loading = document.getElementById('tags-loading');
+  var empty   = document.getElementById('tags-empty');
+  var list    = document.getElementById('tags-list');
+  var msg     = document.getElementById('load-msg');
 
-// ---- Fetch & Render Tags ----
-async function fetchMyTags() {
-  const token   = localStorage.getItem('token');
-  const list    = document.getElementById('tags-list');
-  const loading = document.getElementById('tags-loading');
-  const empty   = document.getElementById('tags-empty');
-  const loadMsg = document.getElementById('loading-msg');
-
-  list.innerHTML        = '';
+  list.innerHTML = '';
   empty.style.display   = 'none';
   loading.style.display = 'block';
-  loadMsg.innerHTML = 'Connecting to server...<br><small style="color:#9ca3af;">May take ~15s if server was sleeping</small>';
+  msg.innerHTML = 'Connecting to server...<br><small style="color:#9ca3af">May take ~15s if server is asleep</small>';
 
-  if (!token) {
-    loading.style.display = 'none';
-    empty.style.display   = 'block';
-    return;
-  }
+  if (!token) { loading.style.display = 'none'; empty.style.display = 'block'; return; }
 
-  // Wake up Render free tier
-  await wakeUpServer();
-  loadMsg.textContent = 'Loading your tags...';
-
+  /* Wake up Render free tier */
   try {
-    const ctrl = new AbortController();
-    const timeout = setTimeout(() => ctrl.abort(), 22000);
+    var wc = new AbortController();
+    setTimeout(function () { wc.abort(); }, 8000);
+    fetch('https://contactkar.onrender.com/', { signal: wc.signal }).catch(function(){});
+  } catch(e) {}
 
-    const res = await fetch(API_URL + '/tags/user', {
-      headers: { Authorization: 'Bearer ' + token },
-      signal: ctrl.signal
-    });
+  setTimeout(function () { msg.textContent = 'Loading your tags...'; }, 1000);
+
+  var ctrl = new AbortController();
+  var timeout = setTimeout(function () { ctrl.abort(); }, 25000);
+
+  fetch(API + '/tags/user', {
+    headers: { Authorization: 'Bearer ' + token },
+    signal: ctrl.signal
+  }).then(function (res) {
     clearTimeout(timeout);
-
-    if (res.status === 401) {
-      localStorage.clear();
-      window.location.href = 'login.html';
-      return;
-    }
-
-    const data = await res.json();
+    if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+    return res.json();
+  }).then(function (data) {
+    if (!data) return;
     loading.style.display = 'none';
 
     if (!data.success || !data.tags || data.tags.length === 0) {
@@ -667,113 +574,133 @@ async function fetchMyTags() {
       return;
     }
 
-    // Render tag cards
-    list.innerHTML = data.tags.map((tag, i) => {
-      const typeBadge = tag.type === 'pet'
-        ? '<span class="badge badge-pet">🐾 Pet</span>'
-        : '<span class="badge badge-vehicle">🚗 Vehicle</span>';
-      const statusBadge = tag.is_contactable
-        ? '<span class="badge badge-active">🟢 Active</span>'
-        : '<span class="badge badge-hidden">🔴 Hidden</span>';
+    var html = '';
+    for (var i = 0; i < data.tags.length; i++) {
+      var t = data.tags[i];
+      var typeBadge   = t.type === 'pet'
+        ? '<span class="badge badge-p">Pet</span>'
+        : '<span class="badge badge-v">Vehicle</span>';
+      var statusBadge = t.is_contactable
+        ? '<span class="badge badge-on">Active</span>'
+        : '<span class="badge badge-off">Hidden</span>';
+      var metaLines = '';
+      if (t.vehicle_number)    metaLines += '<div class="tag-meta"><b>' + t.vehicle_number + '</b></div>';
+      if (t.owner_name)        metaLines += '<div class="tag-meta">' + t.owner_name + '</div>';
+      if (t.pet_name)          metaLines += '<div class="tag-meta">' + t.pet_name + (t.pet_breed ? ' - ' + t.pet_breed : '') + '</div>';
+      if (t.emergency_contact) metaLines += '<div class="tag-meta">' + t.emergency_contact + '</div>';
 
-      return [
-        '<div class="tag-card" style="animation-delay:' + (i * 0.08) + 's;">',
-          '<div class="qr-box" id="qr-' + tag.tag_code + '">',
-            '<div class="qr-shimmer"></div>',
-          '</div>',
-          '<div class="tag-info">',
-            '<div class="tag-code-row">',
-              '<span class="tag-code-text">' + tag.tag_code + '</span>',
-              typeBadge, statusBadge,
-            '</div>',
-            (tag.vehicle_number    ? '<div class="tag-meta">🚗 <b>' + tag.vehicle_number + '</b></div>' : ''),
-            (tag.owner_name        ? '<div class="tag-meta">👤 ' + tag.owner_name + '</div>' : ''),
-            (tag.emergency_contact ? '<div class="tag-meta">📞 ' + tag.emergency_contact + '</div>' : ''),
-            (tag.pet_name          ? '<div class="tag-meta">🐾 ' + tag.pet_name + (tag.pet_breed ? ' &mdash; ' + tag.pet_breed : '') + '</div>' : ''),
-            '<div class="tag-date">Added: ' + new Date(tag.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}) + '</div>',
-            '<div class="tag-actions">',
-              '<button class="act-btn act-btn-primary" onclick="viewQR('' + tag.tag_code + '')">🔍 View QR</button>',
-              '<button class="act-btn act-btn-outline" onclick="copyTagLink('' + tag.tag_code + '')">🔗 Copy Link</button>',
-              '<button class="act-btn act-btn-outline" onclick="toggleContact(' + tag.id + ',' + (!tag.is_contactable) + ')">',
-                (tag.is_contactable ? '🙈 Hide' : '👁 Show'),
-              '</button>',
-            '</div>',
-          '</div>',
-        '</div>'
-      ].join('');
-    }).join('');
+      var dateStr = '';
+      try { dateStr = new Date(t.created_at).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'}); } catch(e) { dateStr = t.created_at; }
 
-    // Trigger QR loading for all tags
-    data.tags.forEach(tag => loadQRCode(tag.tag_code));
+      var toggleLabel = t.is_contactable ? 'Hide' : 'Show';
 
-  } catch(e) {
-    loading.style.display = 'block';
+      html += '<div class="tag-card" style="animation-delay:' + (i * 0.08) + 's">'
+        + '<div class="qr-box" id="qr-' + t.tag_code + '"><div class="qr-shimmer"></div></div>'
+        + '<div class="tag-info">'
+        + '<div class="tag-code-row">'
+        + '<span class="tag-code">' + t.tag_code + '</span>'
+        + typeBadge + statusBadge
+        + '</div>'
+        + metaLines
+        + '<div class="tag-date">Added: ' + dateStr + '</div>'
+        + '<div class="tag-actions">'
+        + '<button class="abtn abtn-blue" onclick="openQR('' + t.tag_code + '', qrCache['' + t.tag_code + ''] || '')">View QR</button>'
+        + '<button class="abtn abtn-grey" onclick="copyLink('' + t.tag_code + '')">Copy Link</button>'
+        + '<button class="abtn abtn-grey" onclick="toggleContact(' + t.id + ',' + (!t.is_contactable) + ')">' + toggleLabel + '</button>'
+        + '</div>'
+        + '</div>'
+        + '</div>';
+    }
+    list.innerHTML = html;
+
+    for (var k = 0; k < data.tags.length; k++) {
+      loadQR(data.tags[k].tag_code);
+    }
+
+  }).catch(function (e) {
     if (e.name === 'AbortError') {
-      loadMsg.innerHTML = '⚠️ Server took too long. It may still be starting up.<br>'
-        + '<small style="color:#9ca3af;">Click Retry in ~20 seconds</small>';
+      msg.innerHTML = 'Server is slow. Click Retry in ~20 seconds.<br><small style="color:#9ca3af">Render free tier takes 15-30s to wake up</small>';
     } else {
-      loadMsg.innerHTML = '❌ ' + e.message;
+      msg.textContent = 'Error: ' + e.message;
     }
-  }
+  });
 }
 
-function viewQR(tagCode) {
-  if (qrCache[tagCode]) {
-    openQRModal(tagCode, qrCache[tagCode]);
-  } else {
-    loadQRCode(tagCode);
-    showToast('Loading QR...', 'info');
-  }
-}
-
-// ---- Fetch Billing Plan ----
-async function fetchBillingPlan() {
-  const token = localStorage.getItem('token');
+/* ---------- BILLING PLAN ---------- */
+function loadBillingPlan() {
+  var token = localStorage.getItem('token');
   if (!token) return;
-  try {
-    const res  = await fetch(API_URL + '/billing/plan', {
-      headers: { Authorization: 'Bearer ' + token }
-    });
-    const data = await res.json();
-    if (data.success && data.plan && data.plan.subscription_tier && data.plan.subscription_tier !== 'basic') {
-      const expiry = data.plan.subscription_expiry
-        ? new Date(data.plan.subscription_expiry).toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})
-        : 'N/A';
-      document.getElementById('plan-name-display').innerText   = data.plan.subscription_tier.toUpperCase() + ' Plan';
-      document.getElementById('plan-expiry-display').innerText = 'Valid until ' + expiry;
-      document.getElementById('plan-card').style.display       = 'flex';
-      document.getElementById('no-plan').style.display         = 'none';
-    }
-  } catch(e) { /* silently fail — billing is non-critical */ }
+  fetch(API + '/billing/plan', { headers: { Authorization: 'Bearer ' + token } })
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      if (data.success && data.plan && data.plan.subscription_tier && data.plan.subscription_tier !== 'free') {
+        var exp = 'N/A';
+        try { exp = new Date(data.plan.subscription_expiry).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch(e){}
+        document.getElementById('plan-name').textContent     = data.plan.subscription_tier.toUpperCase() + ' Plan';
+        document.getElementById('plan-exp').textContent      = 'Valid until ' + exp;
+        document.getElementById('plan-banner').style.display = 'flex';
+        document.getElementById('no-plan').style.display     = 'none';
+      }
+    }).catch(function () { /* non-critical */ });
 }
 
-// ---- Delete Account Confirm ----
+/* ---------- HARD COPY ORDER ---------- */
+function calcTotal() {
+  var v    = parseInt(document.getElementById('vehicleQty').value) || 0;
+  var p    = parseInt(document.getElementById('petQty').value)     || 0;
+  var tot  = v + p;
+  var free = tot >= 5 ? 2 : tot >= 3 ? 1 : 0;
+  var cost = Math.max(0, tot - free) * 149;
+  document.getElementById('tot-tags').textContent    = tot;
+  document.getElementById('tot-cost').textContent    = 'Rs.' + cost;
+  document.getElementById('savings-txt').textContent = free > 0 ? '(Save Rs.' + (free * 149) + '!)' : '';
+}
+
+function placeOrder() {
+  var token = localStorage.getItem('token');
+  var v   = parseInt(document.getElementById('vehicleQty').value) || 0;
+  var p   = parseInt(document.getElementById('petQty').value)     || 0;
+  var a   = document.getElementById('ship-addr').value.trim();
+  var c   = document.getElementById('ship-city').value.trim();
+  var st  = document.getElementById('ship-state').value.trim();
+  var pin = document.getElementById('ship-pin').value.trim();
+  if (v + p === 0)           { showToast('Add at least 1 tag.', 'red'); return; }
+  if (!a || !c || !st || !pin) { showToast('Fill in your complete shipping address.', 'red'); return; }
+  fetch(API + '/orders/place', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+    body: JSON.stringify({ vehicleQty: v, petQty: p, address: a, city: c, state: st, pincode: pin })
+  }).then(function (r) { return r.json(); }).then(function (data) {
+    if (data.success) showToast('Order placed! Delivery in 5-7 days.', 'green');
+    else showToast('Error: ' + data.error, 'red');
+  }).catch(function () { showToast('Server error. Try again.', 'red'); });
+}
+
+/* ---------- DELETE ACCOUNT ---------- */
 function confirmDelete() {
-  if (confirm('⚠️ This will permanently delete your account and ALL your tags.\n\nThis cannot be undone. Are you sure?')) {
-    showToast('Account deletion coming soon. Contact support for now.', 'info');
+  if (confirm('This permanently deletes your account and ALL your tags.\nThis CANNOT be undone. Are you sure?')) {
+    showToast('Account deletion coming soon. Contact support for now.', 'blue');
   }
 }
 
-// ---- Toast Notifications ----
-function showToast(msg, type) {
-  const existing = document.getElementById('ck-toast');
-  if (existing) existing.remove();
-  const colors = { success:'#10b981', error:'#ef4444', info:'#2563eb' };
-  const toast = document.createElement('div');
-  toast.id = 'ck-toast';
-  toast.style.cssText =
-    'position:fixed;bottom:24px;right:24px;z-index:99999;'
-    + 'background:' + (colors[type]||'#374151') + ';'
-    + 'color:#fff;padding:12px 20px;border-radius:10px;font-weight:600;font-size:.875rem;'
-    + 'box-shadow:0 8px 24px rgba(0,0,0,.2);'
-    + 'animation:tabFadeIn .3s ease;max-width:300px;line-height:1.4;';
-  toast.innerText = msg;
-  document.body.appendChild(toast);
-  setTimeout(() => { toast.style.opacity='0'; toast.style.transition='opacity .4s'; setTimeout(()=>toast.remove(),400); }, 3000);
+/* ---------- TOAST ---------- */
+function showToast(msg, color) {
+  var colors = { green: '#10b981', red: '#ef4444', blue: '#2563eb' };
+  var el = document.getElementById('ck-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ck-toast';
+    document.body.appendChild(el);
+  }
+  el.style.background = colors[color] || '#374151';
+  el.style.opacity    = '1';
+  el.textContent      = msg;
+  clearTimeout(el._timer);
+  el._timer = setTimeout(function () { el.style.opacity = '0'; }, 3000);
 }
 
-// ---- On DOMContentLoaded ----
-document.addEventListener('DOMContentLoaded', function() {
+/* ---------- BOOT ---------- */
+document.addEventListener('DOMContentLoaded', function () {
   fetchMyTags();
 });
 </script>
