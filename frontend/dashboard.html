@@ -359,18 +359,27 @@ async function verifyOTP() {
 }
 
 
-    // ============ QR CODE CACHE ============
+    // ======== QR CACHE ========
     const qrCache = {};
 
-    // ============ LOAD QR FOR A TAG ============
+    // ======== WAKE UP RENDER SERVER FIRST ========
+    async function wakeUpServer() {
+      try {
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 8000);
+        await fetch(API_URL.replace('/api','') + '/', { signal: ctrl.signal });
+        clearTimeout(timeout);
+      } catch(e) { /* ignore - just a wake ping */ }
+    }
+
+    // ======== LOAD QR IMAGE ========
     async function loadQRCode(tagCode) {
       const token = localStorage.getItem('token');
-      const box = document.getElementById('qr-' + tagCode);
+      const box   = document.getElementById('qr-' + tagCode);
       if (!box) return;
 
-      // Use cache if already loaded
       if (qrCache[tagCode]) {
-        box.innerHTML = buildQRImg(tagCode, qrCache[tagCode]);
+        box.innerHTML = qrImgHTML(tagCode, qrCache[tagCode]);
         return;
       }
 
@@ -378,76 +387,99 @@ async function verifyOTP() {
         const res  = await fetch(API_URL + '/tags/' + tagCode + '/qrcode', {
           headers: { Authorization: 'Bearer ' + token }
         });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
         const data = await res.json();
         if (data.success && data.qr) {
           qrCache[tagCode] = data.qr;
-          box.innerHTML = buildQRImg(tagCode, data.qr);
+          box.innerHTML = qrImgHTML(tagCode, data.qr);
         } else {
-          box.innerHTML = '<div style="font-size:11px;color:#ef4444;text-align:center;padding:8px;">QR failed<br><button onclick="loadQRCode(''+tagCode+'')" style="margin-top:4px;padding:3px 8px;border:1px solid #ef4444;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button></div>';
+          box.innerHTML = retryBtn(tagCode);
         }
       } catch(e) {
-        if (box) box.innerHTML = '<div style="font-size:11px;color:#ef4444;text-align:center;padding:8px;">No connection<br><button onclick="loadQRCode(''+tagCode+'')" style="margin-top:4px;padding:3px 8px;border:1px solid #ef4444;border-radius:4px;background:#fff;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button></div>';
+        box.innerHTML = retryBtn(tagCode);
       }
     }
 
-    function buildQRImg(tagCode, src) {
-      return '<img src="'+src+'" alt="QR" style="width:90px;height:90px;border-radius:8px;cursor:pointer;display:block;" onclick="openQRModal(''+tagCode+'',''+src+'')" title="Click to enlarge & download">';
+    function qrImgHTML(code, src) {
+      return '<img src="'+src+'" alt="QR" title="Click to enlarge" '
+           + 'style="width:90px;height:90px;border-radius:8px;cursor:pointer;display:block;" '
+           + 'onclick="showQRModal(''+code+'',''+src+'')">';
     }
 
-    // ============ QR MODAL ============
-    function openQRModal(tagCode, src) {
-      let modal = document.getElementById('qrFullModal');
-      if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'qrFullModal';
-        modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;';
-        modal.innerHTML = `
-          <div style="background:#fff;border-radius:16px;padding:2rem;max-width:320px;width:90%;text-align:center;box-shadow:0 20px 40px rgba(0,0,0,.3);">
-            <h3 id="qrModalTitle" style="margin:0 0 4px;"></h3>
-            <p style="color:#6b7280;font-size:13px;margin-bottom:16px;">Scan to open your contact page</p>
-            <img id="qrModalImg" style="width:220px;height:220px;border-radius:12px;border:4px solid #f3f4f6;" />
-            <div style="display:flex;gap:10px;justify-content:center;margin-top:1rem;">
-              <a id="qrDownloadBtn" download style="padding:8px 20px;background:#2563eb;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">⬇ Download</a>
-              <button onclick="document.getElementById('qrFullModal').style.display='none';" style="padding:8px 20px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;font-size:14px;">Close</button>
-            </div>
-          </div>`;
-        modal.addEventListener('click', function(e){ if(e.target===modal) modal.style.display='none'; });
-        document.body.appendChild(modal);
+    function retryBtn(code) {
+      return '<div style="text-align:center;font-size:11px;color:#ef4444;padding:4px;">'
+           + '⚠️ Failed<br>'
+           + '<button onclick="loadQRCode(''+code+'')" '
+           + 'style="margin-top:4px;padding:3px 10px;background:#fff;border:1px solid #ef4444;'
+           + 'border-radius:4px;cursor:pointer;font-size:11px;color:#ef4444;">Retry</button></div>';
+    }
+
+    // ======== QR FULL-SCREEN MODAL ========
+    function showQRModal(tagCode, src) {
+      let m = document.getElementById('qrOverlay');
+      if (!m) {
+        m = document.createElement('div');
+        m.id = 'qrOverlay';
+        m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:9999;'
+                        + 'display:flex;align-items:center;justify-content:center;';
+        m.innerHTML =
+          '<div style="background:#fff;border-radius:16px;padding:28px;max-width:310px;width:90%;'
+        + 'text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.35);">'
+        + '<h3 id="qrMTitle" style="margin:0 0 4px;font-size:1rem;"></h3>'
+        + '<p style="color:#6b7280;font-size:13px;margin-bottom:14px;">Scan QR to open contact page</p>'
+        + '<img id="qrMImg" style="width:210px;height:210px;border-radius:10px;border:4px solid #f3f4f6;" />'
+        + '<div style="display:flex;gap:10px;justify-content:center;margin-top:16px;">'
+        + '<a id="qrMDl" download style="padding:8px 20px;background:#2563eb;color:#fff;border-radius:8px;'
+        + 'text-decoration:none;font-weight:700;font-size:14px;">⬇ Download PNG</a>'
+        + '<button onclick="document.getElementById('qrOverlay').style.display='none';" '
+        + 'style="padding:8px 20px;border:1px solid #d1d5db;border-radius:8px;cursor:pointer;font-size:14px;">✕ Close</button>'
+        + '</div></div>';
+        m.addEventListener('click', e => { if(e.target===m) m.style.display='none'; });
+        document.body.appendChild(m);
       }
-      document.getElementById('qrModalTitle').innerText = tagCode;
-      document.getElementById('qrModalImg').src = src;
-      document.getElementById('qrDownloadBtn').href = src;
-      document.getElementById('qrDownloadBtn').download = 'ContactKar-QR-' + tagCode + '.png';
-      modal.style.display = 'flex';
+      document.getElementById('qrMTitle').innerText = tagCode;
+      document.getElementById('qrMImg').src          = src;
+      document.getElementById('qrMDl').href           = src;
+      document.getElementById('qrMDl').download       = 'ContactKar-QR-' + tagCode + '.png';
+      m.style.display = 'flex';
     }
 
-    // ============ TOGGLE CONTACTABLE ============
+    // ======== COPY LINK ========
+    function copyTagLink(tagCode) {
+      const url = 'https://contactkar.vercel.app/tag/' + tagCode;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(() => alert('✅ Link copied!
+' + url));
+      } else {
+        prompt('Copy this link:', url);
+      }
+    }
+
+    // ======== TOGGLE CONTACTABLE ========
     async function toggleContact(tagId, newState) {
       const token = localStorage.getItem('token');
       try {
-        await fetch(API_URL + '/tags/' + tagId + '/toggle', {
+        const res = await fetch(API_URL + '/tags/' + tagId + '/toggle', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
           body: JSON.stringify({ isContactable: newState })
         });
-        fetchMyTags();
-      } catch(e) { alert('Failed to update tag status.'); }
+        const d = await res.json();
+        if (d.success) fetchMyTags();
+        else alert('Failed: ' + d.error);
+      } catch(e) { alert('Network error. Try again.'); }
     }
 
-    // ============ COPY LINK ============
-    function copyTagLink(tagCode) {
-      const url = 'https://contactkar.vercel.app/tag/' + tagCode;
-      navigator.clipboard.writeText(url)
-        .then(() => alert('✅ Scan link copied to clipboard!'))
-        .catch(() => prompt('Copy this link:', url));
-    }
-
-    // ============ FETCH & RENDER TAGS ============
+    // ======== MAIN: FETCH & RENDER TAGS ========
     async function fetchMyTags() {
       const token   = localStorage.getItem('token');
       const list    = document.getElementById('tags-list');
       const loading = document.getElementById('tags-loading');
       const empty   = document.getElementById('tags-empty');
+
+      list.innerHTML  = '';
+      empty.style.display   = 'none';
+      loading.style.display = 'block';
 
       if (!token) {
         loading.style.display = 'none';
@@ -455,8 +487,32 @@ async function verifyOTP() {
         return;
       }
 
+      // Step 1: Wake up Render (free tier sleeps after inactivity)
+      loading.innerHTML = '⏳ Connecting to server... <span style="color:#9ca3af;font-size:13px;">(may take ~15s if server was sleeping)</span>'
+                        + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Retry</button>';
+      await wakeUpServer();
+
+      // Step 2: Fetch tags
       try {
-        const res  = await fetch(API_URL + '/tags/user', { headers: { Authorization: 'Bearer ' + token } });
+        loading.innerHTML = '⏳ Loading your tags...';
+
+        const controller = new AbortController();
+        const timeoutId  = setTimeout(() => controller.abort(), 20000); // 20s timeout
+
+        const res = await fetch(API_URL + '/tags/user', {
+          headers: { Authorization: 'Bearer ' + token },
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.status === 401) {
+          loading.style.display = 'none';
+          alert('Session expired. Please login again.');
+          localStorage.clear();
+          window.location.href = 'login.html';
+          return;
+        }
+
         const data = await res.json();
         loading.style.display = 'none';
 
@@ -465,52 +521,69 @@ async function verifyOTP() {
           return;
         }
 
-        // Render tag cards
+        // Step 3: Render tag cards
         list.innerHTML = data.tags.map((tag, i) => {
-          const isVehicle  = tag.type !== 'pet';
-          const typeBadge  = isVehicle
-            ? '<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🚗 Vehicle</span>'
-            : '<span style="background:#fce7f3;color:#be185d;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🐾 Pet</span>';
+          const typeBadge = tag.type === 'pet'
+            ? '<span style="background:#fce7f3;color:#be185d;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🐾 Pet</span>'
+            : '<span style="background:#dbeafe;color:#1d4ed8;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🚗 Vehicle</span>';
           const statusBadge = tag.is_contactable
-            ? '<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🟢 Active</span>'
-            : '<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;">🔴 Hidden</span>';
+            ? '<span style="background:#d1fae5;color:#065f46;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🟢 Active</span>'
+            : '<span style="background:#fee2e2;color:#991b1b;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;">🔴 Hidden</span>';
 
           return `
-          <div class="panel" style="display:flex;gap:1.2rem;align-items:flex-start;animation:fadeIn .4s ease ${i*0.1}s both;flex-wrap:wrap;">
-            <!-- QR Box -->
-            <div id="qr-${tag.tag_code}" style="width:90px;height:90px;min-width:90px;background:#f3f4f6;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#9ca3af;overflow:hidden;">
-              ⏳ Loading...
+          <div class="panel" style="display:flex;gap:1rem;align-items:flex-start;flex-wrap:wrap;">
+            <div id="qr-${tag.tag_code}"
+                 style="width:90px;height:90px;min-width:90px;background:#f3f4f6;border-radius:10px;
+                        display:flex;align-items:center;justify-content:center;
+                        font-size:11px;color:#9ca3af;overflow:hidden;text-align:center;">
+              ⏳
             </div>
-            <!-- Tag Info -->
-            <div style="flex:1;min-width:180px;">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-                <strong style="font-size:1.05rem;letter-spacing:.5px;">${tag.tag_code}</strong>
+            <div style="flex:1;min-width:160px;">
+              <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px;">
+                <strong style="font-size:1rem;">${tag.tag_code}</strong>
                 ${typeBadge} ${statusBadge}
               </div>
-              ${tag.vehicle_number  ? `<div style="font-size:13px;color:#374151;margin-bottom:3px;">🚗 <strong>${tag.vehicle_number}</strong></div>` : ''}
-              ${tag.owner_name      ? `<div style="font-size:13px;color:#374151;margin-bottom:3px;">👤 ${tag.owner_name}</div>` : ''}
-              ${tag.emergency_contact ? `<div style="font-size:13px;color:#374151;margin-bottom:3px;">📞 ${tag.emergency_contact}</div>` : ''}
-              <div style="font-size:11px;color:#9ca3af;margin-bottom:10px;">Added: ${new Date(tag.created_at).toLocaleDateString('en-IN')}</div>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <button onclick="openQRModal('${tag.tag_code}', qrCache['${tag.tag_code}'] || '')" style="padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">🔍 View QR</button>
-                <button onclick="copyTagLink('${tag.tag_code}')" style="padding:5px 12px;background:#fff;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:#374151;">🔗 Copy Link</button>
-                <button onclick="toggleContact(${tag.id}, ${!tag.is_contactable})" style="padding:5px 12px;background:#fff;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;color:#374151;">${tag.is_contactable ? '🙈 Hide' : '👁 Show'}</button>
+              ${tag.vehicle_number   ? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">🚗 <b>'+tag.vehicle_number+'</b></div>' : ''}
+              ${tag.owner_name       ? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">👤 '+tag.owner_name+'</div>' : ''}
+              ${tag.emergency_contact? '<div style="font-size:13px;color:#374151;margin-bottom:3px;">📞 '+tag.emergency_contact+'</div>' : ''}
+              <div style="font-size:11px;color:#9ca3af;margin-bottom:10px;">
+                Added: ${new Date(tag.created_at).toLocaleDateString('en-IN')}
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onclick="if(qrCache['${tag.tag_code}'])showQRModal('${tag.tag_code}',qrCache['${tag.tag_code}']);else loadQRCode('${tag.tag_code}')"
+                  style="padding:5px 12px;background:#2563eb;color:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                  🔍 View QR</button>
+                <button onclick="copyTagLink('${tag.tag_code}')"
+                  style="padding:5px 12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                  🔗 Copy Link</button>
+                <button onclick="toggleContact(${tag.id},${!tag.is_contactable})"
+                  style="padding:5px 12px;background:#fff;color:#374151;border:1px solid #d1d5db;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">
+                  ${tag.is_contactable ? '🙈 Hide Tag' : '👁 Show Tag'}</button>
               </div>
             </div>
           </div>`;
         }).join('');
 
-        // Load QR codes for ALL tags after rendering
+        // Step 4: Load QR codes for ALL tags
         data.tags.forEach(tag => loadQRCode(tag.tag_code));
 
       } catch (e) {
-        loading.style.display = 'block';
-        loading.innerText = '❌ Failed to load tags. Check your connection.';
-        console.error(e);
+        if (e.name === 'AbortError') {
+          loading.style.display = 'block';
+          loading.innerHTML = '⚠️ Server took too long to respond (Render may be starting up).'
+                            + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;'
+                            + 'background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Try Again</button>';
+        } else {
+          loading.style.display = 'block';
+          loading.innerHTML = '❌ Error: ' + e.message
+                            + '<br><button onclick="fetchMyTags()" style="margin-top:10px;padding:6px 16px;'
+                            + 'background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:13px;">🔄 Retry</button>';
+        }
       }
     }
 
     document.addEventListener('DOMContentLoaded', fetchMyTags);
+
   </script>
 <script src="dashboard.js"></script>
 </body>
