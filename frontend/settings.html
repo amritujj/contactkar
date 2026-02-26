@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Settings - ContactKar</title>
+  <style>
+
+    /* ══════════════ RESET & BASE ══════════════ */
+    *, *::before, *::after { box-sizing:border-box; }
+    body { margin:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f1f5f9; color:#111827; min-height:100vh; }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ck-nav { background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:100; box-shadow:0 1px 8px rgba(0,0,0,.06); }
+    .ck-nav .inner { max-width:1100px; margin:0 auto; padding:.85rem 1.5rem; display:flex; justify-content:space-between; align-items:center; }
+    .ck-brand { font-size:1.35rem; font-weight:900; color:#111827; text-decoration:none; letter-spacing:-.5px; }
+    .ck-brand span { color:#2563eb; }
+    .ck-user { display:flex; align-items:center; gap:.9rem; }
+    .ck-greeting { font-weight:600; font-size:.9rem; color:#374151; }
+    .ck-logout { padding:6px 16px; border:1.5px solid #e5e7eb; border-radius:8px; background:#fff; font-weight:600; font-size:.85rem; cursor:pointer; color:#374151; transition:.2s; }
+    .ck-logout:hover { background:#fef2f2; border-color:#fca5a5; color:#ef4444; }
+
+    /* ══════════════ LAYOUT WRAPPER ══════════════ */
+    .ck-wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+    /* ══════════════ TAB NAV ══════════════ */
+    .tab-nav { display:flex; gap:.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+    .tab-nav a { padding:.55rem 1.2rem; border-radius:10px; font-weight:600; font-size:.875rem; color:#374151; border:1.5px solid #e5e7eb; background:#fff; text-decoration:none; transition:all .2s; white-space:nowrap; }
+    .tab-nav a:hover { background:#eff6ff; border-color:#93c5fd; color:#2563eb; transform:translateY(-1px); }
+    .tab-nav a.active { background:#2563eb; color:#fff; border-color:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,.3); }
+
+    /* ══════════════ PAGE HEADER ══════════════ */
+    .pg-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:.8rem; }
+    .pg-header h1 { font-size:1.5rem; font-weight:900; margin:0; letter-spacing:-.4px; color:#111827; }
+
+    /* ══════════════ CARD / PANEL ══════════════ */
+    .card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; padding:1.6rem; margin-bottom:1.2rem; box-shadow:0 2px 10px rgba(0,0,0,.05); transition:box-shadow .25s,transform .25s; }
+    .card:hover { box-shadow:0 8px 28px rgba(0,0,0,.09); transform:translateY(-2px); }
+    .card-title { font-size:1rem; font-weight:800; color:#111827; margin:0 0 1rem; display:flex; align-items:center; gap:.5rem; }
+
+    /* ══════════════ FORM ══════════════ */
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+    .fg { margin-bottom:1.1rem; }
+    .fg label { display:block; font-weight:700; font-size:.82rem; color:#374151; margin-bottom:.4rem; text-transform:uppercase; letter-spacing:.4px; }
+    .fc { width:100%; padding:.75rem 1rem; border:1.5px solid #d1d5db; border-radius:10px; font-size:.9rem; outline:none; font-family:inherit; color:#111827; transition:border-color .2s,box-shadow .2s; background:#fff; }
+    .fc:focus { border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
+    .fc::placeholder { color:#9ca3af; }
+    .email-row { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:10px; padding:.7rem 1rem; }
+    .email-val { font-weight:700; font-size:.9rem; color:#1d4ed8; }
+    .save-msg { margin-left:12px; color:#10b981; font-weight:700; font-size:.85rem; }
+
+    /* ══════════════ BUTTONS ══════════════ */
+    .btn-primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; padding:.75rem 1.5rem; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(37,99,235,.3); font-family:inherit; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(37,99,235,.4); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-outline { background:#fff; color:#374151; border:1.5px solid #d1d5db; border-radius:8px; padding:.5rem 1.1rem; font-weight:600; font-size:.85rem; cursor:pointer; transition:.2s; font-family:inherit; }
+    .btn-outline:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+    .btn-danger { background:#fff; color:#ef4444; border:1.5px solid #ef4444; border-radius:10px; padding:.7rem 1.4rem; font-weight:700; font-size:.875rem; cursor:pointer; transition:.2s; font-family:inherit; }
+    .btn-danger:hover { background:#fef2f2; box-shadow:0 4px 14px rgba(239,68,68,.2); }
+
+    /* ══════════════ BADGE ══════════════ */
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:.3px; }
+    .badge-blue { background:#dbeafe; color:#1d4ed8; }
+    .badge-pink { background:#fce7f3; color:#be185d; }
+    .badge-green{ background:#d1fae5; color:#065f46; }
+    .badge-red  { background:#fee2e2; color:#991b1b; }
+    .badge-amber{ background:#fef3c7; color:#92400e; }
+
+    /* ══════════════ EMPTY STATE ══════════════ */
+    .empty { border:2px dashed #d1d5db; background:#fff; border-radius:16px; padding:3rem 2rem; text-align:center; color:#6b7280; margin-bottom:1.2rem; }
+    .empty .ei { font-size:3rem; margin-bottom:.8rem; }
+    .empty h3 { color:#111827; font-size:1.05rem; font-weight:800; margin-bottom:.4rem; }
+    .empty p { font-size:.875rem; margin-bottom:1.2rem; }
+
+    /* ══════════════ DIVIDER ══════════════ */
+    .divider { border:none; border-top:1px solid #f3f4f6; margin:1rem 0; }
+
+    /* ══════════════ TOAST ══════════════ */
+    #ck-toast { position:fixed; bottom:24px; right:20px; z-index:99999; padding:12px 20px; border-radius:12px; font-weight:700; font-size:.875rem; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.2); max-width:300px; transition:opacity .4s,transform .3s; transform:translateY(0); }
+
+    /* ══════════════ ANIMATIONS ══════════════ */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .anim { animation:fadeUp .4s ease both; }
+    .anim-d1 { animation-delay:.05s; }
+    .anim-d2 { animation-delay:.1s; }
+    .anim-d3 { animation-delay:.15s; }
+    .anim-d4 { animation-delay:.2s; }
+
+    /* ══════════════ RESPONSIVE ══════════════ */
+    @media(max-width:640px){
+      .row2 { grid-template-columns:1fr; }
+      .tab-nav a { font-size:.8rem; padding:.45rem .9rem; }
+      .pg-header h1 { font-size:1.25rem; }
+      .ck-wrap { padding:1.2rem 1rem 3rem; }
+    }
+
+    .setting-row { display:flex; justify-content:space-between; align-items:center; padding:1rem 0; border-bottom:1px solid #f3f4f6; gap:1rem; }
+    .setting-row:last-child { border:none; padding-bottom:0; }
+    .setting-row .info strong { display:block; font-size:.925rem; font-weight:800; color:#111827; }
+    .setting-row .info small { color:#6b7280; font-size:.82rem; line-height:1.5; }
+    .switch { position:relative; display:inline-block; width:50px; height:26px; flex-shrink:0; }
+    .switch input { opacity:0; width:0; height:0; }
+    .slider { position:absolute; cursor:pointer; inset:0; background:#d1d5db; border-radius:30px; transition:.3s; }
+    .slider::before { position:absolute; content:''; height:20px; width:20px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+    input:checked + .slider { background:linear-gradient(135deg,#10b981,#059669); }
+    input:checked + .slider::before { transform:translateX(24px); }
+    .danger-zone { border:2px solid #fca5a5; border-radius:16px; padding:1.5rem; background:linear-gradient(135deg,#fff5f5,#fef2f2); margin-top:1.2rem; }
+    .danger-zone h3 { color:#dc2626; margin:0 0 .5rem; font-size:1rem; font-weight:900; display:flex; align-items:center; gap:.4rem; }
+    .danger-zone p { font-size:.875rem; color:#7f1d1d; margin:0 0 1rem; line-height:1.6; }
+    .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:1rem; }
+    .info-item { background:#f8fafc; border-radius:12px; border:1px solid #e5e7eb; padding:1rem 1.2rem; }
+    .info-item .il { font-size:.78rem; font-weight:700; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; }
+    .info-item .iv { font-size:.95rem; font-weight:800; color:#111827; margin-top:.3rem; }
+    @media(max-width:480px){ .info-grid{grid-template-columns:1fr}; }
+  </style>
+  <script>if(localStorage.getItem('isLoggedIn')!=='true'){window.location.href='login.html';}</script>
+</head>
+<body>
+<nav class="ck-nav">
+  <div class="inner">
+    <a href="index.html" class="ck-brand">Contact<span>Kar</span></a>
+    <div class="ck-user">
+      <span class="ck-greeting" id="user-greeting">Hi, User &#128075;</span>
+      <button class="ck-logout" id="logout-btn">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="ck-wrap">
+<nav class="tab-nav anim">
+    <a href="dashboard.html" >&#128230; My Tags</a>
+    <a href="profile.html" >&#128100; Profile</a>
+    <a href="billing.html" >&#128179; Billing</a>
+    <a href="settings.html" class="active">&#9881;&#65039; Settings</a>
+  </nav>
+  <div class="pg-header anim anim-d1"><h1>&#9881;&#65039; Settings</h1></div>
+
+  <!-- Notifications card -->
+  <div class="card anim anim-d2">
+    <div class="card-title">&#128276; Notifications</div>
+    <div class="setting-row">
+      <div class="info">
+        <strong>Email Alerts</strong>
+        <small>Get an email whenever someone scans your tag</small>
+      </div>
+      <label class="switch"><input type="checkbox" id="tog-email" checked onchange="saveSetting('email',this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="info">
+        <strong>WhatsApp / SMS Alerts</strong>
+        <small>Receive an SMS or WhatsApp message on every scan</small>
+      </div>
+      <label class="switch"><input type="checkbox" id="tog-wa" checked onchange="saveSetting('wa',this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="info">
+        <strong>Weekly Summary</strong>
+        <small>Get a weekly report of scan activity for all your tags</small>
+      </div>
+      <label class="switch"><input type="checkbox" id="tog-weekly" onchange="saveSetting('weekly',this.checked)"><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <!-- Privacy card -->
+  <div class="card anim anim-d3">
+    <div class="card-title">&#128274; Privacy</div>
+    <div class="setting-row">
+      <div class="info">
+        <strong>Show Profile to Scanners</strong>
+        <small>Scanners can see your name and contact info when they scan your tag</small>
+      </div>
+      <label class="switch"><input type="checkbox" id="tog-privacy" checked onchange="saveSetting('privacy',this.checked)"><span class="slider"></span></label>
+    </div>
+    <div class="setting-row">
+      <div class="info">
+        <strong>Anonymous Scan Logging</strong>
+        <small>Log scans without revealing scanner identity to you</small>
+      </div>
+      <label class="switch"><input type="checkbox" id="tog-anon" onchange="saveSetting('anon',this.checked)"><span class="slider"></span></label>
+    </div>
+  </div>
+
+  <!-- Account info card -->
+  <div class="card anim anim-d4">
+    <div class="card-title">&#128101; Account Info</div>
+    <div class="info-grid">
+      <div class="info-item">
+        <div class="il">Name</div>
+        <div class="iv" id="info-name">Loading...</div>
+      </div>
+      <div class="info-item">
+        <div class="il">Email</div>
+        <div class="iv" id="info-email">Loading...</div>
+      </div>
+      <div class="info-item">
+        <div class="il">Login Method</div>
+        <div class="iv">OTP (Magic Link)</div>
+      </div>
+      <div class="info-item">
+        <div class="il">Account Status</div>
+        <div class="iv"><span class="badge badge-green">&#128994; Active</span></div>
+      </div>
+    </div>
+    <hr class="divider"/>
+    <div style="display:flex;gap:.8rem;flex-wrap:wrap;">
+      <a href="profile.html" class="btn-outline">&#9999; Edit Profile</a>
+      <a href="billing.html" class="btn-outline">&#128179; Manage Billing</a>
+    </div>
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone anim">
+    <h3>&#9888;&#65039; Danger Zone</h3>
+    <p>Permanently and irreversibly deletes your account, all registered tags, scan logs, and data. <b>This action cannot be undone.</b></p>
+    <button class="btn-danger" onclick="confirmDelete()">&#128465; Delete My Account</button>
+  </div>
+</div>
+
+<script>
+var API='https://contactkar.onrender.com/api';
+
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.clear(); window.location.href = 'login.html';
+  });
+  document.getElementById('user-greeting').textContent = 'Hi, ' + (localStorage.getItem('userName') || 'User') + ' \u{1F44B}';
+
+  function showToast(msg, color) {
+    var colors = { green:'#10b981', red:'#ef4444', blue:'#2563eb', amber:'#f59e0b' };
+    var el = document.getElementById('ck-toast');
+    if (!el) { el = document.createElement('div'); el.id='ck-toast'; document.body.appendChild(el); }
+    el.style.background = colors[color] || '#374151';
+    el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(10px)'; }, 3000);
+  }
+
+(function init(){
+  document.getElementById('info-name').textContent=localStorage.getItem('userName')||'Not set';
+  document.getElementById('info-email').textContent=localStorage.getItem('userEmail')||'Not set';
+  var prefs=JSON.parse(localStorage.getItem('notifPrefs')||'{}');
+  if(prefs.email===false)document.getElementById('tog-email').checked=false;
+  if(prefs.wa===false)document.getElementById('tog-wa').checked=false;
+  if(prefs.weekly===true)document.getElementById('tog-weekly').checked=true;
+  if(prefs.privacy===false)document.getElementById('tog-privacy').checked=false;
+  if(prefs.anon===true)document.getElementById('tog-anon').checked=true;
+})();
+
+function saveSetting(key,val){
+  var prefs=JSON.parse(localStorage.getItem('notifPrefs')||'{}');
+  prefs[key]=val;
+  localStorage.setItem('notifPrefs',JSON.stringify(prefs));
+  showToast('\u2705 Preference saved','green');
+}
+
+function confirmDelete(){
+  if(confirm('This will permanently delete your account and ALL your tags.\nThis CANNOT be undone.\n\nAre you absolutely sure?')){
+    showToast('For account deletion, contact support@contactkar.in','blue');
+  }
+}
+</script>
+</body></html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile - ContactKar</title>
+  <style>
+
+    /* ══════════════ RESET & BASE ══════════════ */
+    *, *::before, *::after { box-sizing:border-box; }
+    body { margin:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f1f5f9; color:#111827; min-height:100vh; }
+
+    /* ══════════════ NAVBAR ══════════════ */
+    .ck-nav { background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:100; box-shadow:0 1px 8px rgba(0,0,0,.06); }
+    .ck-nav .inner { max-width:1100px; margin:0 auto; padding:.85rem 1.5rem; display:flex; justify-content:space-between; align-items:center; }
+    .ck-brand { font-size:1.35rem; font-weight:900; color:#111827; text-decoration:none; letter-spacing:-.5px; }
+    .ck-brand span { color:#2563eb; }
+    .ck-user { display:flex; align-items:center; gap:.9rem; }
+    .ck-greeting { font-weight:600; font-size:.9rem; color:#374151; }
+    .ck-logout { padding:6px 16px; border:1.5px solid #e5e7eb; border-radius:8px; background:#fff; font-weight:600; font-size:.85rem; cursor:pointer; color:#374151; transition:.2s; }
+    .ck-logout:hover { background:#fef2f2; border-color:#fca5a5; color:#ef4444; }
+
+    /* ══════════════ LAYOUT WRAPPER ══════════════ */
+    .ck-wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+
+    /* ══════════════ TAB NAV ══════════════ */
+    .tab-nav { display:flex; gap:.5rem; margin-bottom:2rem; flex-wrap:wrap; }
+    .tab-nav a { padding:.55rem 1.2rem; border-radius:10px; font-weight:600; font-size:.875rem; color:#374151; border:1.5px solid #e5e7eb; background:#fff; text-decoration:none; transition:all .2s; white-space:nowrap; }
+    .tab-nav a:hover { background:#eff6ff; border-color:#93c5fd; color:#2563eb; transform:translateY(-1px); }
+    .tab-nav a.active { background:#2563eb; color:#fff; border-color:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,.3); }
+
+    /* ══════════════ PAGE HEADER ══════════════ */
+    .pg-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:.8rem; }
+    .pg-header h1 { font-size:1.5rem; font-weight:900; margin:0; letter-spacing:-.4px; color:#111827; }
+
+    /* ══════════════ CARD / PANEL ══════════════ */
+    .card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; padding:1.6rem; margin-bottom:1.2rem; box-shadow:0 2px 10px rgba(0,0,0,.05); transition:box-shadow .25s,transform .25s; }
+    .card:hover { box-shadow:0 8px 28px rgba(0,0,0,.09); transform:translateY(-2px); }
+    .card-title { font-size:1rem; font-weight:800; color:#111827; margin:0 0 1rem; display:flex; align-items:center; gap:.5rem; }
+
+    /* ══════════════ FORM ══════════════ */
+    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
+    .fg { margin-bottom:1.1rem; }
+    .fg label { display:block; font-weight:700; font-size:.82rem; color:#374151; margin-bottom:.4rem; text-transform:uppercase; letter-spacing:.4px; }
+    .fc { width:100%; padding:.75rem 1rem; border:1.5px solid #d1d5db; border-radius:10px; font-size:.9rem; outline:none; font-family:inherit; color:#111827; transition:border-color .2s,box-shadow .2s; background:#fff; }
+    .fc:focus { border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
+    .fc::placeholder { color:#9ca3af; }
+    .email-row { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:10px; padding:.7rem 1rem; }
+    .email-val { font-weight:700; font-size:.9rem; color:#1d4ed8; }
+    .save-msg { margin-left:12px; color:#10b981; font-weight:700; font-size:.85rem; }
+
+    /* ══════════════ BUTTONS ══════════════ */
+    .btn-primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; padding:.75rem 1.5rem; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(37,99,235,.3); font-family:inherit; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(37,99,235,.4); }
+    .btn-primary:active { transform:translateY(0); }
+    .btn-outline { background:#fff; color:#374151; border:1.5px solid #d1d5db; border-radius:8px; padding:.5rem 1.1rem; font-weight:600; font-size:.85rem; cursor:pointer; transition:.2s; font-family:inherit; }
+    .btn-outline:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
+    .btn-danger { background:#fff; color:#ef4444; border:1.5px solid #ef4444; border-radius:10px; padding:.7rem 1.4rem; font-weight:700; font-size:.875rem; cursor:pointer; transition:.2s; font-family:inherit; }
+    .btn-danger:hover { background:#fef2f2; box-shadow:0 4px 14px rgba(239,68,68,.2); }
+
+    /* ══════════════ BADGE ══════════════ */
+    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:.3px; }
+    .badge-blue { background:#dbeafe; color:#1d4ed8; }
+    .badge-pink { background:#fce7f3; color:#be185d; }
+    .badge-green{ background:#d1fae5; color:#065f46; }
+    .badge-red  { background:#fee2e2; color:#991b1b; }
+    .badge-amber{ background:#fef3c7; color:#92400e; }
+
+    /* ══════════════ EMPTY STATE ══════════════ */
+    .empty { border:2px dashed #d1d5db; background:#fff; border-radius:16px; padding:3rem 2rem; text-align:center; color:#6b7280; margin-bottom:1.2rem; }
+    .empty .ei { font-size:3rem; margin-bottom:.8rem; }
+    .empty h3 { color:#111827; font-size:1.05rem; font-weight:800; margin-bottom:.4rem; }
+    .empty p { font-size:.875rem; margin-bottom:1.2rem; }
+
+    /* ══════════════ DIVIDER ══════════════ */
+    .divider { border:none; border-top:1px solid #f3f4f6; margin:1rem 0; }
+
+    /* ══════════════ TOAST ══════════════ */
+    #ck-toast { position:fixed; bottom:24px; right:20px; z-index:99999; padding:12px 20px; border-radius:12px; font-weight:700; font-size:.875rem; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.2); max-width:300px; transition:opacity .4s,transform .3s; transform:translateY(0); }
+
+    /* ══════════════ ANIMATIONS ══════════════ */
+    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
+    .anim { animation:fadeUp .4s ease both; }
+    .anim-d1 { animation-delay:.05s; }
+    .anim-d2 { animation-delay:.1s; }
+    .anim-d3 { animation-delay:.15s; }
+    .anim-d4 { animation-delay:.2s; }
+
+    /* ══════════════ RESPONSIVE ══════════════ */
+    @media(max-width:640px){
+      .row2 { grid-template-columns:1fr; }
+      .tab-nav a { font-size:.8rem; padding:.45rem .9rem; }
+      .pg-header h1 { font-size:1.25rem; }
+      .ck-wrap { padding:1.2rem 1rem 3rem; }
+    }
+
+    .avatar-ring { width:72px; height:72px; border-radius:50%; background:linear-gradient(135deg,#2563eb,#7c3aed); display:flex; align-items:center; justify-content:center; font-size:1.8rem; margin-bottom:1rem; box-shadow:0 4px 16px rgba(37,99,235,.3); }
+    .profile-top { display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem; flex-wrap:wrap; }
+    .profile-name-big { font-size:1.3rem; font-weight:900; color:#111827; }
+    .profile-email-sm { font-size:.85rem; color:#6b7280; margin-top:3px; }
+    .otp-box { background:linear-gradient(135deg,#fdf2f8,#fce7f3); border:1.5px solid #f9a8d4; border-radius:12px; padding:1.3rem 1.5rem; margin-bottom:1.2rem; }
+    .otp-box h4 { color:#be185d; margin:0 0 .8rem; font-size:.95rem; font-weight:800; }
+    .step-indicator { display:flex; gap:6px; margin-bottom:1rem; }
+    .step { width:28px; height:4px; border-radius:4px; background:#f9a8d4; }
+    .step.done { background:#be185d; }
+  </style>
+  <script>if(localStorage.getItem('isLoggedIn')!=='true'){window.location.href='login.html';}</script>
+</head>
+<body>
+<nav class="ck-nav">
+  <div class="inner">
+    <a href="index.html" class="ck-brand">Contact<span>Kar</span></a>
+    <div class="ck-user">
+      <span class="ck-greeting" id="user-greeting">Hi, User &#128075;</span>
+      <button class="ck-logout" id="logout-btn">Logout</button>
+    </div>
+  </div>
+</nav>
+<div class="ck-wrap">
+<nav class="tab-nav anim">
+    <a href="dashboard.html" >&#128230; My Tags</a>
+    <a href="profile.html" class="active">&#128100; Profile</a>
+    <a href="billing.html" >&#128179; Billing</a>
+    <a href="settings.html" >&#9881;&#65039; Settings</a>
+  </nav>
+  <div class="pg-header anim anim-d1"><h1>&#128100; Profile</h1></div>
+
+  <!-- Profile top card -->
+  <div class="card anim anim-d2">
+    <div class="profile-top">
+      <div class="avatar-ring" id="avatar-icon">&#128100;</div>
+      <div>
+        <div class="profile-name-big" id="profile-name-display">Loading...</div>
+        <div class="profile-email-sm" id="profile-email-display">Loading...</div>
+      </div>
+    </div>
+
+    <!-- Email row -->
+    <div class="fg">
+      <label>Login Email Address</label>
+      <div class="email-row">
+        <span class="email-val" id="display-email">Loading...</span>
+        <button class="btn-outline" style="font-size:.8rem;padding:5px 13px;" onclick="openOTPFlow()">&#9999; Change</button>
+      </div>
+      <small style="color:#9ca3af;margin-top:6px;display:block;">Used for login, OTPs, and alerts.</small>
+    </div>
+
+    <!-- OTP flow -->
+    <div id="otp-flow" style="display:none;" class="otp-box">
+      <h4>&#128274; Verify Your Identity</h4>
+      <div id="otp-s1">
+        <p style="font-size:.875rem;color:#9d174d;margin:0 0 12px;">An OTP will be sent to: <b id="otp-email"></b></p>
+        <button id="send-otp-btn" class="btn-primary" style="font-size:.875rem;" onclick="sendOTPEmail()">Send OTP &#128233;</button>
+      </div>
+      <div id="otp-s2" style="display:none;">
+        <div class="step-indicator"><div class="step done"></div><div class="step done"></div><div class="step"></div></div>
+        <div class="fg"><label>Enter 6-Digit OTP</label>
+          <input type="text" id="otp-input" maxlength="6" class="fc" placeholder="&#183;&#183;&#183;&#183;&#183;&#183;" style="letter-spacing:8px;font-weight:900;text-align:center;font-size:1.3rem;"></div>
+        <button class="btn-primary" onclick="verifyOTPCode()">&#9989; Verify Code</button>
+      </div>
+      <div id="otp-s3" style="display:none;">
+        <div class="step-indicator"><div class="step done"></div><div class="step done"></div><div class="step done"></div></div>
+        <p style="color:#065f46;font-weight:800;background:#d1fae5;padding:.6rem 1rem;border-radius:8px;margin:0 0 12px;">&#9989; Identity Verified!</p>
+        <div class="fg"><label>Enter New Email Address</label>
+          <input type="email" id="new-email" placeholder="new@example.com" class="fc"></div>
+        <button class="btn-primary" onclick="saveNewEmail()">Update Email &#128640;</button>
+      </div>
+      <button onclick="cancelOTP()" style="margin-top:12px;background:none;border:none;color:#9d174d;font-size:.85rem;cursor:pointer;font-weight:600;">&#x2715; Cancel</button>
+    </div>
+  </div>
+
+  <!-- Edit form -->
+  <div class="card anim anim-d3">
+    <div class="card-title">&#9999;&#65039; Edit Your Info</div>
+    <div class="row2">
+      <div class="fg">
+        <label>Full Name</label>
+        <input id="profile-name" type="text" class="fc" placeholder="Your full name">
+      </div>
+      <div class="fg">
+        <label>Phone Number</label>
+        <input id="profile-phone" type="tel" class="fc" placeholder="+91 98765 43210">
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+      <button type="button" id="save-btn" class="btn-primary" onclick="saveProfile()">&#128190; Save Changes</button>
+      <span id="save-msg" class="save-msg"></span>
+    </div>
+  </div>
+
+  <!-- Account info -->
+  <div class="card anim anim-d4">
+    <div class="card-title">&#128274; Account Security</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.8rem;">
+      <div>
+        <div style="font-weight:700;font-size:.9rem;color:#111827;">OTP-Based Login</div>
+        <div style="font-size:.8rem;color:#6b7280;margin-top:3px;">No password needed — we send a magic code to your email</div>
+      </div>
+      <span class="badge badge-green">&#128994; Active</span>
+    </div>
+  </div>
+</div>
+
+<script>
+var API='https://contactkar.onrender.com/api';
+
+  document.getElementById('logout-btn').addEventListener('click', function() {
+    localStorage.clear(); window.location.href = 'login.html';
+  });
+  document.getElementById('user-greeting').textContent = 'Hi, ' + (localStorage.getItem('userName') || 'User') + ' \u{1F44B}';
+
+  function showToast(msg, color) {
+    var colors = { green:'#10b981', red:'#ef4444', blue:'#2563eb', amber:'#f59e0b' };
+    var el = document.getElementById('ck-toast');
+    if (!el) { el = document.createElement('div'); el.id='ck-toast'; document.body.appendChild(el); }
+    el.style.background = colors[color] || '#374151';
+    el.style.opacity = '1'; el.style.transform = 'translateY(0)';
+    el.textContent = msg;
+    clearTimeout(el._t);
+    el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(10px)'; }, 3000);
+  }
+
+(function init(){
+  var name=localStorage.getItem('userName')||'User';
+  var email=localStorage.getItem('userEmail')||'';
+  document.getElementById('profile-name').value=name;
+  document.getElementById('profile-phone').value=localStorage.getItem('userPhone')||'';
+  document.getElementById('display-email').textContent=email||'Not set';
+  document.getElementById('profile-name-display').textContent=name;
+  document.getElementById('profile-email-display').textContent=email||'No email set';
+  document.getElementById('otp-email').textContent=email;
+  var initials=(name.charAt(0)||'U').toUpperCase();
+  document.getElementById('avatar-icon').textContent=initials;
+})();
+
+function saveProfile(){
+  var btn=document.getElementById('save-btn');
+  var msg=document.getElementById('save-msg');
+  var name=document.getElementById('profile-name').value.trim();
+  var phone=document.getElementById('profile-phone').value.trim();
+  btn.disabled=true;
+  localStorage.setItem('userName',name);
+  localStorage.setItem('userPhone',phone);
+  document.getElementById('profile-name-display').textContent=name||'User';
+  document.getElementById('user-greeting').textContent='Hi, '+(name||'User')+' \u{1F44B}';
+  setTimeout(function(){
+    msg.textContent='\u2705 Saved!';btn.disabled=false;
+    setTimeout(function(){msg.textContent='';},2200);
+  },300);
+}
+function openOTPFlow(){
+  document.getElementById('otp-flow').style.display='block';
+  document.getElementById('otp-s1').style.display='block';
+  document.getElementById('otp-s2').style.display='none';
+  document.getElementById('otp-s3').style.display='none';
+}
+function cancelOTP(){document.getElementById('otp-flow').style.display='none';}
+function sendOTPEmail(){
+  var btn=document.getElementById('send-otp-btn');
+  btn.textContent='Sending...';btn.disabled=true;
+  fetch(API+'/auth/send-change-email-otp',{method:'POST',headers:{Authorization:'Bearer '+localStorage.getItem('token')}})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){document.getElementById('otp-s1').style.display='none';document.getElementById('otp-s2').style.display='block';showToast('OTP sent! Check your inbox.','green');}
+      else{showToast('Error: '+d.error,'red');}
+    }).catch(function(){showToast('Server error. Try again.','red');})
+    .finally(function(){btn.textContent='Send OTP \u{1F4E9}';btn.disabled=false;});
+}
+function verifyOTPCode(){
+  var otp=document.getElementById('otp-input').value.trim();
+  if(otp.length!==6){showToast('Enter a 6-digit OTP.','red');return;}
+  fetch(API+'/auth/verify-change-email-otp',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('token')},body:JSON.stringify({otp:otp,newEmail:''})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success||d.verified){document.getElementById('otp-s2').style.display='none';document.getElementById('otp-s3').style.display='block';}
+      else{showToast('Invalid OTP. Try again.','red');}
+    }).catch(function(){showToast('Server error.','red');});
+}
+function saveNewEmail(){
+  var otp=document.getElementById('otp-input').value.trim();
+  var em=document.getElementById('new-email').value.trim();
+  if(!em.includes('@')){showToast('Enter a valid email.','red');return;}
+  fetch(API+'/auth/verify-change-email-otp',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('token')},body:JSON.stringify({otp:otp,newEmail:em})})
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if(d.success){localStorage.setItem('userEmail',em);document.getElementById('display-email').textContent=em;document.getElementById('profile-email-display').textContent=em;cancelOTP();showToast('\u2705 Email updated!','green');}
+      else{showToast('Error: '+d.error,'red');}
+    }).catch(function(){showToast('Server error.','red');});
+}
+</script>
+</body></html>
