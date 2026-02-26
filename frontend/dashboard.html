@@ -5,314 +5,282 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Tags - ContactKar</title>
   <style>
-
-    /* ══════════════ RESET & BASE ══════════════ */
-    *, *::before, *::after { box-sizing:border-box; }
-    body { margin:0; font-family:'Inter','Segoe UI',system-ui,sans-serif; background:#f1f5f9; color:#111827; min-height:100vh; }
-
-    /* ══════════════ NAVBAR ══════════════ */
-    .ck-nav { background:#fff; border-bottom:1px solid #e5e7eb; position:sticky; top:0; z-index:100; box-shadow:0 1px 8px rgba(0,0,0,.06); }
-    .ck-nav .inner { max-width:1100px; margin:0 auto; padding:.85rem 1.5rem; display:flex; justify-content:space-between; align-items:center; }
-    .ck-brand { font-size:1.35rem; font-weight:900; color:#111827; text-decoration:none; letter-spacing:-.5px; }
-    .ck-brand span { color:#2563eb; }
-    .ck-user { display:flex; align-items:center; gap:.9rem; }
-    .ck-greeting { font-weight:600; font-size:.9rem; color:#374151; }
-    .ck-logout { padding:6px 16px; border:1.5px solid #e5e7eb; border-radius:8px; background:#fff; font-weight:600; font-size:.85rem; cursor:pointer; color:#374151; transition:.2s; }
-    .ck-logout:hover { background:#fef2f2; border-color:#fca5a5; color:#ef4444; }
-
-    /* ══════════════ LAYOUT WRAPPER ══════════════ */
-    .ck-wrap { max-width:1100px; margin:0 auto; padding:2rem 1.5rem 4rem; }
-
-    /* ══════════════ TAB NAV ══════════════ */
-    .tab-nav { display:flex; gap:.5rem; margin-bottom:2rem; flex-wrap:wrap; }
-    .tab-nav a { padding:.55rem 1.2rem; border-radius:10px; font-weight:600; font-size:.875rem; color:#374151; border:1.5px solid #e5e7eb; background:#fff; text-decoration:none; transition:all .2s; white-space:nowrap; }
-    .tab-nav a:hover { background:#eff6ff; border-color:#93c5fd; color:#2563eb; transform:translateY(-1px); }
-    .tab-nav a.active { background:#2563eb; color:#fff; border-color:#2563eb; box-shadow:0 4px 14px rgba(37,99,235,.3); }
-
-    /* ══════════════ PAGE HEADER ══════════════ */
-    .pg-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:.8rem; }
-    .pg-header h1 { font-size:1.5rem; font-weight:900; margin:0; letter-spacing:-.4px; color:#111827; }
-
-    /* ══════════════ CARD / PANEL ══════════════ */
-    .card { background:#fff; border-radius:16px; border:1px solid #e5e7eb; padding:1.6rem; margin-bottom:1.2rem; box-shadow:0 2px 10px rgba(0,0,0,.05); transition:box-shadow .25s,transform .25s; }
-    .card:hover { box-shadow:0 8px 28px rgba(0,0,0,.09); transform:translateY(-2px); }
-    .card-title { font-size:1rem; font-weight:800; color:#111827; margin:0 0 1rem; display:flex; align-items:center; gap:.5rem; }
-
-    /* ══════════════ FORM ══════════════ */
-    .row2 { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
-    .fg { margin-bottom:1.1rem; }
-    .fg label { display:block; font-weight:700; font-size:.82rem; color:#374151; margin-bottom:.4rem; text-transform:uppercase; letter-spacing:.4px; }
-    .fc { width:100%; padding:.75rem 1rem; border:1.5px solid #d1d5db; border-radius:10px; font-size:.9rem; outline:none; font-family:inherit; color:#111827; transition:border-color .2s,box-shadow .2s; background:#fff; }
-    .fc:focus { border-color:#2563eb; box-shadow:0 0 0 4px rgba(37,99,235,.1); }
-    .fc::placeholder { color:#9ca3af; }
-    .email-row { display:flex; justify-content:space-between; align-items:center; background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:10px; padding:.7rem 1rem; }
-    .email-val { font-weight:700; font-size:.9rem; color:#1d4ed8; }
-    .save-msg { margin-left:12px; color:#10b981; font-weight:700; font-size:.85rem; }
-
-    /* ══════════════ BUTTONS ══════════════ */
-    .btn-primary { background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; padding:.75rem 1.5rem; font-weight:700; font-size:.9rem; cursor:pointer; transition:all .2s; box-shadow:0 4px 14px rgba(37,99,235,.3); font-family:inherit; }
-    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(37,99,235,.4); }
-    .btn-primary:active { transform:translateY(0); }
-    .btn-outline { background:#fff; color:#374151; border:1.5px solid #d1d5db; border-radius:8px; padding:.5rem 1.1rem; font-weight:600; font-size:.85rem; cursor:pointer; transition:.2s; font-family:inherit; }
-    .btn-outline:hover { border-color:#2563eb; color:#2563eb; background:#eff6ff; }
-    .btn-danger { background:#fff; color:#ef4444; border:1.5px solid #ef4444; border-radius:10px; padding:.7rem 1.4rem; font-weight:700; font-size:.875rem; cursor:pointer; transition:.2s; font-family:inherit; }
-    .btn-danger:hover { background:#fef2f2; box-shadow:0 4px 14px rgba(239,68,68,.2); }
-
-    /* ══════════════ BADGE ══════════════ */
-    .badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:11px; font-weight:800; letter-spacing:.3px; }
-    .badge-blue { background:#dbeafe; color:#1d4ed8; }
-    .badge-pink { background:#fce7f3; color:#be185d; }
-    .badge-green{ background:#d1fae5; color:#065f46; }
-    .badge-red  { background:#fee2e2; color:#991b1b; }
-    .badge-amber{ background:#fef3c7; color:#92400e; }
-
-    /* ══════════════ EMPTY STATE ══════════════ */
-    .empty { border:2px dashed #d1d5db; background:#fff; border-radius:16px; padding:3rem 2rem; text-align:center; color:#6b7280; margin-bottom:1.2rem; }
-    .empty .ei { font-size:3rem; margin-bottom:.8rem; }
-    .empty h3 { color:#111827; font-size:1.05rem; font-weight:800; margin-bottom:.4rem; }
-    .empty p { font-size:.875rem; margin-bottom:1.2rem; }
-
-    /* ══════════════ DIVIDER ══════════════ */
-    .divider { border:none; border-top:1px solid #f3f4f6; margin:1rem 0; }
-
-    /* ══════════════ TOAST ══════════════ */
-    #ck-toast { position:fixed; bottom:24px; right:20px; z-index:99999; padding:12px 20px; border-radius:12px; font-weight:700; font-size:.875rem; color:#fff; box-shadow:0 8px 28px rgba(0,0,0,.2); max-width:300px; transition:opacity .4s,transform .3s; transform:translateY(0); }
-
-    /* ══════════════ ANIMATIONS ══════════════ */
-    @keyframes fadeUp { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:translateY(0)} }
-    .anim { animation:fadeUp .4s ease both; }
-    .anim-d1 { animation-delay:.05s; }
-    .anim-d2 { animation-delay:.1s; }
-    .anim-d3 { animation-delay:.15s; }
-    .anim-d4 { animation-delay:.2s; }
-
-    /* ══════════════ RESPONSIVE ══════════════ */
-    @media(max-width:640px){
-      .row2 { grid-template-columns:1fr; }
-      .tab-nav a { font-size:.8rem; padding:.45rem .9rem; }
-      .pg-header h1 { font-size:1.25rem; }
-      .ck-wrap { padding:1.2rem 1rem 3rem; }
-    }
-
-    /* ── TAG CARD ── */
-    .tag-card { background:#fff; border:1.5px solid #e5e7eb; border-radius:16px; padding:1.2rem 1.4rem; margin-bottom:1rem; display:flex; gap:1.1rem; align-items:flex-start; flex-wrap:wrap; transition:all .25s; animation:fadeUp .4s ease both; }
-    .tag-card:hover { box-shadow:0 10px 32px rgba(37,99,235,.13); border-color:#93c5fd; transform:translateY(-3px); }
-    .qr-box { width:90px; height:90px; min-width:90px; border-radius:12px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:#f1f5f9; border:1.5px solid #e5e7eb; }
-    .qr-box img { width:90px; height:90px; cursor:pointer; display:block; transition:transform .2s; }
-    .qr-box img:hover { transform:scale(1.07); }
-    .qr-shimmer { width:90px; height:90px; background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%); background-size:200% 100%; animation:shimmer 1.4s infinite; border-radius:10px; }
-    @keyframes shimmer { 0%{background-position:-200% 0} 100%{background-position:200% 0} }
-    .qr-err { font-size:11px; color:#ef4444; text-align:center; padding:6px; }
-    .tag-info { flex:1; min-width:160px; }
-    .tag-code-row { display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:7px; }
-    .tag-code { font-size:1rem; font-weight:900; color:#111827; letter-spacing:.5px; font-family:monospace; }
-    .tag-meta { font-size:13px; color:#4b5563; margin-bottom:3px; display:flex; align-items:center; gap:5px; }
-    .tag-date { font-size:11px; color:#9ca3af; margin:5px 0 10px; }
-    .tag-actions { display:flex; gap:7px; flex-wrap:wrap; }
-    .abtn { padding:6px 14px; border-radius:8px; font-size:12px; font-weight:700; cursor:pointer; transition:all .18s; border:1.5px solid; font-family:inherit; }
-    .abtn-blue { background:#2563eb; color:#fff; border-color:#2563eb; }
-    .abtn-blue:hover { background:#1d4ed8; box-shadow:0 4px 12px rgba(37,99,235,.3); }
-    .abtn-grey { background:#fff; color:#374151; border-color:#d1d5db; }
-    .abtn-grey:hover { background:#f8fafc; border-color:#9ca3af; }
-    .abtn-red { background:#fff; color:#ef4444; border-color:#fca5a5; }
-    .abtn-red:hover { background:#fef2f2; }
-    /* ── LOADING ── */
-    .load-wrap { text-align:center; padding:4rem 1rem; }
-    .spinner { width:40px; height:40px; border:3.5px solid #e5e7eb; border-top-color:#2563eb; border-radius:50%; animation:spin .7s linear infinite; margin:0 auto 1.2rem; }
-    @keyframes spin { to{transform:rotate(360deg)} }
-    .load-msg { color:#6b7280; font-size:.9rem; line-height:1.8; }
-    /* ── QR MODAL ── */
-    .qr-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px); }
-    .qr-overlay.open { display:flex; }
-    .qr-modal { background:#fff; border-radius:20px; padding:2rem 1.8rem; max-width:320px; width:92%; text-align:center; box-shadow:0 28px 70px rgba(0,0,0,.3); animation:fadeUp .3s ease; }
-    .qr-modal h3 { font-size:1rem; font-weight:800; margin:0 0 4px; color:#111827; }
-    .qr-modal p { color:#6b7280; font-size:.8rem; margin-bottom:1rem; }
-    .qr-modal img { width:210px; height:210px; border-radius:14px; border:3px solid #f1f5f9; }
-    .qr-modal-btns { display:flex; gap:8px; justify-content:center; margin-top:1.2rem; flex-wrap:wrap; }
-    /* ── STATS BAR ── */
-    .stats-bar { display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-bottom:1.5rem; }
-    .stat-card { background:#fff; border-radius:14px; border:1px solid #e5e7eb; padding:1.1rem 1.2rem; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.04); transition:all .2s; }
-    .stat-card:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(0,0,0,.08); }
-    .stat-num { font-size:1.8rem; font-weight:900; color:#2563eb; line-height:1; }
-    .stat-lbl { font-size:.75rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }
-    @media(max-width:480px){ .stats-bar{grid-template-columns:1fr 1fr}; .tag-card{flex-direction:column}; }
+    *,*::before,*::after{box-sizing:border-box}
+    body{margin:0;font-family:"Inter","Segoe UI",system-ui,sans-serif;background:#f1f5f9;color:#111827;min-height:100vh}
+    .ck-nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
+    .ck-nav .inner{max-width:1100px;margin:0 auto;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
+    .ck-brand{font-size:1.35rem;font-weight:900;color:#111827;text-decoration:none;letter-spacing:-.5px}
+    .ck-brand span{color:#2563eb}
+    .ck-user{display:flex;align-items:center;gap:.9rem}
+    .ck-logout{padding:6px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;color:#374151;transition:.2s}
+    .ck-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444}
+    .ck-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem}
+    .tab-nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
+    .tab-nav a{padding:.55rem 1.2rem;border-radius:10px;font-weight:600;font-size:.875rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;transition:all .2s;white-space:nowrap}
+    .tab-nav a:hover{background:#eff6ff;border-color:#93c5fd;color:#2563eb;transform:translateY(-1px)}
+    .tab-nav a.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+    .pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem}
+    .pg-header h1{font-size:1.5rem;font-weight:900;margin:0;letter-spacing:-.4px}
+    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-weight:700;font-size:.875rem;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 14px rgba(37,99,235,.3);transition:all .2s;font-family:inherit}
+    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(37,99,235,.4)}
+    .btn-outline{background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:.5rem 1.1rem;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s;font-family:inherit}
+    .btn-outline:hover{border-color:#2563eb;color:#2563eb;background:#eff6ff}
+    /* stats */
+    .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
+    .stat-card{background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:1.1rem;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .2s}
+    .stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
+    .stat-num{font-size:1.8rem;font-weight:900;color:#2563eb;line-height:1}
+    .stat-lbl{font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+    /* tag card */
+    .tag-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;display:flex;gap:1.1rem;align-items:flex-start;flex-wrap:wrap;transition:all .25s;animation:fadeUp .4s ease both}
+    .tag-card:hover{box-shadow:0 10px 32px rgba(37,99,235,.13);border-color:#93c5fd;transform:translateY(-3px)}
+    .qr-box{width:90px;height:90px;min-width:90px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f1f5f9;border:1.5px solid #e5e7eb}
+    .qr-box img{width:90px;height:90px;cursor:pointer;display:block;transition:transform .2s}
+    .qr-box img:hover{transform:scale(1.07)}
+    .qr-shimmer{width:90px;height:90px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px}
+    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+    .qr-err{font-size:11px;color:#ef4444;text-align:center;padding:6px}
+    .tag-info{flex:1;min-width:160px}
+    .tag-code-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
+    .tag-code{font-size:1rem;font-weight:900;color:#111827;letter-spacing:.5px;font-family:monospace}
+    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
+    .badge-blue{background:#dbeafe;color:#1d4ed8}
+    .badge-pink{background:#fce7f3;color:#be185d}
+    .badge-green{background:#d1fae5;color:#065f46}
+    .badge-red{background:#fee2e2;color:#991b1b}
+    .tag-meta{font-size:13px;color:#4b5563;margin-bottom:3px}
+    .tag-date{font-size:11px;color:#9ca3af;margin:5px 0 10px}
+    .tag-actions{display:flex;gap:7px;flex-wrap:wrap}
+    .abtn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;border:1.5px solid;font-family:inherit}
+    .abtn-blue{background:#2563eb;color:#fff;border-color:#2563eb}
+    .abtn-blue:hover{background:#1d4ed8;box-shadow:0 4px 12px rgba(37,99,235,.3)}
+    .abtn-grey{background:#fff;color:#374151;border-color:#d1d5db}
+    .abtn-grey:hover{background:#f8fafc;border-color:#9ca3af}
+    .abtn-red{background:#fff;color:#ef4444;border-color:#fca5a5}
+    .abtn-red:hover{background:#fef2f2}
+    /* loading */
+    .load-wrap{text-align:center;padding:4rem 1rem}
+    .spinner{width:40px;height:40px;border:3.5px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1.2rem}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .load-msg{color:#6b7280;font-size:.9rem;line-height:1.8}
+    /* qr modal */
+    .qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+    .qr-overlay.open{display:flex}
+    .qr-modal{background:#fff;border-radius:20px;padding:2rem 1.8rem;max-width:320px;width:92%;text-align:center;box-shadow:0 28px 70px rgba(0,0,0,.3);animation:fadeUp .3s ease}
+    .qr-modal h3{font-size:1rem;font-weight:800;margin:0 0 4px;color:#111827}
+    .qr-modal p{color:#6b7280;font-size:.8rem;margin-bottom:1rem}
+    .qr-modal img{width:210px;height:210px;border-radius:14px;border:3px solid #f1f5f9}
+    .qr-modal-btns{display:flex;gap:8px;justify-content:center;margin-top:1.2rem;flex-wrap:wrap}
+    /* empty */
+    .empty{border:2px dashed #d1d5db;background:#fff;border-radius:16px;padding:3rem 2rem;text-align:center;color:#6b7280;margin-bottom:1.2rem}
+    .empty .ei{font-size:3rem;margin-bottom:.8rem}
+    .empty h3{color:#111827;font-size:1.05rem;font-weight:800;margin-bottom:.4rem}
+    .empty p{font-size:.875rem;margin-bottom:1.2rem}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    .anim{animation:fadeUp .4s ease both}
+    .anim-d1{animation-delay:.05s}.anim-d2{animation-delay:.1s}.anim-d3{animation-delay:.15s}
+    @media(max-width:640px){.stats-bar{grid-template-columns:1fr 1fr}.tag-card{flex-direction:column}.tab-nav a{font-size:.8rem;padding:.45rem .9rem}.ck-wrap{padding:1.2rem 1rem 3rem}}
   </style>
-  <script>if(localStorage.getItem('isLoggedIn')!=='true'){window.location.href='login.html';}</script>
+  <script>
+    if(localStorage.getItem('isLoggedIn')!=='true'){window.location.href='login.html';}
+  </script>
 </head>
 <body>
 <nav class="ck-nav">
   <div class="inner">
     <a href="index.html" class="ck-brand">Contact<span>Kar</span></a>
     <div class="ck-user">
-      <span class="ck-greeting" id="user-greeting">Hi, User &#128075;</span>
+      <span class="ck-greeting" id="user-greeting">Hi, User</span>
       <button class="ck-logout" id="logout-btn">Logout</button>
     </div>
   </div>
 </nav>
+
 <div id="qrOverlay" class="qr-overlay" onclick="if(event.target===this)closeQR()">
   <div class="qr-modal">
     <h3 id="qrTitle"></h3><p>Scan to open your contact page</p>
     <img id="qrImg" src="" alt="QR Code"/>
     <div class="qr-modal-btns">
-      <a id="qrDl" download class="btn-primary" style="font-size:13px;padding:8px 18px;border-radius:9px;text-decoration:none;">&#11015; Download</a>
-      <button onclick="closeQR()" class="btn-outline">&#x2715; Close</button>
+      <a id="qrDl" download class="btn-primary" style="font-size:13px;padding:8px 18px;">Download</a>
+      <button onclick="closeQR()" class="btn-outline">Close</button>
     </div>
   </div>
 </div>
 
 <div class="ck-wrap">
-<nav class="tab-nav anim">
+  <nav class="tab-nav anim">
     <a href="dashboard.html" class="active">&#128230; My Tags</a>
-    <a href="profile.html" >&#128100; Profile</a>
-    <a href="billing.html" >&#128179; Billing</a>
-    <a href="settings.html" >&#9881;&#65039; Settings</a>
+    <a href="profile.html">&#128100; Profile</a>
+    <a href="billing.html">&#128179; Billing</a>
+    <a href="settings.html">&#9881;&#65039; Settings</a>
   </nav>
+
   <div class="pg-header anim anim-d1">
     <h1>&#128230; My Tags</h1>
-    <a href="vehicle.html" class="btn-primary" style="text-decoration:none;padding:.65rem 1.3rem;border-radius:10px;font-size:.875rem;">+ Buy New Tag</a>
+    <a href="vehicle.html" class="btn-primary">+ Buy New Tag</a>
   </div>
 
   <div class="stats-bar anim anim-d2">
     <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-lbl">Total Tags</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-active" style="color:#10b981;">-</div><div class="stat-lbl">Active</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-hidden" style="color:#ef4444;">-</div><div class="stat-lbl">Hidden</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-active" style="color:#10b981">-</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-card"><div class="stat-num" id="stat-hidden" style="color:#ef4444">-</div><div class="stat-lbl">Hidden</div></div>
   </div>
 
   <div id="tags-loading" class="load-wrap anim anim-d3">
     <div class="spinner"></div>
-    <div class="load-msg" id="load-msg">Connecting to server...<br><small style="color:#9ca3af;">May take ~15s if server is asleep on free tier</small></div>
-    <button onclick="fetchMyTags()" class="btn-outline" style="margin-top:14px;">&#8635; Retry</button>
+    <div class="load-msg" id="load-msg">Loading your tags...</div>
+    <button onclick="fetchMyTags()" class="btn-outline" style="margin-top:14px;">Retry</button>
   </div>
+
   <div id="tags-empty" class="empty" style="display:none;">
     <div class="ei">&#128666;</div>
     <h3>No tags yet</h3>
     <p>Buy a Vehicle Tag or Pet Tag to get started.</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a href="vehicle.html" class="btn-primary" style="text-decoration:none;padding:.65rem 1.3rem;border-radius:10px;font-size:.875rem;">&#128664; Vehicle Tag</a>
-      <a href="pet.html" class="btn-primary" style="text-decoration:none;padding:.65rem 1.3rem;border-radius:10px;font-size:.875rem;background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 4px 14px rgba(124,58,237,.3);">&#128062; Pet Tag</a>
+      <a href="vehicle.html" class="btn-primary">&#128664; Vehicle Tag</a>
+      <a href="pet.html" class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 4px 14px rgba(124,58,237,.3);">&#128062; Pet Tag</a>
     </div>
   </div>
   <div id="tags-list"></div>
 </div>
 
 <script>
-var API='https://contactkar.onrender.com/api';
-var qrCache={};
+var API = 'https://contactkar.onrender.com/api';
+var qrCache = {};
 
-  document.getElementById('logout-btn').addEventListener('click', function() {
-    localStorage.clear(); window.location.href = 'login.html';
-  });
-  document.getElementById('user-greeting').textContent = 'Hi, ' + (localStorage.getItem('userName') || 'User') + ' \u{1F44B}';
+document.getElementById('logout-btn').addEventListener('click', function() {
+  localStorage.clear();
+  window.location.href = 'login.html';
+});
 
-  function showToast(msg, color) {
-    var colors = { green:'#10b981', red:'#ef4444', blue:'#2563eb', amber:'#f59e0b' };
-    var el = document.getElementById('ck-toast');
-    if (!el) { el = document.createElement('div'); el.id='ck-toast'; document.body.appendChild(el); }
-    el.style.background = colors[color] || '#374151';
-    el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-    el.textContent = msg;
-    clearTimeout(el._t);
-    el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(10px)'; }, 3000);
+(function initUser() {
+  var n = localStorage.getItem('userName') || 'User';
+  document.getElementById('user-greeting').textContent = 'Hi, ' + n + ' \U0001F44B';
+})();
+
+function showToast(msg, color) {
+  var c = {green:'#10b981',red:'#ef4444',blue:'#2563eb',amber:'#f59e0b'};
+  var el = document.getElementById('ck-toast');
+  if (!el) {
+    el = document.createElement('div'); el.id = 'ck-toast';
+    el.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 20px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:300px;transition:opacity .4s;font-family:inherit;';
+    document.body.appendChild(el);
   }
+  el.style.background = c[color] || '#374151';
+  el.style.opacity = '1';
+  el.textContent = msg;
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){ el.style.opacity = '0'; }, 3000);
+}
 
-function openQR(code,src){
-  if(!src){showToast('QR still loading, try again.','amber');return;}
-  document.getElementById('qrTitle').textContent=code;
-  document.getElementById('qrImg').src=src;
-  document.getElementById('qrDl').href=src;
-  document.getElementById('qrDl').download='CK-QR-'+code+'.png';
+function openQR(code, src) {
+  if (!src) { showToast('QR still loading, try again shortly.', 'amber'); return; }
+  document.getElementById('qrTitle').textContent = code;
+  document.getElementById('qrImg').src = src;
+  document.getElementById('qrDl').href = src;
+  document.getElementById('qrDl').download = 'CK-QR-' + code + '.png';
   document.getElementById('qrOverlay').classList.add('open');
 }
-function closeQR(){document.getElementById('qrOverlay').classList.remove('open');}
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeQR();});
+function closeQR() { document.getElementById('qrOverlay').classList.remove('open'); }
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeQR(); });
 
-function loadQR(code){
-  var box=document.getElementById('qr-'+code);
-  if(!box)return;
-  if(qrCache[code]){renderQR(code,qrCache[code]);return;}
-  fetch(API+'/tags/'+code+'/qrcode',{headers:{Authorization:'Bearer '+localStorage.getItem('token')}})
-    .then(function(r){if(!r.ok)throw new Error();return r.json();})
-    .then(function(d){if(d.success&&d.qr){qrCache[code]=d.qr;renderQR(code,d.qr);}else{qrFail(code);}})
-    .catch(function(){qrFail(code);});
+function loadQR(code) {
+  var box = document.getElementById('qr-' + code);
+  if (!box) return;
+  if (qrCache[code]) { renderQR(code, qrCache[code]); return; }
+  fetch(API + '/tags/' + code + '/qrcode', { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } })
+    .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
+    .then(function(d){ if(d.success&&d.qr){qrCache[code]=d.qr;renderQR(code,d.qr);}else{qrFail(code);} })
+    .catch(function(){ qrFail(code); });
 }
-function renderQR(code,src){
-  var b=document.getElementById('qr-'+code);
-  if(b)b.innerHTML='<img src="'+src+'" alt="QR" title="Click to enlarge" onclick="openQR(''+code+'',''+src+'')">';
+function renderQR(code, src) {
+  var b = document.getElementById('qr-' + code);
+  if (b) b.innerHTML = '<img src="' + src + '" alt="QR" onclick="openQR(\'' + code + '\',\'' + src + '\')">'; 
 }
-function qrFail(code){
-  var b=document.getElementById('qr-'+code);
-  if(b)b.innerHTML='<div class="qr-err">&#x26A0;<br><button onclick="loadQR(''+code+'')" style="margin-top:4px;padding:2px 8px;border:1px solid #ef4444;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;font-size:11px;">Retry</button></div>';
+function qrFail(code) {
+  var b = document.getElementById('qr-' + code);
+  if (b) b.innerHTML = '<div class="qr-err">Failed<br><button onclick="loadQR(\'' + code + '\')" style="margin-top:4px;padding:2px 8px;border:1px solid #ef4444;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;font-size:11px;">Retry</button></div>';
 }
-function copyLink(code){
-  var url='https://contactkar.vercel.app/tag/'+code;
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(function(){showToast('Link copied!','blue');});}
-  else{prompt('Copy this link:',url);}
+function copyLink(code) {
+  var url = 'https://contactkar.vercel.app/tag/' + code;
+  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function(){ showToast('Link copied!', 'blue'); }); }
+  else { prompt('Copy this link:', url); }
 }
-function toggleContact(id,state){
-  fetch(API+'/tags/'+id+'/toggle',{method:'PUT',headers:{'Content-Type':'application/json',Authorization:'Bearer '+localStorage.getItem('token')},body:JSON.stringify({isContactable:state})})
-    .then(function(r){return r.json();})
-    .then(function(d){if(d.success){fetchMyTags();showToast(state?'Tag is now visible.':'Tag is now hidden.','green');}else{showToast('Failed: '+d.error,'red');}})
-    .catch(function(){showToast('Network error.','red');});
+function toggleContact(id, state) {
+  fetch(API + '/tags/' + id + '/toggle', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
+    body: JSON.stringify({ isContactable: state })
+  }).then(function(r){ return r.json(); })
+    .then(function(d){ if(d.success){ fetchMyTags(); showToast(state?'Tag is now visible.':'Tag is now hidden.','green'); } else { showToast('Failed: '+d.error,'red'); } })
+    .catch(function(){ showToast('Network error.','red'); });
 }
-function fetchMyTags(){
-  var token=localStorage.getItem('token');
-  var loading=document.getElementById('tags-loading');
-  var empty=document.getElementById('tags-empty');
-  var list=document.getElementById('tags-list');
-  var msg=document.getElementById('load-msg');
-  list.innerHTML='';empty.style.display='none';loading.style.display='block';
-  msg.innerHTML='Connecting to server...<br><small style="color:#9ca3af;">May take ~15s if server is asleep on free tier</small>';
-  if(!token){loading.style.display='none';empty.style.display='block';return;}
-  try{var wc=new AbortController();setTimeout(function(){wc.abort();},8000);fetch('https://contactkar.onrender.com/',{signal:wc.signal}).catch(function(){});}catch(e){}
-  setTimeout(function(){if(loading.style.display!='none')msg.textContent='Loading your tags...';},1500);
-  var ctrl=new AbortController();
-  var timeout=setTimeout(function(){ctrl.abort();},25000);
-  fetch(API+'/tags/user',{headers:{Authorization:'Bearer '+token},signal:ctrl.signal})
-    .then(function(res){
+
+function fetchMyTags() {
+  var token   = localStorage.getItem('token');
+  var loading = document.getElementById('tags-loading');
+  var empty   = document.getElementById('tags-empty');
+  var list    = document.getElementById('tags-list');
+  var msg     = document.getElementById('load-msg');
+  list.innerHTML = ''; empty.style.display = 'none'; loading.style.display = 'block';
+  msg.textContent = 'Loading your tags...';
+  if (!token) { loading.style.display='none'; empty.style.display='block'; return; }
+
+  var ctrl = new AbortController();
+  var timeout = setTimeout(function(){ ctrl.abort(); }, 20000);
+
+  fetch(API + '/tags/user', { headers: { Authorization: 'Bearer ' + token }, signal: ctrl.signal })
+    .then(function(res) {
       clearTimeout(timeout);
-      if(res.status===401){localStorage.clear();window.location.href='login.html';return null;}
+      if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
       return res.json();
     })
-    .then(function(data){
-      if(!data)return;
-      loading.style.display='none';
-      if(!data.success||!data.tags||data.tags.length===0){empty.style.display='block';document.getElementById('stat-total').textContent='0';document.getElementById('stat-active').textContent='0';document.getElementById('stat-hidden').textContent='0';return;}
-      var total=data.tags.length;
-      var active=data.tags.filter(function(t){return t.is_contactable;}).length;
-      document.getElementById('stat-total').textContent=total;
-      document.getElementById('stat-active').textContent=active;
-      document.getElementById('stat-hidden').textContent=total-active;
-      var html='';
-      for(var i=0;i<data.tags.length;i++){
-        var t=data.tags[i];
-        var tb=t.type==='pet'?'<span class="badge badge-pink">&#128062; Pet</span>':'<span class="badge badge-blue">&#128664; Vehicle</span>';
-        var sb=t.is_contactable?'<span class="badge badge-green">&#128994; Active</span>':'<span class="badge badge-red">&#128308; Hidden</span>';
-        var ml='';
-        if(t.vehicle_number)ml+='<div class="tag-meta">&#128664; <b>'+t.vehicle_number+'</b></div>';
-        if(t.owner_name)ml+='<div class="tag-meta">&#128100; '+t.owner_name+'</div>';
-        if(t.pet_name)ml+='<div class="tag-meta">&#128062; '+t.pet_name+(t.pet_breed?' &mdash; '+t.pet_breed:'')+'</div>';
-        if(t.emergency_contact)ml+='<div class="tag-meta">&#128222; '+t.emergency_contact+'</div>';
-        var ds='';try{ds=new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});}catch(e){ds=t.created_at;}
-        html+='<div class="tag-card" style="animation-delay:'+(i*0.07)+'s">';
-        html+='<div class="qr-box" id="qr-'+t.tag_code+'"><div class="qr-shimmer"></div></div>';
-        html+='<div class="tag-info">';
-        html+='<div class="tag-code-row"><span class="tag-code">'+t.tag_code+'</span>'+tb+sb+'</div>';
-        html+=ml;
-        html+='<div class="tag-date">&#128197; Added: '+ds+'</div>';
-        html+='<div class="tag-actions">';
-        html+='<button class="abtn abtn-blue" onclick="openQR(''+t.tag_code+'',qrCache[''+t.tag_code+'']||'')">&#128269; View QR</button>';
-        html+='<button class="abtn abtn-grey" onclick="copyLink(''+t.tag_code+'')">&#128279; Copy Link</button>';
-        html+='<button class="abtn '+(t.is_contactable?'abtn-red':'abtn-grey')+'" onclick="toggleContact('+t.id+','+((!t.is_contactable))+')">'+( t.is_contactable?'&#128681; Hide':'&#128994; Show')+'</button>';
-        html+='</div></div></div>';
+    .then(function(data) {
+      if (!data) return;
+      loading.style.display = 'none';
+      if (!data.success || !data.tags || data.tags.length === 0) { empty.style.display = 'block'; document.getElementById('stat-total').textContent='0'; document.getElementById('stat-active').textContent='0'; document.getElementById('stat-hidden').textContent='0'; return; }
+      var total  = data.tags.length;
+      var active = data.tags.filter(function(t){ return t.is_contactable; }).length;
+      document.getElementById('stat-total').textContent  = total;
+      document.getElementById('stat-active').textContent = active;
+      document.getElementById('stat-hidden').textContent = total - active;
+      var html = '';
+      for (var i = 0; i < data.tags.length; i++) {
+        var t  = data.tags[i];
+        var tb = t.type==='pet' ? '<span class="badge badge-pink">Pet</span>' : '<span class="badge badge-blue">Vehicle</span>';
+        var sb = t.is_contactable ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Hidden</span>';
+        var ml = '';
+        if (t.vehicle_number)    ml += '<div class="tag-meta"><b>'+t.vehicle_number+'</b></div>';
+        if (t.owner_name)        ml += '<div class="tag-meta">'+t.owner_name+'</div>';
+        if (t.pet_name)          ml += '<div class="tag-meta">'+t.pet_name+(t.pet_breed?' - '+t.pet_breed:'')+'</div>';
+        if (t.emergency_contact) ml += '<div class="tag-meta">'+t.emergency_contact+'</div>';
+        var ds = '';
+        try { ds = new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch(e) { ds = t.created_at; }
+        var tl = t.is_contactable ? 'Hide' : 'Show';
+        var tc = t.is_contactable ? 'abtn-red' : 'abtn-grey';
+        html += '<div class="tag-card" style="animation-delay:'+(i*0.07)+'s">';
+        html += '<div class="qr-box" id="qr-'+t.tag_code+'"><div class="qr-shimmer"></div></div>';
+        html += '<div class="tag-info">';
+        html += '<div class="tag-code-row"><span class="tag-code">'+t.tag_code+'</span>'+tb+sb+'</div>';
+        html += ml;
+        html += '<div class="tag-date">Added: '+ds+'</div>';
+        html += '<div class="tag-actions">';
+        html += '<button class="abtn abtn-blue" onclick="openQR(\''+t.tag_code+'\',qrCache[\''+t.tag_code+'\']\'\' || \'\')">View QR</button>';
+        html += '<button class="abtn abtn-grey" onclick="copyLink(\''+t.tag_code+'\')" >Copy Link</button>';
+        html += '<button class="abtn '+tc+'" onclick="toggleContact('+t.id+','+(String(!t.is_contactable))+')">' + tl + '</button>';
+        html += '</div></div></div>';
       }
-      list.innerHTML=html;
-      for(var k=0;k<data.tags.length;k++){loadQR(data.tags[k].tag_code);}
+      list.innerHTML = html;
+      for (var k = 0; k < data.tags.length; k++) { loadQR(data.tags[k].tag_code); }
     })
-    .catch(function(e){
-      if(e.name==='AbortError'){msg.innerHTML='&#x26A0;&#xFE0F; Server is slow. Click Retry in ~20 seconds.<br><small style="color:#9ca3af;">Render free tier takes 15-30s to wake up</small>';}
-      else{msg.textContent='&#x274C; Error: '+e.message;}
+    .catch(function(e) {
+      loading.style.display = 'none';
+      if (e.name==='AbortError') { msg.textContent='Request timed out. Is the server running?'; loading.style.display='block'; }
+      else { msg.textContent = 'Error: ' + e.message; loading.style.display='block'; }
     });
 }
-document.addEventListener('DOMContentLoaded',fetchMyTags);
+
+document.addEventListener('DOMContentLoaded', function(){ fetchMyTags(); });
 </script>
-</body></html>
+</body>
+</html>
