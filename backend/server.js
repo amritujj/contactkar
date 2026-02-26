@@ -507,7 +507,7 @@ app.post('/api/orders/calculate', authRequired, async (req, res) => {
 
 // Place Order API
 app.post('/api/orders/place', authRequired, async (req, res) => {
-    const { vehicleQty = 0, petQty = 0, address, city, state, pincode } = req.body;
+    const { vehicleQty, petQty, address, city, state, pincode } = req.body;
     const totalTags = (vehicleQty || 0) + (petQty || 0);
     
     if (totalTags === 0) return res.status(400).json({ error: "Please select at least 1 tag" });
