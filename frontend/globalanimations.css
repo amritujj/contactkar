@@ -1,0 +1,176 @@
+/* ============================================
+   ContactKar - Global Animations
+   Include in every HTML page:
+   <link rel="stylesheet" href="animations.css">
+   ============================================ */
+
+/* --- Keyframes --- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(40px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.85); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
+}
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+@keyframes slideInSidebar {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Utility Classes --- */
+.anim-fade-up    { animation: fadeInUp    0.6s ease both; }
+.anim-fade-down  { animation: fadeInDown  0.6s ease both; }
+.anim-fade-left  { animation: fadeInLeft  0.6s ease both; }
+.anim-fade-right { animation: fadeInRight 0.6s ease both; }
+.anim-zoom       { animation: zoomIn      0.5s ease both; }
+.anim-float      { animation: float       3s ease-in-out infinite; }
+.anim-pulse      { animation: pulse       2s ease-in-out infinite; }
+
+/* Stagger delays */
+.anim-delay-1 { animation-delay: 0.1s; }
+.anim-delay-2 { animation-delay: 0.2s; }
+.anim-delay-3 { animation-delay: 0.3s; }
+.anim-delay-4 { animation-delay: 0.4s; }
+.anim-delay-5 { animation-delay: 0.5s; }
+.anim-delay-6 { animation-delay: 0.6s; }
+
+/* --- Page Entry --- */
+body {
+  animation: fadeInUp 0.4s ease both;
+}
+
+/* --- Navbar --- */
+.navbar {
+  animation: fadeInDown 0.5s ease both;
+}
+
+/* --- Hero Section --- */
+.hero h1, .hero p {
+  animation: fadeInUp 0.7s ease both;
+}
+.hero .btn, .hero a {
+  animation: fadeInUp 0.7s 0.3s ease both;
+}
+
+/* --- Floating emoji/icon in hero --- */
+.hero-icon {
+  animation: float 3s ease-in-out infinite;
+}
+
+/* --- Feature Cards --- */
+.feature-card {
+  animation: fadeInUp 0.6s ease both;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.feature-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+}
+
+/* --- Pricing Tier Cards --- */
+.tier-card {
+  animation: fadeInUp 0.6s ease both;
+  transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+}
+.tier-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 32px rgba(37,99,235,0.18);
+  border-color: #2563eb !important;
+}
+.tier-card.popular {
+  animation: zoomIn 0.55s ease both;
+}
+
+/* --- Dashboard Panels --- */
+.panel {
+  animation: fadeInUp 0.5s ease both;
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.panel:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* --- Sidebar Links --- */
+.sidebar a {
+  animation: slideInSidebar 0.4s ease both;
+  transition: background 0.2s, padding-left 0.25s;
+}
+.sidebar a:hover {
+  padding-left: 1.6rem !important;
+  background: rgba(37,99,235,0.08);
+}
+
+/* --- Buttons --- */
+.btn, .btn-primary, .btn-buy {
+  transition: transform 0.15s, box-shadow 0.15s, background 0.2s;
+}
+.btn:hover, .btn-primary:hover, .btn-buy:hover {
+  transform: scale(1.04);
+  box-shadow: 0 6px 16px rgba(37,99,235,0.25);
+}
+.btn:active, .btn-primary:active, .btn-buy:active {
+  transform: scale(0.97);
+}
+
+/* --- Form Inputs --- */
+input, select, textarea {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 0 0 0 3px rgba(37,99,235,0.15);
+}
+
+/* --- Tag Loading Shimmer --- */
+.tag-loading-shimmer {
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 12px;
+  height: 80px;
+  margin-bottom: 1rem;
+}
+
+/* --- Scroll Reveal (triggered by animations.js) --- */
+.scroll-anim {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+.scroll-anim.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- Reduced Motion Accessibility --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
