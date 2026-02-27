@@ -7,12 +7,30 @@
   <link rel="stylesheet" href="styles_v2.css"/>
   <link rel="stylesheet" href="globalanimations.css"/>
   <style>
-    .scroll-anim { opacity: 0; transform: translateY(24px); transition: opacity .6s ease, transform .6s ease; }
-    .scroll-anim.visible { opacity: 1; transform: translateY(0); }
-    .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; padding: 2rem 0; }
-    .step-card { background: white; border-radius: 12px; padding: 1.5rem; border: 1px solid var(--border); text-align: center; }
-    .step-num { background: var(--primary); color: white; width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; margin-bottom: .8rem; }
-    .test-badge { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; border-radius: 6px; padding: 3px 10px; font-size: 11px; font-weight: 700; display: inline-block; margin-bottom: 6px; }
+    .scroll-anim { opacity:0; transform:translateY(24px); transition:opacity .6s ease,transform .6s ease; }
+    .scroll-anim.visible { opacity:1; transform:translateY(0); }
+    .steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.5rem; padding:2rem 0; }
+    .step-card { background:white; border-radius:12px; padding:1.5rem; border:1px solid var(--border); text-align:center; }
+    .step-num { background:var(--primary); color:white; width:36px; height:36px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:800; margin-bottom:.8rem; }
+    .test-badge { background:#fef3c7; color:#92400e; border:1px solid #fcd34d; border-radius:6px; padding:3px 10px; font-size:11px; font-weight:700; display:inline-block; margin-bottom:6px; }
+    /* Checkout Modal */
+    .ck-overlay { position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:9999; display:flex; align-items:center; justify-content:center; padding:1rem; }
+    .ck-modal { background:#fff; border-radius:18px; padding:2rem; max-width:480px; width:100%; box-shadow:0 20px 60px rgba(0,0,0,.25); max-height:90vh; overflow-y:auto; }
+    .ck-modal h2 { font-size:1.2rem; font-weight:900; margin-bottom:.3rem; color:#111827; }
+    .ck-modal .modal-sub { font-size:.85rem; color:#6b7280; margin-bottom:1.4rem; }
+    .ck-modal .fg { margin-bottom:1rem; }
+    .ck-modal .fg label { display:block; font-weight:700; font-size:.8rem; color:#374151; margin-bottom:.35rem; text-transform:uppercase; letter-spacing:.4px; }
+    .ck-modal .fg input { width:100%; padding:.7rem 1rem; border:1.5px solid #d1d5db; border-radius:10px; font-size:.9rem; outline:none; font-family:inherit; transition:border-color .2s,box-shadow .2s; }
+    .ck-modal .fg input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.12); }
+    .ck-modal .ec-section { background:#f8fafc; border:1.5px solid #e5e7eb; border-radius:12px; padding:1rem; margin-bottom:1rem; }
+    .ck-modal .ec-section h4 { font-size:.82rem; font-weight:800; color:#374151; text-transform:uppercase; letter-spacing:.4px; margin-bottom:.8rem; }
+    .ck-modal .modal-actions { display:flex; gap:.6rem; margin-top:1.2rem; flex-wrap:wrap; }
+    .ck-modal .btn-confirm { flex:1; background:linear-gradient(135deg,#2563eb,#1d4ed8); color:#fff; border:none; border-radius:10px; padding:.8rem 1.5rem; font-weight:800; font-size:.95rem; cursor:pointer; font-family:inherit; transition:.2s; }
+    .ck-modal .btn-confirm:hover { transform:translateY(-1px); box-shadow:0 6px 18px rgba(37,99,235,.35); }
+    .ck-modal .btn-confirm:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+    .ck-modal .btn-cancel { background:#fff; color:#374151; border:1.5px solid #d1d5db; border-radius:10px; padding:.8rem 1.2rem; font-weight:700; font-size:.9rem; cursor:pointer; font-family:inherit; transition:.2s; }
+    .ck-modal .btn-cancel:hover { background:#f9fafb; }
+    .plan-badge { display:inline-block; background:#dbeafe; color:#1d4ed8; border-radius:20px; padding:3px 12px; font-size:.78rem; font-weight:800; margin-bottom:.6rem; }
   </style>
 </head>
 <body>
@@ -34,83 +52,48 @@
 
 <header class="hero anim-fade-down" style="background:#eff6ff;">
   <div class="container">
-    <div class="hero-icon" style="font-size:3.5rem;margin-bottom:1rem;">🚗</div>
+    <div style="font-size:3.5rem;margin-bottom:1rem;">&#128663;</div>
     <h1 style="color:var(--primary-dark);">Never Get Stuck in Parking Again</h1>
     <p>Smart QR Tags + Number Plate Search for your Car, Bike, or Truck.</p>
     <a href="#pricing" class="btn btn-primary">See Plans</a>
   </div>
 </header>
 
-<!-- How it works -->
 <section class="container" style="padding:3rem 0;">
   <h2 style="text-align:center;margin-bottom:.5rem;">How It Works</h2>
   <p style="text-align:center;color:var(--text-light);margin-bottom:1rem;">Simple 3-step process.</p>
   <div class="steps-grid">
-    <div class="step-card scroll-anim">
-      <div class="step-num">1</div>
-      <h3>Stick the QR</h3>
-      <p style="font-size:.9rem;color:var(--text-light);">Place the sticker on your windshield or bumper.</p>
-    </div>
-    <div class="step-card scroll-anim">
-      <div class="step-num">2</div>
-      <h3>Someone Scans</h3>
-      <p style="font-size:.9rem;color:var(--text-light);">Finder scans the QR or types your plate number.</p>
-    </div>
-    <div class="step-card scroll-anim">
-      <div class="step-num">3</div>
-      <h3>You Get Notified</h3>
-      <p style="font-size:.9rem;color:var(--text-light);">Receive a private call/WhatsApp — number never revealed.</p>
-    </div>
+    <div class="step-card scroll-anim"><div class="step-num">1</div><h3>Stick the QR</h3><p style="font-size:.9rem;color:var(--text-light);">Place the sticker on your windshield or bumper.</p></div>
+    <div class="step-card scroll-anim"><div class="step-num">2</div><h3>Someone Scans</h3><p style="font-size:.9rem;color:var(--text-light);">Finder scans the QR or types your plate number.</p></div>
+    <div class="step-card scroll-anim"><div class="step-num">3</div><h3>You Get Notified</h3><p style="font-size:.9rem;color:var(--text-light);">Receive a private call/WhatsApp &mdash; number never revealed.</p></div>
   </div>
 </section>
 
-<!-- Pricing -->
 <section id="pricing" class="container" style="padding:2rem 0 4rem;">
   <h2 style="text-align:center;margin-bottom:.4rem;">Choose Your Plan</h2>
   <p style="text-align:center;color:var(--text-light);margin-bottom:.5rem;">All plans are FREE during testing mode.</p>
   <div class="pricing-grid">
-
     <div class="tier-card scroll-anim">
-      <h3>Basic</h3>
-      <p style="color:#666;font-size:13px;">Essential privacy for 1 vehicle.</p>
-      <div class="price"><span class="strike-price">₹99</span>₹0<span>/year</span></div>
-      <div class="test-badge">🧪 TESTING — FREE</div>
-      <ul class="feature-list">
-        <li>1 Vehicle Tag</li>
-        <li>QR Sticker (Soft Copy)</li>
-        <li>Voice Call Alerts</li>
-        <li>1 Emergency Contact</li>
-      </ul>
-      <button class="btn-buy" onclick="checkout('basic')">Get Basic Free</button>
+      <h3>Basic</h3><p style="color:#666;font-size:13px;">Essential privacy for 1 vehicle.</p>
+      <div class="price"><span class="strike-price">&#8377;99</span>&#8377;0<span>/year</span></div>
+      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
+      <ul class="feature-list"><li>1 Vehicle Tag</li><li>QR Sticker (Soft Copy)</li><li>Voice Call Alerts</li><li>1 Emergency Contact</li></ul>
+      <button class="btn-buy" onclick="openCheckout('basic',1,1)">Get Basic Free</button>
     </div>
-
     <div class="tier-card popular scroll-anim">
       <div class="popular-badge">MOST POPULAR</div>
-      <h3>Plus</h3>
-      <p style="color:#666;font-size:13px;">Best for couples or 2 vehicles.</p>
-      <div class="price"><span class="strike-price">₹249</span>₹0<span>/year</span></div>
-      <div class="test-badge">🧪 TESTING — FREE</div>
-      <ul class="feature-list">
-        <li>Up to 3 Tags</li>
-        <li>WhatsApp & SMS Alerts</li>
-        <li>2 Emergency Contacts</li>
-        <li>Custom Scan Page Colors</li>
-      </ul>
-      <button class="btn-buy" onclick="checkout('plus')">Get Plus Free</button>
+      <h3>Plus</h3><p style="color:#666;font-size:13px;">Best for couples or 2 vehicles.</p>
+      <div class="price"><span class="strike-price">&#8377;249</span>&#8377;0<span>/year</span></div>
+      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
+      <ul class="feature-list"><li>Up to 3 Tags</li><li>WhatsApp &amp; SMS Alerts</li><li>2 Emergency Contacts</li><li>Custom Scan Page Colors</li></ul>
+      <button class="btn-buy" onclick="openCheckout('plus',3,2)">Get Plus Free</button>
     </div>
-
     <div class="tier-card scroll-anim">
-      <h3>Pro</h3>
-      <p style="color:#666;font-size:13px;">Maximum security for families.</p>
-      <div class="price"><span class="strike-price">₹499</span>₹0<span>/year</span></div>
-      <div class="test-badge">🧪 TESTING — FREE</div>
-      <ul class="feature-list">
-        <li>Up to 5 Tags</li>
-        <li>Video Call Alerts</li>
-        <li>3 Emergency Contacts</li>
-        <li>Priority WhatsApp Support</li>
-      </ul>
-      <button class="btn-buy" onclick="checkout('pro')">Get Pro Free</button>
+      <h3>Pro</h3><p style="color:#666;font-size:13px;">Maximum security for families.</p>
+      <div class="price"><span class="strike-price">&#8377;499</span>&#8377;0<span>/year</span></div>
+      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
+      <ul class="feature-list"><li>Up to 5 Tags</li><li>Video Call Alerts</li><li>3 Emergency Contacts</li><li>Priority WhatsApp Support</li></ul>
+      <button class="btn-buy" onclick="openCheckout('pro',5,3)">Get Pro Free</button>
     </div>
   </div>
 </section>
@@ -122,65 +105,92 @@
       <div class="footer-col"><h3>Products</h3><a href="vehicle.html">Vehicle Tags</a><a href="pet.html">Pet Tags</a></div>
       <div class="footer-col"><h3>Account</h3><a href="login.html">Login</a><a href="dashboard.html">Dashboard</a></div>
     </div>
-    <div class="footer-bottom">© 2026 ContactKar. All rights reserved.</div>
+    <div class="footer-bottom">&copy; 2026 ContactKar. All rights reserved.</div>
   </div>
 </footer>
 
+<!-- Checkout Modal -->
+<div id="checkout-modal" class="ck-overlay" style="display:none;">
+  <div class="ck-modal">
+    <span id="modal-plan-badge" class="plan-badge">BASIC PLAN</span>
+    <h2 id="modal-title">Set Up Your Vehicle Tags</h2>
+    <p class="modal-sub" id="modal-sub">Fill in your details to activate your tags.</p>
+    <div class="fg"><label>Your Full Name *</label><input type="text" id="m-name" placeholder="e.g. Amrit Ujjwal"/></div>
+    <div class="fg"><label>Your Phone Number *</label><input type="tel" id="m-phone" placeholder="10-digit mobile number" maxlength="10"/></div>
+    <div class="fg"><label>Vehicle Number Plate (optional)</label><input type="text" id="m-plate" placeholder="e.g. DL01AB1234" style="text-transform:uppercase;"/></div>
+    <div class="ec-section">
+      <h4 id="ec-heading">Emergency Contacts</h4>
+      <div id="ec-fields"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeCheckout()">Cancel</button>
+      <button class="btn-confirm" id="confirm-btn" onclick="submitCheckout()">&#9989; Activate Tags</button>
+    </div>
+  </div>
+</div>
+
 <script src="nav_logic.js"></script>
-<script src="animations.js"></script>
 <script>
 const API_URL = 'https://contactkar.onrender.com/api';
+var _tier = '', _tagCount = 1, _ecCount = 1;
 
-// How many vehicle tags each tier gives
-const TIER_TAG_COUNT = { basic: 1, plus: 3, pro: 5 };
-
-async function checkout(tier) {
-  const token = localStorage.getItem('token');
-  if (!token) { alert('Please login first!'); window.location.href = 'login.html'; return; }
-  const btn = event.target;
-  btn.textContent = 'Processing...'; btn.disabled = true;
-
-  try {
-    // Step 1: Upgrade billing tier
-    const upgradeRes  = await fetch(API_URL + '/billing/upgrade', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({ tier })
-    });
-    const upgradeData = await upgradeRes.json();
-    if (!upgradeData.success) {
-      alert('Error: ' + upgradeData.error);
-      btn.textContent = 'Try Again'; btn.disabled = false;
-      return;
-    }
-
-    // Step 2: Create the actual tag(s) in the database
-    const tagCount = TIER_TAG_COUNT[tier] || 1;
-    const orderRes  = await fetch(API_URL + '/orders/place', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
-      body: JSON.stringify({
-        vehicleQty: tagCount,
-        petQty: 0,
-        address: 'Soft Copy',
-        city: 'N/A',
-        state: 'N/A',
-        pincode: '000000'
-      })
-    });
-    const orderData = await orderRes.json();
-    if (orderData.success || orderData.orderId) {
-      alert('✅ You are now on the ' + tier.toUpperCase() + ' plan! Your ' + tagCount + ' vehicle tag(s) are ready in your dashboard.');
-      window.location.href = 'dashboard.html';
-    } else {
-      alert('Plan activated but tag creation failed: ' + (orderData.error || 'Try refreshing dashboard.'));
-      window.location.href = 'dashboard.html';
-    }
-  } catch(e) {
-    alert('Server error. Render may be starting up — try again in 30s.');
-    btn.textContent = 'Get ' + tier; btn.disabled = false;
+function openCheckout(tier, tagCount, ecCount) {
+  if (!localStorage.getItem('token')) { alert('Please login first!'); window.location.href = 'login.html'; return; }
+  _tier = tier; _tagCount = tagCount; _ecCount = ecCount;
+  document.getElementById('modal-plan-badge').textContent = tier.toUpperCase() + ' PLAN';
+  document.getElementById('modal-title').textContent = 'Set Up Your ' + tier.charAt(0).toUpperCase() + tier.slice(1) + ' Vehicle Tags';
+  document.getElementById('modal-sub').textContent = tagCount + ' vehicle tag(s) \u2022 ' + ecCount + ' emergency contact(s)';
+  var ecHtml = '';
+  for (var i = 1; i <= ecCount; i++) {
+    ecHtml += '<div class="fg"><label>Emergency Contact ' + (ecCount > 1 ? i + ' ' : '') + '(Phone Number) *</label>' +
+              '<input type="tel" id="ec-' + i + '" placeholder="10-digit mobile number" maxlength="10"/></div>';
   }
+  document.getElementById('ec-fields').innerHTML = ecHtml;
+  document.getElementById('ec-heading').textContent = '\uD83D\uDEA8 Emergency Contact' + (ecCount > 1 ? 's (' + ecCount + ')' : '');
+  document.getElementById('checkout-modal').style.display = 'flex';
+  document.getElementById('m-name').focus();
 }
+
+function closeCheckout() {
+  document.getElementById('checkout-modal').style.display = 'none';
+  var btn = document.getElementById('confirm-btn');
+  btn.textContent = '\u2705 Activate Tags'; btn.disabled = false;
+}
+
+async function submitCheckout() {
+  var token  = localStorage.getItem('token');
+  var name   = document.getElementById('m-name').value.trim();
+  var phone  = document.getElementById('m-phone').value.trim();
+  var plate  = document.getElementById('m-plate').value.trim().toUpperCase();
+  if (!name) { alert('Please enter your full name.'); return; }
+  if (!phone || phone.length !== 10 || isNaN(phone)) { alert('Please enter a valid 10-digit phone number.'); return; }
+  var ecNums = [];
+  for (var i = 1; i <= _ecCount; i++) {
+    var ec = document.getElementById('ec-' + i).value.trim();
+    if (!ec || ec.length !== 10 || isNaN(ec)) { alert('Please enter a valid 10-digit number for Emergency Contact ' + i + '.'); return; }
+    ecNums.push(ec);
+  }
+  var btn = document.getElementById('confirm-btn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  try {
+    var upRes  = await fetch(API_URL + '/billing/upgrade', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({ tier: _tier })
+    });
+    var upData = await upRes.json();
+    if (!upData.success) { alert('Error: ' + upData.error); btn.textContent='\u2705 Activate Tags'; btn.disabled=false; return; }
+    var orderRes = await fetch(API_URL + '/orders/place', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({ vehicleQty:_tagCount, petQty:0, address:'Soft Copy', city:'N/A', state:'N/A', pincode:'000000',
+        ownername:name, ownerphone:phone, vehiclenumber:plate||null, emergency:ecNums.join(', ') })
+    });
+    var orderData = await orderRes.json();
+    closeCheckout();
+    alert('\u2705 ' + _tier.toUpperCase() + ' plan activated! Your ' + _tagCount + ' vehicle tag(s) are ready in your dashboard.');
+    window.location.href = 'dashboard.html';
+  } catch(e) { alert('Server error. Try again in 30s.'); btn.textContent='\u2705 Activate Tags'; btn.disabled=false; }
+}
+document.getElementById('checkout-modal').addEventListener('click', function(e){ if(e.target===this) closeCheckout(); });
 </script>
 </body>
 </html>
