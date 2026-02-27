@@ -307,17 +307,6 @@ app.get('/api/tags/:code/qrcode', async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'QR generation failed' }); }
 });
 
-// 5. ⚠️ TEMPORARY wipe-all — MUST be BEFORE app.delete('/api/tags/:id')
-app.delete('/api/tags/wipe-all', authRequired, async (req, res) => {
-  try {
-    const result = await pool.query('DELETE FROM tags WHERE user_id=$1 RETURNING id', [req.userId]);
-    console.log('Wiped ' + result.rowCount + ' tags for user ' + req.userId);
-    res.json({ success: true, deleted: result.rowCount, message: 'Deleted all ' + result.rowCount + ' tags' });
-  } catch (e) {
-    res.status(500).json({ success: false, error: e.message });
-  }
-});
-
 // 6. DELETE single tag — MUST be LAST among tag routes
 app.delete('/api/tags/:id', authRequired, async (req, res) => {
   try {
