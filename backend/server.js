@@ -1,17 +1,17 @@
 require('dotenv').config();
 const express = require('express');
-const cors = require('cors');
+const cors    = require('cors');
 const { Pool } = require('pg');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const axios = require('axios');
-const QRCode = require('qrcode');
+const bcrypt  = require('bcryptjs');
+const jwt     = require('jsonwebtoken');
+const axios   = require('axios');
+const QRCode  = require('qrcode');
 
-const app = express();
-const PORT = process.env.PORT || 10000;
-const JWT_SECRET = process.env.JWT_SECRET;
+const app         = express();
+const PORT        = process.env.PORT || 10000;
+const JWT_SECRET  = process.env.JWT_SECRET;
 const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const SENDER_EMAIL = process.env.SENDER_EMAIL;
+const SENDER_EMAIL  = process.env.SENDER_EMAIL;
 
 app.use(express.json({ limit: '1mb' }));
 app.use(cors());
@@ -38,7 +38,7 @@ function signToken(userId) { return jwt.sign({ id: userId }, JWT_SECRET, { expir
 // ---- Auth Middleware ----
 function authRequired(req, res, next) {
   try {
-    const hdr = req.headers.authorization;
+    const hdr   = req.headers.authorization;
     const token = hdr && hdr.startsWith('Bearer ') ? hdr.slice(7) : null;
     if (!token) return res.status(401).json({ success: false, error: 'Missing token' });
     req.userId = jwt.verify(token, JWT_SECRET).id;
@@ -48,7 +48,7 @@ function authRequired(req, res, next) {
   }
 }
 
-// ---- Auto DB Setup (runs on startup) ----
+// ---- Auto DB Setup ----
 async function setupDB() {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
@@ -105,7 +105,6 @@ async function setupDB() {
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);
-  // Safe migrations
   const migrations = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(20) DEFAULT 'basic'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_expiry TIMESTAMP",
@@ -176,7 +175,8 @@ app.post('/api/auth/send-login-otp', async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ success: false, error: 'Missing fields' });
     const user = (await pool.query('SELECT * FROM users WHERE email=$1', [email])).rows[0];
-    if (!user || !(await bcrypt.compare(password, user.password_hash))) return res.status(401).json({ success: false, error: 'Invalid credentials' });
+    if (!user || !(await bcrypt.compare(password, user.password_hash)))
+      return res.status(401).json({ success: false, error: 'Invalid credentials' });
     const otp = generateOtp();
     await pool.query(
       "INSERT INTO email_otps (purpose, user_id, email, otp_code, expires_at) VALUES ('login',$1,$2,$3,$4)",
@@ -251,7 +251,10 @@ app.post('/api/auth/verify-change-email-otp', authRequired, async (req, res) => 
 // ---- PROFILE ----
 app.get('/api/users/me', authRequired, async (req, res) => {
   try {
-    const r = await pool.query('SELECT id, email, name, phone, subscription_tier, subscription_expiry FROM users WHERE id=$1', [req.userId]);
+    const r = await pool.query(
+      'SELECT id, email, name, phone, subscription_tier, subscription_expiry FROM users WHERE id=$1',
+      [req.userId]
+    );
     res.json({ success: true, user: r.rows[0] });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
@@ -267,67 +270,98 @@ app.put('/api/users/me', authRequired, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
 
-// ---- TAGS ----
+// ==============================
+//           TAGS
+// ==============================
 
-// GET all tags for logged-in user
+// GET — fetch only logged-in user's own tags
 app.get('/api/tags/my', authRequired, async (req, res) => {
   try {
-    const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
+    const r = await pool.query(
+      'SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC',
+      [req.userId]
+    );
     res.json({ success: true, tags: r.rows });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
 });
 
-// Legacy alias (keep for backward compatibility)
+// Legacy alias — kept for backward compatibility
 app.get('/api/tags/user', authRequired, async (req, res) => {
   try {
-    const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
+    const r = await pool.query(
+      'SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC',
+      [req.userId]
+    );
     res.json({ success: true, tags: r.rows });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
 });
 
-// TOGGLE tag active/inactive
+// TOGGLE — active / hidden
 app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
   try {
-    const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
+    const own = await pool.query(
+      'SELECT id FROM tags WHERE id=$1 AND user_id=$2',
+      [req.params.id, req.userId]
+    );
     if (!own.rows.length) return res.status(404).json({ success: false, error: 'Tag not found' });
     await pool.query('UPDATE tags SET is_contactable=$1 WHERE id=$2', [!!req.body.isContactable, req.params.id]);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to update' }); }
 });
 
-// GET QR code for a tag
+// QR code endpoint
 app.get('/api/tags/:code/qrcode', async (req, res) => {
   try {
-    const url = 'https://contactkar.vercel.app/tag/' + encodeURIComponent(req.params.code);
+    const url     = 'https://contactkar.vercel.app/scan/' + encodeURIComponent(req.params.code);
     const dataUrl = await QRCode.toDataURL(url);
     res.json({ success: true, code: req.params.code, qr: dataUrl });
   } catch (e) { res.status(500).json({ success: false, error: 'QR generation failed' }); }
 });
 
-// ✅ DELETE tag — removes tag + QR from database permanently
+// DELETE — permanently delete a single tag (ownership verified)
 app.delete('/api/tags/:id', authRequired, async (req, res) => {
   try {
-    // Only allow deletion if this tag belongs to the logged-in user
     const tag = await pool.query(
       'SELECT id, tag_code FROM tags WHERE id=$1 AND user_id=$2',
       [req.params.id, req.userId]
     );
-    if (!tag.rows.length) {
+    if (!tag.rows.length)
       return res.status(404).json({ success: false, error: 'Tag not found or unauthorized' });
-    }
+
     await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
-    console.log(`🗑️ Tag ${tag.rows[0].tag_code} deleted by user ${req.userId}`);
-    res.json({ success: true, message: `Tag ${tag.rows[0].tag_code} deleted successfully` });
+    console.log(`🗑️  Tag ${tag.rows[0].tag_code} deleted by user ${req.userId}`);
+    res.json({ success: true, message: `Tag ${tag.rows[0].tag_code} deleted` });
   } catch (e) {
     console.error('Delete tag error:', e.message);
     res.status(500).json({ success: false, error: 'Failed to delete tag' });
   }
 });
 
-// ---- SUBSCRIPTIONS ----
+// ⚠️ TEMPORARY — wipe ALL tags for logged-in user (use once to clean fake data, then remove)
+app.delete('/api/tags/wipe-all', authRequired, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'DELETE FROM tags WHERE user_id=$1 RETURNING id',
+      [req.userId]
+    );
+    console.log(`🧹 Wiped ${result.rowCount} tags for user ${req.userId}`);
+    res.json({ success: true, deleted: result.rowCount, message: `Deleted all ${result.rowCount} tags` });
+  } catch (e) {
+    console.error('Wipe error:', e.message);
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// ==============================
+//        SUBSCRIPTIONS
+// ==============================
+
 app.get('/api/billing/plan', authRequired, async (req, res) => {
   try {
-    const r = await pool.query('SELECT subscription_tier, subscription_expiry FROM users WHERE id=$1', [req.userId]);
+    const r = await pool.query(
+      'SELECT subscription_tier, subscription_expiry FROM users WHERE id=$1',
+      [req.userId]
+    );
     res.json({ success: true, plan: r.rows[0] });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch plan' }); }
 });
@@ -335,34 +369,48 @@ app.get('/api/billing/plan', authRequired, async (req, res) => {
 app.post('/api/billing/upgrade', authRequired, async (req, res) => {
   try {
     const { tier } = req.body;
-    if (!['basic', 'plus', 'pro'].includes(tier)) return res.status(400).json({ error: 'Invalid tier' });
+    if (!['basic', 'plus', 'pro'].includes(tier))
+      return res.status(400).json({ error: 'Invalid tier' });
     const expiry = new Date();
     expiry.setFullYear(expiry.getFullYear() + 1);
-    await pool.query('UPDATE users SET subscription_tier=$1, subscription_expiry=$2 WHERE id=$3', [tier, expiry, req.userId]);
+    await pool.query(
+      'UPDATE users SET subscription_tier=$1, subscription_expiry=$2 WHERE id=$3',
+      [tier, expiry, req.userId]
+    );
     res.json({ success: true, message: 'Upgraded to ' + tier.toUpperCase() + ' successfully!' });
   } catch (e) { res.status(500).json({ success: false, error: 'Upgrade failed: ' + e.message }); }
 });
 
-// ---- ORDERS ----
+// ==============================
+//           ORDERS
+// ==============================
+
 app.post('/api/orders/calculate', authRequired, async (req, res) => {
   const v = Number(req.body.vehicleQty) || 0;
-  const p = Number(req.body.petQty) || 0;
+  const p = Number(req.body.petQty)     || 0;
   const total = v + p;
-  const free = total >= 5 ? 2 : (total >= 3 ? 1 : 0);
+  const free  = total >= 5 ? 2 : (total >= 3 ? 1 : 0);
   res.json({ totalTags: total, totalCost: Math.max(0, total - free) * 149, savings: free * 149, freeDeliveries: free });
 });
 
 app.post('/api/orders/place', authRequired, async (req, res) => {
   try {
     const { vehicleQty = 0, petQty = 0, address, city, state, pincode, vehiclenumber, ownername, emergency } = req.body;
-    const vQty = Number(vehicleQty);
-    const pQty = Number(petQty);
+
+    // Hard cap: max 10 tags per order to prevent runaway inserts
+    const vQty = Math.min(Math.max(Number(vehicleQty) || 0, 0), 10);
+    const pQty = Math.min(Math.max(Number(petQty)     || 0, 0), 10);
+
     if (vQty + pQty === 0) return res.status(400).json({ error: 'Select at least 1 tag' });
 
-    const isHardCopy = address && address !== 'Soft Copy';
-    const fullAddress = isHardCopy ? `${address}, ${city}, ${state} - ${pincode}` : 'Soft Copy';
-    const free = (vQty + pQty) >= 5 ? 2 : ((vQty + pQty) >= 3 ? 1 : 0);
-    const totalCost = Math.max(0, (vQty + pQty) - free) * 149;
+    // Require full address — prevent accidental/empty submissions
+    if (!address || !city || !state || !pincode)
+      return res.status(400).json({ error: 'Shipping address is required' });
+
+    const isHardCopy  = address !== 'Soft Copy';
+    const fullAddress = `${address}, ${city}, ${state} - ${pincode}`;
+    const free        = (vQty + pQty) >= 5 ? 2 : ((vQty + pQty) >= 3 ? 1 : 0);
+    const totalCost   = Math.max(0, (vQty + pQty) - free) * 149;
 
     const order = await pool.query(
       'INSERT INTO orders (user_id, total_amount, shipping_address, items) VALUES ($1,$2,$3,$4) RETURNING id',
@@ -393,4 +441,4 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
 });
 
 // ---- START ----
-app.listen(PORT, () => console.log('ContactKar Server v4 running on port ' + PORT));
+app.listen(PORT, () => console.log(`ContactKar Server v4 running on port ${PORT}`));
