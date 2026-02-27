@@ -4,11 +4,9 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Tags - ContactKar</title>
-  <link rel="stylesheet" href="styles_v2.css"/>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fb;color:#1f2937;}
-    /* Navbar */
     .ck-nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.06);}
     .ck-nav .inner{max-width:1100px;margin:0 auto;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
     .ck-brand{font-size:1.4rem;font-weight:900;color:#111827;text-decoration:none;}
@@ -17,25 +15,20 @@
     .ck-greeting{font-weight:600;font-size:.9rem;color:#374151;}
     .ck-logout{padding:6px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;color:#374151;transition:.2s;font-family:inherit;}
     .ck-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444;}
-    /* Layout */
     .ck-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;}
-    /* Tab nav */
     .tab-nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap;}
     .tab-nav a{padding:.55rem 1.2rem;border-radius:10px;font-weight:600;font-size:.875rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;transition:all .2s;white-space:nowrap;}
     .tab-nav a:hover{background:#eff6ff;border-color:#93c5fd;color:#2563eb;}
     .tab-nav a.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.3);}
-    /* Page header */
     .pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;}
     .pg-header h1{font-size:1.5rem;font-weight:900;margin:0;color:#111827;}
     .btn-buy-new{background:#2563eb;color:#fff;border:none;padding:.65rem 1.3rem;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:.4rem;}
     .btn-buy-new:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.35);}
-    /* Stats */
     .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
     .stat-box{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1.1rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);}
     .stat-num{font-size:2rem;font-weight:900;line-height:1;}
     .stat-lbl{font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-top:.3rem;}
-    /* Tag card */
-    .tag-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .25s,transform .2s;overflow:hidden;}
+    .tag-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);overflow:hidden;transition:box-shadow .25s,transform .2s;}
     .tag-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-1px);}
     .tag-inner{display:flex;gap:1rem;padding:1.2rem 1.4rem;align-items:flex-start;}
     .tag-qr{flex-shrink:0;width:90px;height:90px;border:1.5px solid #e5e7eb;border-radius:10px;background:#f9fafb;overflow:hidden;display:flex;align-items:center;justify-content:center;}
@@ -50,7 +43,6 @@
     .badge-hidden{background:#fee2e2;color:#991b1b;}
     .tag-meta{font-size:.81rem;color:#6b7280;margin-bottom:.22rem;}
     .tag-meta b{color:#374151;}
-    /* Action buttons */
     .tag-btns{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;}
     .tbtn{padding:.36rem .82rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .18s;white-space:nowrap;line-height:1.4;}
     .tbtn:hover{transform:translateY(-1px);}
@@ -60,18 +52,13 @@
     .tbtn-gray:hover{border-color:#9ca3af;background:#f9fafb;}
     .tbtn-red{background:#fff;color:#ef4444;border:1.5px solid #fca5a5;}
     .tbtn-red:hover{background:#fef2f2;border-color:#ef4444;box-shadow:0 3px 10px rgba(239,68,68,.2);}
-    /* Shimmer */
     .shimmer{background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:16px;height:108px;margin-bottom:1rem;}
     @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
-    /* Empty */
     .empty-state{border:2px dashed #d1d5db;border-radius:16px;padding:3rem 2rem;text-align:center;color:#6b7280;background:#fff;}
     .empty-state h3{color:#111827;font-size:1.05rem;margin:.6rem 0 .4rem;}
-    /* Toast */
     #ck-toast{position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 22px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:320px;transition:opacity .4s,transform .3s;opacity:0;pointer-events:none;}
-    /* QR Modal */
     .qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;}
     .qr-box{background:#fff;border-radius:18px;padding:2rem;text-align:center;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
-    .qr-title{font-weight:800;font-size:1rem;margin-bottom:1rem;color:#111827;}
     .qr-img{width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:10px;padding:6px;}
     .qr-actions{display:flex;gap:.6rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;}
     @media(max-width:520px){
@@ -85,7 +72,6 @@
 </head>
 <body>
 
-<!-- Navbar -->
 <nav class="ck-nav">
   <div class="inner">
     <a href="index.html" class="ck-brand">Contact<span>Kar</span></a>
@@ -97,8 +83,6 @@
 </nav>
 
 <div class="ck-wrap">
-
-  <!-- Tab Nav -->
   <nav class="tab-nav">
     <a href="dashboard.html" class="active">&#127991; My Tags</a>
     <a href="profile.html">&#128100; Profile</a>
@@ -106,49 +90,40 @@
     <a href="settings.html">&#9881;&#65039; Settings</a>
   </nav>
 
-  <!-- Page Header -->
   <div class="pg-header">
     <h1>&#127991; My Tags</h1>
     <a href="vehicle.html" class="btn-buy-new">+ Buy New Tag</a>
   </div>
 
-  <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-box"><div class="stat-num" id="stat-total" style="color:#2563eb;">0</div><div class="stat-lbl">Total Tags</div></div>
-    <div class="stat-box"><div class="stat-num" id="stat-active" style="color:#10b981;">0</div><div class="stat-lbl">Active</div></div>
-    <div class="stat-box"><div class="stat-num" id="stat-hidden" style="color:#ef4444;">0</div><div class="stat-lbl">Hidden</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-total" style="color:#2563eb;">-</div><div class="stat-lbl">Total Tags</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-active" style="color:#10b981;">-</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-hidden" style="color:#ef4444;">-</div><div class="stat-lbl">Hidden</div></div>
   </div>
 
-  <!-- Tags list -->
   <div id="tags-list">
     <div class="shimmer"></div>
     <div class="shimmer"></div>
-    <div class="shimmer"></div>
   </div>
-
 </div>
 
-<!-- Toast -->
 <div id="ck-toast"></div>
 
 <script>
-// ─────────────────────────────────────────
-const API = 'https://contactkar.onrender.com/api';
-const tok = localStorage.getItem('token');
-if (!tok) window.location.href = 'login.html';
+var API = 'https://contactkar.onrender.com/api';
+var tok = localStorage.getItem('token');
+if (!tok) { window.location.href = 'login.html'; }
 
-// Greet
-var uname = localStorage.getItem('userName') || 'User';
-document.getElementById('user-greeting').textContent = 'Hi, ' + uname;
+// Greet — try multiple keys login might have used
+var uname = localStorage.getItem('userName') || localStorage.getItem('name') || localStorage.getItem('username') || '';
+if (uname) document.getElementById('user-greeting').textContent = 'Hi, ' + uname;
 
-// Logout
 document.getElementById('logout-btn').addEventListener('click', function(){
   localStorage.clear(); window.location.href = 'login.html';
 });
 
-// Toast
 function toast(msg, clr) {
-  var c = {green:'#10b981',red:'#ef4444',blue:'#2563eb',amber:'#f59e0b'};
+  var c = {green:'#10b981', red:'#ef4444', blue:'#2563eb', amber:'#f59e0b'};
   var el = document.getElementById('ck-toast');
   el.style.background = c[clr] || '#374151';
   el.textContent = msg;
@@ -158,21 +133,23 @@ function toast(msg, clr) {
   el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(8px)'; }, 3000);
 }
 
-// ── LOAD TAGS ─────────────────────────────
 function loadTags() {
   var list = document.getElementById('tags-list');
   list.innerHTML = '<div class="shimmer"></div><div class="shimmer"></div><div class="shimmer"></div>';
 
-  fetch(API + '/tags/my', {
-    headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }
+  fetch(API + '/tags/user', {
+    headers: { 'Authorization': 'Bearer ' + tok }
   })
   .then(function(r){
-    if (r.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+    if (r.status === 401 || r.status === 403) { localStorage.clear(); window.location.href = 'login.html'; return null; }
     return r.json();
   })
   .then(function(data){
     if (!data) return;
-    var tags = data.tags || (Array.isArray(data) ? data : []);
+
+    // Handle both array response and {success,tags} response
+    var tags = Array.isArray(data) ? data : (data.tags || []);
+
     var active = 0;
     tags.forEach(function(t){ if (t.is_contactable !== false) active++; });
     document.getElementById('stat-total').textContent  = tags.length;
@@ -184,27 +161,27 @@ function loadTags() {
         '<div class="empty-state">' +
           '<div style="font-size:3rem;margin-bottom:.6rem;">&#127991;</div>' +
           '<h3>No Tags Yet</h3>' +
-          '<p style="font-size:.9rem;margin-bottom:1.2rem;">Purchase a plan to get your first tag.</p>' +
-          '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:8px;">&#128663; Vehicle</a>' +
-          '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;">&#128062; Pet</a>' +
+          '<p style="font-size:.9rem;margin:.4rem 0 1.2rem;">Purchase a plan to get your first tag.</p>' +
+          '<a href="vehicle.html" style="display:inline-block;background:#2563eb;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:8px;">&#128663; Vehicle</a>' +
+          '<a href="pet.html" style="display:inline-block;background:#ec4899;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;">&#128062; Pet</a>' +
         '</div>';
       return;
     }
     list.innerHTML = '';
     tags.forEach(function(t){ list.appendChild(makeCard(t)); });
   })
-  .catch(function(){
+  .catch(function(err){
+    console.error('loadTags error:', err);
     list.innerHTML =
       '<div class="empty-state">' +
         '<div style="font-size:2.5rem;margin-bottom:.6rem;">&#9888;</div>' +
         '<h3>Could not load tags</h3>' +
-        '<p style="font-size:.9rem;margin-bottom:1rem;">Render may be waking up. Wait 30s.</p>' +
+        '<p style="font-size:.9rem;margin:.4rem 0 1rem;">Server may be starting up. Wait 30s and retry.</p>' +
         '<button onclick="loadTags()" style="background:#2563eb;color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">&#128260; Retry</button>' +
       '</div>';
   });
 }
 
-// ── BUILD CARD ────────────────────────────
 function makeCard(t) {
   var id     = t.id;
   var code   = t.tag_code || '';
@@ -216,7 +193,6 @@ function makeCard(t) {
     ? new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
     : '';
 
-  // Card wrapper
   var card = document.createElement('div');
   card.className = 'tag-card';
   card.id = 'tc-' + id;
@@ -224,13 +200,12 @@ function makeCard(t) {
   var inner = document.createElement('div');
   inner.className = 'tag-inner';
 
-  // QR image
+  // QR
   var qrBox = document.createElement('div');
   qrBox.className = 'tag-qr';
   var img = document.createElement('img');
-  img.src = qrUrl;
-  img.alt = 'QR';
-  img.onerror = function(){ qrBox.innerHTML = '<span style="font-size:.7rem;color:#9ca3af;text-align:center;">QR<br>Error</span>'; };
+  img.src = qrUrl; img.alt = 'QR';
+  img.onerror = function(){ qrBox.innerHTML = '<span style="font-size:.7rem;color:#9ca3af;text-align:center;padding:4px;">QR Error</span>'; };
   qrBox.appendChild(img);
 
   // Body
@@ -241,69 +216,48 @@ function makeCard(t) {
   var titleRow = document.createElement('div');
   titleRow.className = 'tag-title-row';
 
-  var codeSpan = document.createElement('span');
-  codeSpan.className = 'tag-code';
-  codeSpan.textContent = code;
-
-  var typeBadge = document.createElement('span');
-  typeBadge.className = 'badge ' + (isPet ? 'badge-pet' : 'badge-vehicle');
-  typeBadge.textContent = isPet ? 'Pet' : 'Vehicle';
-
-  var statusBadge = document.createElement('span');
-  statusBadge.className = 'badge ' + (active ? 'badge-active' : 'badge-hidden');
-  statusBadge.textContent = active ? 'Active' : 'Hidden';
-
-  titleRow.appendChild(codeSpan);
-  titleRow.appendChild(typeBadge);
-  titleRow.appendChild(statusBadge);
+  var codeEl = document.createElement('span'); codeEl.className = 'tag-code'; codeEl.textContent = code;
+  var typeEl = document.createElement('span'); typeEl.className = 'badge ' + (isPet ? 'badge-pet' : 'badge-vehicle'); typeEl.textContent = isPet ? 'Pet' : 'Vehicle';
+  var statEl = document.createElement('span'); statEl.className = 'badge ' + (active ? 'badge-active' : 'badge-hidden'); statEl.textContent = active ? 'Active' : 'Hidden';
+  titleRow.appendChild(codeEl); titleRow.appendChild(typeEl); titleRow.appendChild(statEl);
   body.appendChild(titleRow);
 
-  // Meta fields
-  function addMeta(icon, val) {
+  // Meta
+  function meta(icon, val) {
     if (!val) return;
-    var d = document.createElement('div');
-    d.className = 'tag-meta';
-    d.innerHTML = icon + ' <b>' + val + '</b>';
-    body.appendChild(d);
+    var d = document.createElement('div'); d.className = 'tag-meta';
+    d.innerHTML = icon + ' <b>' + val + '</b>'; body.appendChild(d);
   }
-  addMeta('&#128290;', t.vehicle_number);
-  addMeta('&#128054;', t.pet_name);
-  addMeta('&#128100;', t.owner_name);
-  addMeta('&#128680;', t.emergency_contact);
-  if (date) {
-    var d = document.createElement('div');
-    d.className = 'tag-meta';
-    d.textContent = 'Added: ' + date;
-    body.appendChild(d);
-  }
+  meta('&#128290;', t.vehicle_number);
+  meta('&#128054;', t.pet_name);
+  meta('&#128100;', t.owner_name);
+  meta('&#128680;', t.emergency_contact);
+  if (date) { var dd = document.createElement('div'); dd.className='tag-meta'; dd.textContent='Added: '+date; body.appendChild(dd); }
 
-  // ── BUTTONS ──────────────────────────────
+  // Buttons row
   var btns = document.createElement('div');
   btns.className = 'tag-btns';
 
-  // View QR button
-  var btnQR = document.createElement('button');
-  btnQR.className = 'tbtn tbtn-blue';
-  btnQR.textContent = 'View QR';
-  btnQR.addEventListener('click', function(){ showQR(code); });
+  // View QR
+  var bQR = document.createElement('button');
+  bQR.className = 'tbtn tbtn-blue'; bQR.textContent = 'View QR';
+  bQR.onclick = function(){ showQR(code); };
 
-  // Copy Link button
-  var btnCopy = document.createElement('button');
-  btnCopy.className = 'tbtn tbtn-gray';
-  btnCopy.textContent = 'Copy Link';
-  btnCopy.addEventListener('click', function(){
+  // Copy Link
+  var bCopy = document.createElement('button');
+  bCopy.className = 'tbtn tbtn-gray'; bCopy.textContent = 'Copy Link';
+  bCopy.onclick = function(){
     navigator.clipboard.writeText('https://contactkar.vercel.app/scan/' + code)
       .then(function(){ toast('Link copied!', 'blue'); })
       .catch(function(){ toast('Copy failed', 'red'); });
-  });
+  };
 
-  // DELETE button — red, prominent
-  var btnDel = document.createElement('button');
-  btnDel.className = 'tbtn tbtn-red';
-  btnDel.innerHTML = '&#128465;&#65039; Delete';
-  btnDel.addEventListener('click', function(){
-    if (!confirm('Delete tag ' + code + '?
-
+  // DELETE
+  var bDel = document.createElement('button');
+  bDel.className = 'tbtn tbtn-red';
+  bDel.innerHTML = '&#128465; Delete';
+  bDel.onclick = function(){
+    if (!confirm('Delete tag "' + code + '"?
 This cannot be undone.')) return;
     card.style.opacity = '0.4';
     fetch(API + '/tags/' + id, {
@@ -311,62 +265,49 @@ This cannot be undone.')) return;
       headers: { 'Authorization': 'Bearer ' + tok }
     })
     .then(function(r){ return r.json(); })
-    .then(function(data){
-      if (data.success) {
+    .then(function(d){
+      if (d.success) {
         toast(code + ' deleted', 'red');
-        card.style.transition = 'all .3s';
+        card.style.transition = 'all .3s ease';
         card.style.transform = 'scaleY(0)';
-        card.style.maxHeight = '0';
-        card.style.margin = '0';
-        card.style.padding = '0';
-        setTimeout(function(){ card.remove(); loadTags(); }, 320);
+        card.style.maxHeight = '0'; card.style.overflow = 'hidden';
+        card.style.marginBottom = '0';
+        setTimeout(function(){ if(card.parentNode) card.remove(); loadTags(); }, 340);
       } else {
         card.style.opacity = '1';
-        toast('Delete failed: ' + (data.error || 'unknown'), 'red');
+        toast('Delete failed: ' + (d.error || 'error'), 'red');
       }
     })
-    .catch(function(){
-      card.style.opacity = '1';
-      toast('Network error', 'red');
-    });
-  });
+    .catch(function(){ card.style.opacity = '1'; toast('Network error', 'red'); });
+  };
 
-  btns.appendChild(btnQR);
-  btns.appendChild(btnCopy);
-  btns.appendChild(btnDel);
+  btns.appendChild(bQR); btns.appendChild(bCopy); btns.appendChild(bDel);
   body.appendChild(btns);
-
-  inner.appendChild(qrBox);
-  inner.appendChild(body);
+  inner.appendChild(qrBox); inner.appendChild(body);
   card.appendChild(inner);
   return card;
 }
 
-// ── QR MODAL ──────────────────────────────
 function showQR(code) {
-  var old = document.getElementById('qr-overlay');
-  if (old) old.remove();
-  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' +
+  var old = document.getElementById('qr-overlay'); if(old) old.remove();
+  var qrBig = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' +
               encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
-  var overlay = document.createElement('div');
-  overlay.id = 'qr-overlay';
-  overlay.className = 'qr-overlay';
-  overlay.innerHTML =
+  var ov = document.createElement('div');
+  ov.id='qr-overlay'; ov.className='qr-overlay';
+  ov.innerHTML =
     '<div class="qr-box">' +
-      '<div class="qr-title">QR &mdash; ' + code + '</div>' +
-      '<img class="qr-img" src="' + qrUrl + '" />' +
+      '<div style="font-weight:800;font-size:1rem;margin-bottom:1rem;">QR &mdash; ' + code + '</div>' +
+      '<img class="qr-img" src="' + qrBig + '" />' +
       '<div class="qr-actions">' +
-        '<a href="' + qrUrl + '" download="qr-' + code + '.png" class="tbtn tbtn-gray" style="text-decoration:none;">&#11015; Download</a>' +
+        '<a href="' + qrBig + '" download="qr-' + code + '.png" class="tbtn tbtn-gray" style="text-decoration:none;">&#11015; Download</a>' +
         '<button class="tbtn tbtn-red" onclick="document.getElementById('qr-overlay').remove()">&#10005; Close</button>' +
       '</div>' +
     '</div>';
-  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
-  document.body.appendChild(overlay);
+  ov.addEventListener('click', function(e){ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
 }
 
-// ── INIT ──────────────────────────────────
 loadTags();
 </script>
-
 </body>
 </html>
