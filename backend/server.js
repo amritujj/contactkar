@@ -270,55 +270,55 @@ app.put('/api/users/me', authRequired, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
 
-// ==============================
-//           TAGS
-// ==============================
+// ---- TAGS ----
 
-// GET — fetch only logged-in user's own tags
+// 1. GET /api/tags/my — must be before /:id
 app.get('/api/tags/my', authRequired, async (req, res) => {
   try {
-    const r = await pool.query(
-      'SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC',
-      [req.userId]
-    );
+    const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
     res.json({ success: true, tags: r.rows });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
 });
 
-// Legacy alias — kept for backward compatibility
+// 2. GET /api/tags/user — legacy alias
 app.get('/api/tags/user', authRequired, async (req, res) => {
   try {
-    const r = await pool.query(
-      'SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC',
-      [req.userId]
-    );
+    const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
     res.json({ success: true, tags: r.rows });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
 });
 
-// TOGGLE — active / hidden
+// 3. PUT toggle — must be before /:id DELETE
 app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
   try {
-    const own = await pool.query(
-      'SELECT id FROM tags WHERE id=$1 AND user_id=$2',
-      [req.params.id, req.userId]
-    );
+    const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
     if (!own.rows.length) return res.status(404).json({ success: false, error: 'Tag not found' });
     await pool.query('UPDATE tags SET is_contactable=$1 WHERE id=$2', [!!req.body.isContactable, req.params.id]);
     res.json({ success: true });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to update' }); }
 });
 
-// QR code endpoint
+// 4. GET qr code
 app.get('/api/tags/:code/qrcode', async (req, res) => {
   try {
-    const url     = 'https://contactkar.vercel.app/scan/' + encodeURIComponent(req.params.code);
+    const url = 'https://contactkar.vercel.app/scan/' + encodeURIComponent(req.params.code);
     const dataUrl = await QRCode.toDataURL(url);
     res.json({ success: true, code: req.params.code, qr: dataUrl });
   } catch (e) { res.status(500).json({ success: false, error: 'QR generation failed' }); }
 });
 
-// DELETE — permanently delete a single tag (ownership verified)
+// 5. ⚠️ TEMPORARY wipe-all — MUST be BEFORE app.delete('/api/tags/:id')
+app.delete('/api/tags/wipe-all', authRequired, async (req, res) => {
+  try {
+    const result = await pool.query('DELETE FROM tags WHERE user_id=$1 RETURNING id', [req.userId]);
+    console.log('Wiped ' + result.rowCount + ' tags for user ' + req.userId);
+    res.json({ success: true, deleted: result.rowCount, message: 'Deleted all ' + result.rowCount + ' tags' });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
+// 6. DELETE single tag — MUST be LAST among tag routes
 app.delete('/api/tags/:id', authRequired, async (req, res) => {
   try {
     const tag = await pool.query(
@@ -327,28 +327,11 @@ app.delete('/api/tags/:id', authRequired, async (req, res) => {
     );
     if (!tag.rows.length)
       return res.status(404).json({ success: false, error: 'Tag not found or unauthorized' });
-
     await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
-    console.log(`🗑️  Tag ${tag.rows[0].tag_code} deleted by user ${req.userId}`);
-    res.json({ success: true, message: `Tag ${tag.rows[0].tag_code} deleted` });
+    console.log('Tag ' + tag.rows[0].tag_code + ' deleted by user ' + req.userId);
+    res.json({ success: true, message: 'Tag ' + tag.rows[0].tag_code + ' deleted' });
   } catch (e) {
-    console.error('Delete tag error:', e.message);
     res.status(500).json({ success: false, error: 'Failed to delete tag' });
-  }
-});
-
-// ⚠️ TEMPORARY — wipe ALL tags for logged-in user (use once to clean fake data, then remove)
-app.delete('/api/tags/wipe-all', authRequired, async (req, res) => {
-  try {
-    const result = await pool.query(
-      'DELETE FROM tags WHERE user_id=$1 RETURNING id',
-      [req.userId]
-    );
-    console.log(`🧹 Wiped ${result.rowCount} tags for user ${req.userId}`);
-    res.json({ success: true, deleted: result.rowCount, message: `Deleted all ${result.rowCount} tags` });
-  } catch (e) {
-    console.error('Wipe error:', e.message);
-    res.status(500).json({ success: false, error: e.message });
   }
 });
 
