@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ContactKar - Contact Owner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:linear-gradient(135deg,#eff6ff 0%,#f0fdf4 100%);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:2rem 1rem 4rem;}
+.logo{font-size:1.4rem;font-weight:900;color:#111827;margin-bottom:2rem;text-decoration:none;}
+.logo span{color:#2563eb;}
+.scan-card{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.1);max-width:400px;width:100%;overflow:hidden;}
+.card-top{padding:2rem 2rem 1.5rem;text-align:center;border-bottom:1px solid #f3f4f6;}
+.tag-icon{font-size:3.5rem;margin-bottom:.6rem;}
+.tag-type-lbl{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#6b7280;margin-bottom:.4rem;}
+.tag-code-lbl{font-size:1.5rem;font-weight:900;color:#111827;}
+.status-chip{display:inline-block;padding:3px 12px;border-radius:20px;font-size:.75rem;font-weight:700;margin-top:.5rem;background:#d1fae5;color:#065f46;}
+.info-rows{padding:1.2rem 2rem;border-bottom:1px solid #f3f4f6;}
+.info-row{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;}
+.info-row:not(:last-child){border-bottom:1px solid #f9fafb;}
+.info-icon{font-size:1.2rem;width:28px;text-align:center;flex-shrink:0;}
+.info-label{font-size:.7rem;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:block;}
+.info-val{font-size:1rem;font-weight:800;color:#111827;}
+.action-section{padding:1.5rem 2rem 2rem;}
+.action-section p{font-size:.83rem;color:#6b7280;margin-bottom:1.3rem;line-height:1.6;text-align:center;}
+.btn-call{width:100%;padding:.9rem;background:#16a34a;color:#fff;border:none;border-radius:12px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:.5rem;text-decoration:none;}
+.btn-call:hover{background:#15803d;transform:translateY(-1px);box-shadow:0 6px 20px rgba(22,163,74,.35);}
+.btn-call:disabled{background:#9ca3af;cursor:not-allowed;transform:none;box-shadow:none;}
+.privacy-note{display:flex;align-items:flex-start;gap:.5rem;background:#fef9c3;border-radius:10px;padding:.75rem .9rem;margin-top:1rem;font-size:.78rem;color:#854d0e;line-height:1.5;}
+.loading{display:flex;align-items:center;justify-content:center;padding:3rem;gap:.75rem;color:#6b7280;font-weight:600;}
+.spinner{width:26px;height:26px;border:3px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.off-box{text-align:center;padding:2.5rem 2rem;}
+.notfound-box{text-align:center;padding:3rem 2rem;}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:9999;padding:12px 24px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15);opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<a class="logo" href="index.html">Contact<span>Kar</span></a>
+<div class="scan-card" id="card">
+  <div class="loading"><div class="spinner"></div>&nbsp;Loading...</div>
+</div>
+<div id="toast"></div>
+
+<script>
+var BASE = 'https://contactkar.onrender.com/api';
+
+function toast(msg, col) {
+  var t = document.getElementById('toast');
+  t.style.background = {g:'#10b981',r:'#ef4444',b:'#2563eb'}[col]||'#374151';
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._x); t._x = setTimeout(function(){ t.style.opacity='0'; }, 3500);
+}
+
+function getCode() {
+  // Supports: /scan/CAR-XXXXX or ?code=CAR-XXXXX
+  var parts = window.location.pathname.split('/');
+  var i = parts.indexOf('scan');
+  if (i !== -1 && parts[i+1]) return decodeURIComponent(parts[i+1]);
+  return new URLSearchParams(window.location.search).get('code');
+}
+
+var CODE = getCode();
+var card = document.getElementById('card');
+
+if (!CODE) {
+  card.innerHTML = '<div class="notfound-box"><div style="font-size:3rem">&#10067;</div><h2 style="margin:.8rem 0 .4rem;color:#111827">Invalid QR</h2><p style="color:#6b7280;font-size:.88rem">No tag code found in this QR.</p></div>';
+} else {
+  fetch(BASE + '/tags/scan/' + CODE)
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d.success) {
+      card.innerHTML = '<div class="notfound-box"><div style="font-size:3rem">&#128683;</div><h2 style="margin:.8rem 0 .4rem;color:#991b1b">Tag Not Registered</h2><p style="color:#6b7280;font-size:.88rem">Tag code <b>'+CODE+'</b> is not registered on ContactKar.</p></div>';
+      return;
+    }
+    if (!d.is_contactable) {
+      card.innerHTML =
+        '<div class="card-top">' +
+          '<div class="tag-icon">'+(d.type==='pet'?'&#128062;':'&#128663;')+'</div>' +
+          '<div class="tag-type-lbl">'+(d.type==='pet'?'Pet Tag':'Vehicle Tag')+'</div>' +
+          '<div class="tag-code-lbl">'+d.tag_code+'</div>' +
+        '</div>' +
+        '<div class="off-box">' +
+          '<div style="font-size:3rem">&#128277;</div>' +
+          '<h2 style="color:#991b1b;margin:.7rem 0 .4rem">Owner Unavailable</h2>' +
+          '<p style="color:#6b7280;font-size:.85rem">The owner has turned off contact for this tag.</p>' +
+        '</div>';
+      return;
+    }
+    renderCard(d);
+  })
+  .catch(function(){
+    card.innerHTML = '<div class="notfound-box"><div style="font-size:3rem">&#9888;</div><h2 style="margin:.8rem 0 .4rem">Connection Error</h2><p style="color:#6b7280;font-size:.88rem">Could not reach server. Please try again.</p><button onclick="location.reload()" style="margin-top:1rem;background:#2563eb;color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">Retry</button></div>';
+  });
+}
+
+function renderCard(d) {
+  var isPet = d.type === 'pet';
+  var infoRow = isPet
+    ? (d.pet_name ? '<div class="info-row"><span class="info-icon">&#128054;</span><div><span class="info-label">Pet Name</span><span class="info-val">'+d.pet_name+'</span></div></div>' : '')
+    : (d.vehicle_number ? '<div class="info-row"><span class="info-icon">&#128290;</span><div><span class="info-label">Vehicle Number</span><span class="info-val">'+d.vehicle_number+'</span></div></div>' : '');
+
+  card.innerHTML =
+    '<div class="card-top">' +
+      '<div class="tag-icon">'+(isPet?'&#128062;':'&#128663;')+'</div>' +
+      '<div class="tag-type-lbl">'+(isPet?'Pet Tag':'Vehicle Tag')+'</div>' +
+      '<div class="tag-code-lbl">'+d.tag_code+'</div>' +
+      '<div class="status-chip">&#9679; Contactable</div>' +
+    '</div>' +
+    (infoRow ? '<div class="info-rows">'+infoRow+'</div>' : '') +
+    '<div class="action-section">' +
+      '<p>Tap the button below to call the owner directly. This is a direct call — please use responsibly.</p>' +
+      '<button class="btn-call" id="btn-call" onclick="doCall()">&#128222;&nbsp; Call Owner Now</button>' +
+      '<div class="privacy-note">&#9888;&#65039; <span>This is a direct call. Masked calling will be available soon. Your number will be visible to the owner.</span></div>' +
+    '</div>';
+}
+
+function doCall() {
+  var btn = document.getElementById('btn-call');
+  btn.disabled = true;
+  btn.textContent = 'Connecting...';
+
+  fetch(BASE + '/contact/call/' + CODE, { method: 'POST', headers: {'Content-Type':'application/json'} })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.success && d.phone) {
+      window.location.href = 'tel:' + d.phone;
+      setTimeout(function(){ btn.disabled=false; btn.innerHTML='&#128222;&nbsp; Call Owner Now'; }, 2000);
+    } else {
+      btn.disabled=false; btn.innerHTML='&#128222;&nbsp; Call Owner Now';
+      toast(d.error || 'Could not get owner number', 'r');
+    }
+  })
+  .catch(function(){
+    btn.disabled=false; btn.innerHTML='&#128222;&nbsp; Call Owner Now';
+    toast('Network error. Try again.','r');
+  });
+}
+</script>
+</body>
+</html>

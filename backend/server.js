@@ -281,22 +281,6 @@ app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to update' }); }
 });
 
-// DELETE /api/tags/:id  — permanently delete a tag
-app.delete('/api/tags/:id', authRequired, async (req, res) => {
-  try {
-    const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
-    if (!own.rows.length)
-      return res.status(404).json({ success: false, error: 'Tag not found or not yours' });
-
-    await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
-    res.json({ success: true });
-  } catch (err) {
-    console.error('Delete tag error:', err);
-    res.status(500).json({ success: false, error: 'Server error' });
-  }
-});
-
-
 app.get('/api/tags/:code/qrcode', async (req, res) => {
   try {
     const url = 'https://contactkar.vercel.app/tag/' + encodeURIComponent(req.params.code);
@@ -374,4 +358,44 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
 });
 
 // ---- START ----
+
+// ── PUBLIC: Scan page - get tag info (no owner name) ──
+app.get('/api/tags/scan/:code', async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT tag_code, type, vehicle_number, pet_name, is_contactable FROM tags WHERE tag_code=$1',
+      [req.params.code]
+    );
+    if (!r.rows.length) return res.status(404).json({ success: false, error: 'Tag not found' });
+    const t = r.rows[0];
+    res.json({
+      success: true,
+      tag_code: t.tag_code,
+      type: t.type,
+      vehicle_number: t.vehicle_number,
+      pet_name: t.pet_name,
+      is_contactable: t.is_contactable
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ── PUBLIC: Return emergency contact number for direct call ──
+app.post('/api/contact/call/:code', async (req, res) => {
+  try {
+    const r = await pool.query(
+      'SELECT emergency_contact, is_contactable FROM tags WHERE tag_code=$1',
+      [req.params.code]
+    );
+    if (!r.rows.length) return res.status(404).json({ success: false, error: 'Tag not found' });
+    const tag = r.rows[0];
+    if (!tag.is_contactable) return res.status(403).json({ success: false, error: 'Owner has turned off contact' });
+    if (!tag.emergency_contact) return res.status(404).json({ success: false, error: 'No contact number set for this tag. Ask owner to update their tag.' });
+    res.json({ success: true, phone: tag.emergency_contact });
+  } catch (e) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 app.listen(PORT, () => console.log('ContactKar Server v4 running on port ' + PORT));
