@@ -128,3 +128,25 @@ input:checked + .slider::before { transform: translateX(22px); }
   .container { padding: 0 14px; }
   .hero { padding: 3rem 0; }
 }
+
+/* ── Delete Button (Small, Danger) ── */
+.btn-danger-sm {
+  background: #fff;
+  color: #ef4444;
+  border: 1.5px solid #ef4444;
+  border-radius: 8px;
+  padding: .35rem .9rem;
+  font-weight: 700;
+  font-size: .85rem;
+  cursor: pointer;
+  transition: .2s;
+  font-family: inherit;
+}
+.btn-danger-sm:hover {
+  background: #fef2f2;
+  box-shadow: 0 4px 14px rgba(239, 68, 68, .2);
+}
+.btn-danger-sm:active {
+  transform: scale(0.97);
+}
+
