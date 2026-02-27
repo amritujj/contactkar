@@ -25,7 +25,8 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 .stat{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1rem;text-align:center;}
 .stat .n{font-size:1.9rem;font-weight:900;line-height:1;}
 .stat .l{font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem;}
-.card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04);}
+.card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s;}
+.card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
 .card-inner{display:flex;gap:1rem;padding:1.1rem 1.3rem;align-items:flex-start;}
 .qr-wrap{flex-shrink:0;width:88px;height:88px;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#f9fafb;display:flex;align-items:center;justify-content:center;}
 .qr-wrap img{width:88px;height:88px;object-fit:contain;}
@@ -38,21 +39,27 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 .meta{font-size:.8rem;color:#6b7280;margin-bottom:.2rem;}
 .meta b{color:#374151;}
 .btns{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem;}
-.btn{padding:.35rem .8rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;}
+.btn{padding:.38rem .85rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .15s;}
 .b-blue{background:#2563eb;color:#fff;}.b-blue:hover{background:#1d4ed8;}
 .b-gray{background:#fff;color:#374151;border:1.5px solid #d1d5db;}.b-gray:hover{background:#f9fafb;}
 .b-red{background:#ef4444;color:#fff;}.b-red:hover{background:#dc2626;}
-.shim{background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:s 1.4s infinite;border-radius:14px;height:106px;margin-bottom:1rem;}
-@keyframes s{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.shim{background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:sh 1.4s infinite;border-radius:14px;height:106px;margin-bottom:1rem;}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .empty{border:2px dashed #d1d5db;border-radius:14px;padding:3rem 1.5rem;text-align:center;background:#fff;}
-.dbg{background:#fef9c3;border:1px solid #fcd34d;border-radius:8px;padding:.7rem 1rem;margin-bottom:.8rem;font-size:.78rem;color:#78350f;font-family:monospace;word-break:break-all;}
+.empty h3{color:#111827;margin:.5rem 0 .4rem;}
 #toast{position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 18px;border-radius:10px;font-weight:700;font-size:.85rem;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.2);opacity:0;transition:opacity .3s;pointer-events:none;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:1rem;}
 .modal-box{background:#fff;border-radius:16px;padding:1.8rem;max-width:300px;width:100%;text-align:center;}
-@media(max-width:500px){.card-inner{flex-direction:column;align-items:center;text-align:center;}.info-top,.btns{justify-content:center;}.stats{grid-template-columns:1fr 1fr;}.stat:last-child{grid-column:span 2;}}
+@media(max-width:500px){
+  .card-inner{flex-direction:column;align-items:center;text-align:center;}
+  .info-top,.btns{justify-content:center;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .stat:last-child{grid-column:span 2;}
+}
 </style>
 </head>
 <body>
+
 <nav>
   <a class="brand" href="index.html">Contact<span>Kar</span></a>
   <div class="nav-right">
@@ -60,6 +67,7 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
     <button id="btn-logout">Logout</button>
   </div>
 </nav>
+
 <div class="wrap">
   <div class="tabs">
     <a href="dashboard.html" class="on">&#127991; My Tags</a>
@@ -67,67 +75,168 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
     <a href="billing.html">&#128179; Billing</a>
     <a href="settings.html">&#9881; Settings</a>
   </div>
+
   <div class="hdr">
     <h1>&#127991; My Tags</h1>
     <a href="vehicle.html">+ Buy New Tag</a>
   </div>
+
   <div class="stats">
     <div class="stat"><div class="n" id="s-total" style="color:#2563eb">-</div><div class="l">Total</div></div>
     <div class="stat"><div class="n" id="s-active" style="color:#10b981">-</div><div class="l">Active</div></div>
     <div class="stat"><div class="n" id="s-hidden" style="color:#ef4444">-</div><div class="l">Hidden</div></div>
   </div>
-  <div id="dbg-wrap"></div>
-  <div id="list"><div class="shim"></div><div class="shim"></div></div>
+
+  <div id="list">
+    <div class="shim"></div><div class="shim"></div>
+  </div>
 </div>
+
 <div id="toast"></div>
+
 <script>
-var BASE='https://contactkar.onrender.com/api';
-var tok=localStorage.getItem('token');
-function log(msg){console.log('[CK]',msg);var d=document.createElement('div');d.className='dbg';d.textContent=new Date().toLocaleTimeString()+' | '+msg;document.getElementById('dbg-wrap').appendChild(d);} 
-function showToast(msg,col){var t=document.getElementById('toast');t.style.background={g:'#10b981',r:'#ef4444',b:'#2563eb'}[col]||'#374151';t.textContent=msg;t.style.opacity='1';clearTimeout(t._x);t._x=setTimeout(function(){t.style.opacity='0';},3000);} 
-if(!tok){log('No token — redirect login');window.location.href='login.html';}
-var nm=localStorage.getItem('userName')||'';if(nm)document.getElementById('greeting').textContent='Hi, '+nm;log('Token: '+tok.slice(0,15)+'...');
-document.getElementById('btn-logout').onclick=function(){localStorage.clear();window.location.href='login.html';};
-function load(){
-  var list=document.getElementById('list');list.innerHTML='<div class="shim"></div><div class="shim"></div>';
-  log('GET '+BASE+'/tags/user');
-  fetch(BASE+'/tags/user',{headers:{'Authorization':'Bearer '+tok}})
-  .then(function(r){log('Status '+r.status); if(r.status===401||r.status===403){localStorage.clear();window.location.href='login.html';return null;} return r.json();})
-  .then(function(data){
-    if(!data)return; log('Resp '+JSON.stringify(data).slice(0,200));
-    var tags=data.tags||(Array.isArray(data)?data:[]); log('Tags '+tags.length);
-    var active=0; tags.forEach(function(t){if(t.is_contactable!==false)active++;});
-    document.getElementById('s-total').textContent=tags.length;
-    document.getElementById('s-active').textContent=active;
-    document.getElementById('s-hidden').textContent=tags.length-active;
-    if(!tags.length){list.innerHTML='<div class="empty"><div style="font-size:3rem">&#127991;</div><h3 style="margin:.5rem 0 .4rem;color:#111827">No Tags Yet</h3><p style="font-size:.88rem;margin-bottom:1rem">Buy a plan to get tags.</p><a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none">Buy</a></div>';return;}
-    list.innerHTML=''; tags.forEach(function(t){list.appendChild(mk(t));});
-  })
-  .catch(function(e){log('FETCH ERR '+e); list.innerHTML='<div class="empty"><p>Network error</p><button class="btn b-blue" onclick="load()">Retry</button></div>';});
+var BASE = 'https://contactkar.onrender.com/api';
+var tok  = localStorage.getItem('token');
+
+if (!tok) { window.location.href = 'login.html'; }
+
+var nm = localStorage.getItem('userName') || '';
+if (nm) document.getElementById('greeting').textContent = 'Hi, ' + nm;
+
+document.getElementById('btn-logout').onclick = function () {
+  localStorage.clear(); window.location.href = 'login.html';
+};
+
+function showToast(msg, col) {
+  var t = document.getElementById('toast');
+  t.style.background = { g: '#10b981', r: '#ef4444', b: '#2563eb' }[col] || '#374151';
+  t.textContent = msg; t.style.opacity = '1';
+  clearTimeout(t._x); t._x = setTimeout(function () { t.style.opacity = '0'; }, 3000);
 }
-function mk(t){
-  var id=t.id, code=t.tag_code||'', isPet=t.type==='pet', on=t.is_contactable!==false;
-  var qr='https://api.qrserver.com/v1/create-qr-code/?size=88x88&data='+encodeURIComponent('https://contactkar.vercel.app/scan/'+code);
-  var card=document.createElement('div'); card.className='card';
-  var ci=document.createElement('div'); ci.className='card-inner';
-  var qw=document.createElement('div'); qw.className='qr-wrap';
-  var qi=document.createElement('img'); qi.src=qr; qi.alt='QR'; qw.appendChild(qi);
-  var info=document.createElement('div'); info.className='info';
-  var top=document.createElement('div'); top.className='info-top';
-  var c=document.createElement('span'); c.className='code'; c.textContent=code;
-  var tb=document.createElement('span'); tb.className='tag '+(isPet?'tp':'tv'); tb.textContent=isPet?'Pet':'Vehicle';
-  var sb=document.createElement('span'); sb.className='tag '+(on?'ton':'toff'); sb.textContent=on?'Active':'Hidden';
-  top.appendChild(c); top.appendChild(tb); top.appendChild(sb); info.appendChild(top);
-  function add(icon,val){if(!val)return; var d=document.createElement('div'); d.className='meta'; d.innerHTML=icon+' <b>'+val+'</b>'; info.appendChild(d);} 
-  add('&#128290;',t.vehicle_number); add('&#128054;',t.pet_name); add('&#128100;',t.owner_name); add('&#128680;',t.emergency_contact);
-  var btns=document.createElement('div'); btns.className='btns';
-  var bv=document.createElement('button'); bv.className='btn b-blue'; bv.textContent='View QR'; bv.onclick=function(){showQR(code);};
-  var bc=document.createElement('button'); bc.className='btn b-gray'; bc.textContent='Copy Link'; bc.onclick=function(){navigator.clipboard.writeText('https://contactkar.vercel.app/scan/'+code).then(function(){showToast('Copied','b');}).catch(function(){showToast('Fail','r');});};
-  var bd=document.createElement('button'); bd.className='btn b-red'; bd.innerHTML='&#128465; Delete'; bd.onclick=function(){ if(!confirm('Delete '+code+'?'))return; fetch(BASE+'/tags/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+tok}}).then(function(r){return r.json();}).then(function(d){if(d.success){showToast('Deleted','r');load();}else{showToast('Delete failed','r');}}).catch(function(){showToast('Network','r');}); };
-  btns.appendChild(bv); btns.appendChild(bc); btns.appendChild(bd); info.appendChild(btns);
-  ci.appendChild(qw); ci.appendChild(info); card.appendChild(ci); return card;
+
+function load() {
+  var list = document.getElementById('list');
+  list.innerHTML = '<div class="shim"></div><div class="shim"></div>';
+
+  fetch(BASE + '/tags/user', { headers: { 'Authorization': 'Bearer ' + tok } })
+    .then(function (r) {
+      if (r.status === 401 || r.status === 403) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+      return r.json();
+    })
+    .then(function (data) {
+      if (!data) return;
+      var tags = data.tags || (Array.isArray(data) ? data : []);
+      var active = 0;
+      tags.forEach(function (t) { if (t.is_contactable !== false) active++; });
+      document.getElementById('s-total').textContent  = tags.length;
+      document.getElementById('s-active').textContent = active;
+      document.getElementById('s-hidden').textContent = tags.length - active;
+
+      if (!tags.length) {
+        list.innerHTML =
+          '<div class="empty">' +
+            '<div style="font-size:3rem">&#127991;</div>' +
+            '<h3>No Tags Yet</h3>' +
+            '<p style="font-size:.88rem;color:#6b7280;margin-bottom:1.2rem">Buy a plan to get your first tag.</p>' +
+            '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:8px">&#128663; Vehicle</a>' +
+            '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none">&#128062; Pet</a>' +
+          '</div>';
+        return;
+      }
+      list.innerHTML = '';
+      tags.forEach(function (t) { list.appendChild(mk(t)); });
+    })
+    .catch(function () {
+      document.getElementById('list').innerHTML =
+        '<div class="empty"><p style="color:#6b7280;margin-bottom:1rem">Could not connect. Server may be waking up.</p>' +
+        '<button class="btn b-blue" onclick="load()">&#128260; Retry</button></div>';
+    });
 }
-function showQR(code){var old=document.getElementById('qr'); if(old)old.remove(); var big='https://api.qrserver.com/v1/create-qr-code/?size=260x260&data='+encodeURIComponent('https://contactkar.vercel.app/scan/'+code); var bg=document.createElement('div'); bg.id='qr'; bg.className='modal-bg'; bg.innerHTML='<div class="modal-box"><div style="font-weight:800;margin-bottom:1rem">QR — '+code+'</div><img src="'+big+'" style="width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/><div style="margin-top:1rem"><button class="btn b-red" onclick="document.getElementById(\'qr\').remove()">Close</button></div></div>'; bg.onclick=function(e){if(e.target===bg)bg.remove();}; document.body.appendChild(bg);} 
+
+function mk(t) {
+  var id = t.id, code = t.tag_code || '', isPet = t.type === 'pet', on = t.is_contactable !== false;
+  var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=88x88&data=' + encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
+  var dt = t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '';
+
+  var card = document.createElement('div'); card.className = 'card';
+  var ci   = document.createElement('div'); ci.className   = 'card-inner';
+
+  // QR image
+  var qw = document.createElement('div'); qw.className = 'qr-wrap';
+  var qi = document.createElement('img'); qi.src = qr; qi.alt = 'QR';
+  qi.onerror = function () { qw.innerHTML = '<span style="font-size:.7rem;color:#9ca3af;text-align:center">QR Error</span>'; };
+  qw.appendChild(qi);
+
+  // Info
+  var info = document.createElement('div'); info.className = 'info';
+  var top  = document.createElement('div'); top.className  = 'info-top';
+
+  var c = document.createElement('span'); c.className = 'code'; c.textContent = code;
+  var tb = document.createElement('span'); tb.className = 'tag ' + (isPet ? 'tp' : 'tv'); tb.textContent = isPet ? 'Pet' : 'Vehicle';
+  var sb = document.createElement('span'); sb.className = 'tag ' + (on ? 'ton' : 'toff'); sb.textContent = on ? 'Active' : 'Hidden';
+  top.appendChild(c); top.appendChild(tb); top.appendChild(sb);
+  info.appendChild(top);
+
+  function addMeta(icon, val) {
+    if (!val) return;
+    var d = document.createElement('div'); d.className = 'meta';
+    d.innerHTML = icon + ' <b>' + val + '</b>'; info.appendChild(d);
+  }
+  addMeta('&#128290;', t.vehicle_number);
+  addMeta('&#128054;', t.pet_name);
+  addMeta('&#128100;', t.owner_name);
+  addMeta('&#128680;', t.emergency_contact);
+  if (dt) { var dd = document.createElement('div'); dd.className = 'meta'; dd.textContent = 'Added: ' + dt; info.appendChild(dd); }
+
+  // Buttons
+  var btns = document.createElement('div'); btns.className = 'btns';
+
+  var bv = document.createElement('button'); bv.className = 'btn b-blue'; bv.textContent = 'View QR';
+  bv.onclick = function () { showQR(code); };
+
+  var bc = document.createElement('button'); bc.className = 'btn b-gray'; bc.textContent = 'Copy Link';
+  bc.onclick = function () {
+    navigator.clipboard.writeText('https://contactkar.vercel.app/scan/' + code)
+      .then(function () { showToast('Link copied!', 'b'); })
+      .catch(function () { showToast('Copy failed', 'r'); });
+  };
+
+  var bd = document.createElement('button'); bd.className = 'btn b-red'; bd.innerHTML = '&#128465; Delete';
+  bd.onclick = function () {
+    if (!confirm('Delete tag "' + code + '"?\nThis cannot be undone.')) return;
+    card.style.opacity = '.4';
+    fetch(BASE + '/tags/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + tok } })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.success) { showToast('Tag deleted', 'r'); load(); }
+        else { card.style.opacity = '1'; showToast('Delete failed', 'r'); }
+      })
+      .catch(function () { card.style.opacity = '1'; showToast('Network error', 'r'); });
+  };
+
+  btns.appendChild(bv); btns.appendChild(bc); btns.appendChild(bd);
+  info.appendChild(btns);
+  ci.appendChild(qw); ci.appendChild(info); card.appendChild(ci);
+  return card;
+}
+
+function showQR(code) {
+  var old = document.getElementById('qr-modal'); if (old) old.remove();
+  var big = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
+  var bg = document.createElement('div'); bg.id = 'qr-modal'; bg.className = 'modal-bg';
+  bg.innerHTML =
+    '<div class="modal-box">' +
+      '<div style="font-weight:800;font-size:1rem;margin-bottom:1rem">QR &mdash; ' + code + '</div>' +
+      '<img src="' + big + '" style="width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/>' +
+      '<div style="display:flex;gap:.5rem;justify-content:center;margin-top:1rem">' +
+        '<a href="' + big + '" download="qr-' + code + '.png" class="btn b-gray" style="text-decoration:none">&#11015; Download</a>' +
+        '<button class="btn b-red" onclick="document.getElementById(\'qr-modal\').remove()">&#10005; Close</button>' +
+      '</div>' +
+    '</div>';
+  bg.onclick = function (e) { if (e.target === bg) bg.remove(); };
+  document.body.appendChild(bg);
+}
+
 load();
 </script>
 </body>
