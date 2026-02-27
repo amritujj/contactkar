@@ -105,7 +105,7 @@ async function setupDB() {
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);
-  // Safe migrations - won't fail if columns already exist
+  // Safe migrations
   const migrations = [
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_tier VARCHAR(20) DEFAULT 'basic'",
     "ALTER TABLE users ADD COLUMN IF NOT EXISTS subscription_expiry TIMESTAMP",
@@ -218,42 +218,45 @@ app.post('/api/auth/send-change-email-otp', authRequired, async (req, res) => {
       "INSERT INTO email_otps (purpose, user_id, email, otp_code, expires_at) VALUES ('change-email',$1,$2,$3,$4)",
       [user.id, user.email, otp, addMinutes(new Date(), 10)]
     );
-    await sendBrevoEmail(user.email, 'ContactKar - OTP to change your email',
-      `<div style="font-family:Arial;padding:24px"><h2 style="color:#ec4899">Email change request</h2>
+    await sendBrevoEmail(user.email, 'ContactKar - Confirm Email Change',
+      `<div style="font-family:Arial;max-width:500px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
+        <h2>Confirm Email Change</h2>
         <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center">${otp}</div>
-        <p style="color:#6b7280;font-size:14px">Expires in 10 minutes.</p></div>`
+        <p style="color:#6b7280;font-size:14px">Expires in 10 minutes.</p>
+      </div>`
     );
     res.json({ success: true, message: 'OTP sent to current email' });
-  } catch (e) { res.status(500).json({ success: false, error: 'Failed to send OTP' }); }
+  } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
 
 app.post('/api/auth/verify-change-email-otp', authRequired, async (req, res) => {
   try {
     const { otp, newEmail } = req.body;
-    if (!otp || !newEmail) return res.status(400).json({ success: false, error: 'Missing fields' });
-    if ((await pool.query('SELECT id FROM users WHERE email=$1', [newEmail])).rows.length)
-      return res.status(400).json({ success: false, error: 'Email already in use' });
+    const user = (await pool.query('SELECT id, email FROM users WHERE id=$1', [req.userId])).rows[0];
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
     const row = (await pool.query(
       "SELECT * FROM email_otps WHERE purpose='change-email' AND user_id=$1 AND used=FALSE ORDER BY created_at DESC LIMIT 1",
       [req.userId]
     )).rows[0];
     if (!row || row.otp_code !== otp || new Date(row.expires_at) < new Date())
       return res.status(400).json({ success: false, error: 'Invalid/expired OTP' });
-    await pool.query('UPDATE email_otps SET used=TRUE WHERE id=$1', [row.id]);
+    const exists = await pool.query('SELECT id FROM users WHERE email=$1', [newEmail]);
+    if (exists.rows.length) return res.status(400).json({ success: false, error: 'Email already in use' });
     await pool.query('UPDATE users SET email=$1 WHERE id=$2', [newEmail, req.userId]);
-    res.json({ success: true });
-  } catch (e) { res.status(500).json({ success: false, error: 'Failed to update email' }); }
+    await pool.query('UPDATE email_otps SET used=TRUE WHERE id=$1', [row.id]);
+    res.json({ success: true, message: 'Email updated successfully' });
+  } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
 
 // ---- PROFILE ----
-app.get('/api/me', authRequired, async (req, res) => {
+app.get('/api/users/me', authRequired, async (req, res) => {
   try {
-    const r = await pool.query('SELECT id, email, name, phone, created_at FROM users WHERE id=$1', [req.userId]);
+    const r = await pool.query('SELECT id, email, name, phone, subscription_tier, subscription_expiry FROM users WHERE id=$1', [req.userId]);
     res.json({ success: true, user: r.rows[0] });
   } catch (e) { res.status(500).json({ success: false, error: 'Failed' }); }
 });
 
-app.put('/api/me', authRequired, async (req, res) => {
+app.put('/api/users/me', authRequired, async (req, res) => {
   try {
     const { name, phone } = req.body;
     const r = await pool.query(
@@ -265,6 +268,16 @@ app.put('/api/me', authRequired, async (req, res) => {
 });
 
 // ---- TAGS ----
+
+// GET all tags for logged-in user
+app.get('/api/tags/my', authRequired, async (req, res) => {
+  try {
+    const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
+    res.json({ success: true, tags: r.rows });
+  } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
+});
+
+// Legacy alias (keep for backward compatibility)
 app.get('/api/tags/user', authRequired, async (req, res) => {
   try {
     const r = await pool.query('SELECT * FROM tags WHERE user_id=$1 ORDER BY created_at DESC', [req.userId]);
@@ -272,6 +285,7 @@ app.get('/api/tags/user', authRequired, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to fetch tags' }); }
 });
 
+// TOGGLE tag active/inactive
 app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
   try {
     const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
@@ -281,12 +295,33 @@ app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
   } catch (e) { res.status(500).json({ success: false, error: 'Failed to update' }); }
 });
 
+// GET QR code for a tag
 app.get('/api/tags/:code/qrcode', async (req, res) => {
   try {
     const url = 'https://contactkar.vercel.app/tag/' + encodeURIComponent(req.params.code);
     const dataUrl = await QRCode.toDataURL(url);
     res.json({ success: true, code: req.params.code, qr: dataUrl });
   } catch (e) { res.status(500).json({ success: false, error: 'QR generation failed' }); }
+});
+
+// ✅ DELETE tag — removes tag + QR from database permanently
+app.delete('/api/tags/:id', authRequired, async (req, res) => {
+  try {
+    // Only allow deletion if this tag belongs to the logged-in user
+    const tag = await pool.query(
+      'SELECT id, tag_code FROM tags WHERE id=$1 AND user_id=$2',
+      [req.params.id, req.userId]
+    );
+    if (!tag.rows.length) {
+      return res.status(404).json({ success: false, error: 'Tag not found or unauthorized' });
+    }
+    await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
+    console.log(`🗑️ Tag ${tag.rows[0].tag_code} deleted by user ${req.userId}`);
+    res.json({ success: true, message: `Tag ${tag.rows[0].tag_code} deleted successfully` });
+  } catch (e) {
+    console.error('Delete tag error:', e.message);
+    res.status(500).json({ success: false, error: 'Failed to delete tag' });
+  }
 });
 
 // ---- SUBSCRIPTIONS ----
