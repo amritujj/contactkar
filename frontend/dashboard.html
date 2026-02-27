@@ -4,283 +4,369 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>My Tags - ContactKar</title>
+  <link rel="stylesheet" href="styles_v2.css"/>
   <style>
-    *,*::before,*::after{box-sizing:border-box}
-    body{margin:0;font-family:"Inter","Segoe UI",system-ui,sans-serif;background:#f1f5f9;color:#111827;min-height:100vh}
-    .ck-nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,.06)}
-    .ck-nav .inner{max-width:1100px;margin:0 auto;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center}
-    .ck-brand{font-size:1.35rem;font-weight:900;color:#111827;text-decoration:none;letter-spacing:-.5px}
-    .ck-brand span{color:#2563eb}
-    .ck-user{display:flex;align-items:center;gap:.9rem}
-    .ck-logout{padding:6px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;color:#374151;transition:.2s}
-    .ck-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444}
-    .ck-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem}
-    .tab-nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap}
-    .tab-nav a{padding:.55rem 1.2rem;border-radius:10px;font-weight:600;font-size:.875rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;transition:all .2s;white-space:nowrap}
-    .tab-nav a:hover{background:#eff6ff;border-color:#93c5fd;color:#2563eb;transform:translateY(-1px)}
-    .tab-nav a.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.3)}
-    .pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem}
-    .pg-header h1{font-size:1.5rem;font-weight:900;margin:0;letter-spacing:-.4px}
-    .btn-primary{background:linear-gradient(135deg,#2563eb,#1d4ed8);color:#fff;border:none;border-radius:10px;padding:.65rem 1.4rem;font-weight:700;font-size:.875rem;cursor:pointer;text-decoration:none;display:inline-block;box-shadow:0 4px 14px rgba(37,99,235,.3);transition:all .2s;font-family:inherit}
-    .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(37,99,235,.4)}
-    .btn-outline{background:#fff;color:#374151;border:1.5px solid #d1d5db;border-radius:8px;padding:.5rem 1.1rem;font-weight:600;font-size:.85rem;cursor:pointer;transition:.2s;font-family:inherit}
-    .btn-outline:hover{border-color:#2563eb;color:#2563eb;background:#eff6ff}
-    /* stats */
-    .stats-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem}
-    .stat-card{background:#fff;border-radius:14px;border:1px solid #e5e7eb;padding:1.1rem;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:all .2s}
-    .stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.08)}
-    .stat-num{font-size:1.8rem;font-weight:900;color:#2563eb;line-height:1}
-    .stat-lbl{font-size:.75rem;font-weight:600;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
-    /* tag card */
-    .tag-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;padding:1.2rem 1.4rem;margin-bottom:1rem;display:flex;gap:1.1rem;align-items:flex-start;flex-wrap:wrap;transition:all .25s;animation:fadeUp .4s ease both}
-    .tag-card:hover{box-shadow:0 10px 32px rgba(37,99,235,.13);border-color:#93c5fd;transform:translateY(-3px)}
-    .qr-box{width:90px;height:90px;min-width:90px;border-radius:12px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f1f5f9;border:1.5px solid #e5e7eb}
-    .qr-box img{width:90px;height:90px;cursor:pointer;display:block;transition:transform .2s}
-    .qr-box img:hover{transform:scale(1.07)}
-    .qr-shimmer{width:90px;height:90px;background:linear-gradient(90deg,#f1f5f9 25%,#e2e8f0 50%,#f1f5f9 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:10px}
-    @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-    .qr-err{font-size:11px;color:#ef4444;text-align:center;padding:6px}
-    .tag-info{flex:1;min-width:160px}
-    .tag-code-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:7px}
-    .tag-code{font-size:1rem;font-weight:900;color:#111827;letter-spacing:.5px;font-family:monospace}
-    .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800}
-    .badge-blue{background:#dbeafe;color:#1d4ed8}
-    .badge-pink{background:#fce7f3;color:#be185d}
-    .badge-green{background:#d1fae5;color:#065f46}
-    .badge-red{background:#fee2e2;color:#991b1b}
-    .tag-meta{font-size:13px;color:#4b5563;margin-bottom:3px}
-    .tag-date{font-size:11px;color:#9ca3af;margin:5px 0 10px}
-    .tag-actions{display:flex;gap:7px;flex-wrap:wrap}
-    .abtn{padding:6px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;transition:all .18s;border:1.5px solid;font-family:inherit}
-    .abtn-blue{background:#2563eb;color:#fff;border-color:#2563eb}
-    .abtn-blue:hover{background:#1d4ed8;box-shadow:0 4px 12px rgba(37,99,235,.3)}
-    .abtn-grey{background:#fff;color:#374151;border-color:#d1d5db}
-    .abtn-grey:hover{background:#f8fafc;border-color:#9ca3af}
-    .abtn-red{background:#fff;color:#ef4444;border-color:#fca5a5}
-    .abtn-red:hover{background:#fef2f2}
-    /* loading */
-    .load-wrap{text-align:center;padding:4rem 1rem}
-    .spinner{width:40px;height:40px;border:3.5px solid #e5e7eb;border-top-color:#2563eb;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1.2rem}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .load-msg{color:#6b7280;font-size:.9rem;line-height:1.8}
-    /* qr modal */
-    .qr-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
-    .qr-overlay.open{display:flex}
-    .qr-modal{background:#fff;border-radius:20px;padding:2rem 1.8rem;max-width:320px;width:92%;text-align:center;box-shadow:0 28px 70px rgba(0,0,0,.3);animation:fadeUp .3s ease}
-    .qr-modal h3{font-size:1rem;font-weight:800;margin:0 0 4px;color:#111827}
-    .qr-modal p{color:#6b7280;font-size:.8rem;margin-bottom:1rem}
-    .qr-modal img{width:210px;height:210px;border-radius:14px;border:3px solid #f1f5f9}
-    .qr-modal-btns{display:flex;gap:8px;justify-content:center;margin-top:1.2rem;flex-wrap:wrap}
-    /* empty */
-    .empty{border:2px dashed #d1d5db;background:#fff;border-radius:16px;padding:3rem 2rem;text-align:center;color:#6b7280;margin-bottom:1.2rem}
-    .empty .ei{font-size:3rem;margin-bottom:.8rem}
-    .empty h3{color:#111827;font-size:1.05rem;font-weight:800;margin-bottom:.4rem}
-    .empty p{font-size:.875rem;margin-bottom:1.2rem}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-    .anim{animation:fadeUp .4s ease both}
-    .anim-d1{animation-delay:.05s}.anim-d2{animation-delay:.1s}.anim-d3{animation-delay:.15s}
-    @media(max-width:640px){.stats-bar{grid-template-columns:1fr 1fr}.tag-card{flex-direction:column}.tab-nav a{font-size:.8rem;padding:.45rem .9rem}.ck-wrap{padding:1.2rem 1rem 3rem}}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f7fb;color:#1f2937;}
+    /* Navbar */
+    .ck-nav{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,.06);}
+    .ck-nav .inner{max-width:1100px;margin:0 auto;padding:.85rem 1.5rem;display:flex;justify-content:space-between;align-items:center;}
+    .ck-brand{font-size:1.4rem;font-weight:900;color:#111827;text-decoration:none;}
+    .ck-brand span{color:#2563eb;}
+    .ck-right{display:flex;align-items:center;gap:.9rem;}
+    .ck-greeting{font-weight:600;font-size:.9rem;color:#374151;}
+    .ck-logout{padding:6px 16px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;font-weight:600;font-size:.85rem;cursor:pointer;color:#374151;transition:.2s;font-family:inherit;}
+    .ck-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444;}
+    /* Layout */
+    .ck-wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem;}
+    /* Tab nav */
+    .tab-nav{display:flex;gap:.5rem;margin-bottom:2rem;flex-wrap:wrap;}
+    .tab-nav a{padding:.55rem 1.2rem;border-radius:10px;font-weight:600;font-size:.875rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;transition:all .2s;white-space:nowrap;}
+    .tab-nav a:hover{background:#eff6ff;border-color:#93c5fd;color:#2563eb;}
+    .tab-nav a.active{background:#2563eb;color:#fff;border-color:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.3);}
+    /* Page header */
+    .pg-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:.8rem;}
+    .pg-header h1{font-size:1.5rem;font-weight:900;margin:0;color:#111827;}
+    .btn-buy-new{background:#2563eb;color:#fff;border:none;padding:.65rem 1.3rem;border-radius:10px;font-weight:700;font-size:.9rem;cursor:pointer;text-decoration:none;font-family:inherit;transition:.2s;display:inline-flex;align-items:center;gap:.4rem;}
+    .btn-buy-new:hover{background:#1d4ed8;transform:translateY(-1px);box-shadow:0 4px 14px rgba(37,99,235,.35);}
+    /* Stats */
+    .stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.5rem;}
+    .stat-box{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1.1rem 1rem;text-align:center;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+    .stat-num{font-size:2rem;font-weight:900;line-height:1;}
+    .stat-lbl{font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.6px;margin-top:.3rem;}
+    /* Tag card */
+    .tag-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .25s,transform .2s;overflow:hidden;}
+    .tag-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-1px);}
+    .tag-inner{display:flex;gap:1rem;padding:1.2rem 1.4rem;align-items:flex-start;}
+    .tag-qr{flex-shrink:0;width:90px;height:90px;border:1.5px solid #e5e7eb;border-radius:10px;background:#f9fafb;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+    .tag-qr img{width:90px;height:90px;object-fit:contain;display:block;}
+    .tag-body{flex:1;min-width:0;}
+    .tag-title-row{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.45rem;}
+    .tag-code{font-size:.95rem;font-weight:800;color:#111827;}
+    .badge{font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;}
+    .badge-vehicle{background:#dbeafe;color:#1d4ed8;}
+    .badge-pet{background:#fce7f3;color:#be185d;}
+    .badge-active{background:#d1fae5;color:#065f46;}
+    .badge-hidden{background:#fee2e2;color:#991b1b;}
+    .tag-meta{font-size:.81rem;color:#6b7280;margin-bottom:.22rem;}
+    .tag-meta b{color:#374151;}
+    /* Action buttons */
+    .tag-btns{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.75rem;}
+    .tbtn{padding:.36rem .82rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;transition:all .18s;white-space:nowrap;line-height:1.4;}
+    .tbtn:hover{transform:translateY(-1px);}
+    .tbtn-blue{background:#2563eb;color:#fff;}
+    .tbtn-blue:hover{background:#1d4ed8;box-shadow:0 3px 10px rgba(37,99,235,.35);}
+    .tbtn-gray{background:#fff;color:#374151;border:1.5px solid #d1d5db;}
+    .tbtn-gray:hover{border-color:#9ca3af;background:#f9fafb;}
+    .tbtn-red{background:#fff;color:#ef4444;border:1.5px solid #fca5a5;}
+    .tbtn-red:hover{background:#fef2f2;border-color:#ef4444;box-shadow:0 3px 10px rgba(239,68,68,.2);}
+    /* Shimmer */
+    .shimmer{background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:shim 1.4s infinite;border-radius:16px;height:108px;margin-bottom:1rem;}
+    @keyframes shim{0%{background-position:200% 0}100%{background-position:-200% 0}}
+    /* Empty */
+    .empty-state{border:2px dashed #d1d5db;border-radius:16px;padding:3rem 2rem;text-align:center;color:#6b7280;background:#fff;}
+    .empty-state h3{color:#111827;font-size:1.05rem;margin:.6rem 0 .4rem;}
+    /* Toast */
+    #ck-toast{position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 22px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:320px;transition:opacity .4s,transform .3s;opacity:0;pointer-events:none;}
+    /* QR Modal */
+    .qr-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;}
+    .qr-box{background:#fff;border-radius:18px;padding:2rem;text-align:center;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+    .qr-title{font-weight:800;font-size:1rem;margin-bottom:1rem;color:#111827;}
+    .qr-img{width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:10px;padding:6px;}
+    .qr-actions{display:flex;gap:.6rem;justify-content:center;margin-top:1rem;flex-wrap:wrap;}
+    @media(max-width:520px){
+      .tag-inner{flex-direction:column;align-items:center;text-align:center;}
+      .tag-title-row{justify-content:center;}
+      .tag-btns{justify-content:center;}
+      .stats-row{grid-template-columns:1fr 1fr;}
+      .stat-box:last-child{grid-column:span 2;}
+    }
   </style>
-  <script>
-    if(localStorage.getItem('isLoggedIn')!=='true'){window.location.href='login.html';}
-  </script>
 </head>
 <body>
+
+<!-- Navbar -->
 <nav class="ck-nav">
   <div class="inner">
     <a href="index.html" class="ck-brand">Contact<span>Kar</span></a>
-    <div class="ck-user">
+    <div class="ck-right">
       <span class="ck-greeting" id="user-greeting">Hi, User</span>
       <button class="ck-logout" id="logout-btn">Logout</button>
     </div>
   </div>
 </nav>
 
-<div id="qrOverlay" class="qr-overlay" onclick="if(event.target===this)closeQR()">
-  <div class="qr-modal">
-    <h3 id="qrTitle"></h3><p>Scan to open your contact page</p>
-    <img id="qrImg" src="" alt="QR Code"/>
-    <div class="qr-modal-btns">
-      <a id="qrDl" download class="btn-primary" style="font-size:13px;padding:8px 18px;">Download</a>
-      <button onclick="closeQR()" class="btn-outline">Close</button>
-    </div>
-  </div>
-</div>
-
 <div class="ck-wrap">
-  <nav class="tab-nav anim">
-    <a href="dashboard.html" class="active">&#128230; My Tags</a>
+
+  <!-- Tab Nav -->
+  <nav class="tab-nav">
+    <a href="dashboard.html" class="active">&#127991; My Tags</a>
     <a href="profile.html">&#128100; Profile</a>
     <a href="billing.html">&#128179; Billing</a>
     <a href="settings.html">&#9881;&#65039; Settings</a>
   </nav>
 
-  <div class="pg-header anim anim-d1">
-    <h1>&#128230; My Tags</h1>
-    <a href="vehicle.html" class="btn-primary">+ Buy New Tag</a>
+  <!-- Page Header -->
+  <div class="pg-header">
+    <h1>&#127991; My Tags</h1>
+    <a href="vehicle.html" class="btn-buy-new">+ Buy New Tag</a>
   </div>
 
-  <div class="stats-bar anim anim-d2">
-    <div class="stat-card"><div class="stat-num" id="stat-total">-</div><div class="stat-lbl">Total Tags</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-active" style="color:#10b981">-</div><div class="stat-lbl">Active</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-hidden" style="color:#ef4444">-</div><div class="stat-lbl">Hidden</div></div>
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-box"><div class="stat-num" id="stat-total" style="color:#2563eb;">0</div><div class="stat-lbl">Total Tags</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-active" style="color:#10b981;">0</div><div class="stat-lbl">Active</div></div>
+    <div class="stat-box"><div class="stat-num" id="stat-hidden" style="color:#ef4444;">0</div><div class="stat-lbl">Hidden</div></div>
   </div>
 
-  <div id="tags-loading" class="load-wrap anim anim-d3">
-    <div class="spinner"></div>
-    <div class="load-msg" id="load-msg">Loading your tags...</div>
-    <button onclick="fetchMyTags()" class="btn-outline" style="margin-top:14px;">Retry</button>
+  <!-- Tags list -->
+  <div id="tags-list">
+    <div class="shimmer"></div>
+    <div class="shimmer"></div>
+    <div class="shimmer"></div>
   </div>
 
-  <div id="tags-empty" class="empty" style="display:none;">
-    <div class="ei">&#128666;</div>
-    <h3>No tags yet</h3>
-    <p>Buy a Vehicle Tag or Pet Tag to get started.</p>
-    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a href="vehicle.html" class="btn-primary">&#128664; Vehicle Tag</a>
-      <a href="pet.html" class="btn-primary" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 4px 14px rgba(124,58,237,.3);">&#128062; Pet Tag</a>
-    </div>
-  </div>
-  <div id="tags-list"></div>
 </div>
 
-<script>
-var API = 'https://contactkar.onrender.com/api';
-var qrCache = {};
+<!-- Toast -->
+<div id="ck-toast"></div>
 
-document.getElementById('logout-btn').addEventListener('click', function() {
-  localStorage.clear();
-  window.location.href = 'login.html';
+<script>
+// ─────────────────────────────────────────
+const API = 'https://contactkar.onrender.com/api';
+const tok = localStorage.getItem('token');
+if (!tok) window.location.href = 'login.html';
+
+// Greet
+var uname = localStorage.getItem('userName') || 'User';
+document.getElementById('user-greeting').textContent = 'Hi, ' + uname;
+
+// Logout
+document.getElementById('logout-btn').addEventListener('click', function(){
+  localStorage.clear(); window.location.href = 'login.html';
 });
 
-(function initUser() {
-  var n = localStorage.getItem('userName') || 'User';
-  document.getElementById('user-greeting').textContent = 'Hi, ' + n + ' \U0001F44B';
-})();
-
-function showToast(msg, color) {
+// Toast
+function toast(msg, clr) {
   var c = {green:'#10b981',red:'#ef4444',blue:'#2563eb',amber:'#f59e0b'};
   var el = document.getElementById('ck-toast');
-  if (!el) {
-    el = document.createElement('div'); el.id = 'ck-toast';
-    el.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 20px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:300px;transition:opacity .4s;font-family:inherit;';
-    document.body.appendChild(el);
-  }
-  el.style.background = c[color] || '#374151';
-  el.style.opacity = '1';
+  el.style.background = c[clr] || '#374151';
   el.textContent = msg;
+  el.style.opacity = '1';
+  el.style.transform = 'translateY(0)';
   clearTimeout(el._t);
-  el._t = setTimeout(function(){ el.style.opacity = '0'; }, 3000);
+  el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(8px)'; }, 3000);
 }
 
-function openQR(code, src) {
-  if (!src) { showToast('QR still loading, try again shortly.', 'amber'); return; }
-  document.getElementById('qrTitle').textContent = code;
-  document.getElementById('qrImg').src = src;
-  document.getElementById('qrDl').href = src;
-  document.getElementById('qrDl').download = 'CK-QR-' + code + '.png';
-  document.getElementById('qrOverlay').classList.add('open');
-}
-function closeQR() { document.getElementById('qrOverlay').classList.remove('open'); }
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeQR(); });
+// ── LOAD TAGS ─────────────────────────────
+function loadTags() {
+  var list = document.getElementById('tags-list');
+  list.innerHTML = '<div class="shimmer"></div><div class="shimmer"></div><div class="shimmer"></div>';
 
-function loadQR(code) {
-  var box = document.getElementById('qr-' + code);
-  if (!box) return;
-  if (qrCache[code]) { renderQR(code, qrCache[code]); return; }
-  fetch(API + '/tags/' + code + '/qrcode', { headers: { Authorization: 'Bearer ' + localStorage.getItem('token') } })
-    .then(function(r){ if(!r.ok) throw new Error(); return r.json(); })
-    .then(function(d){ if(d.success&&d.qr){qrCache[code]=d.qr;renderQR(code,d.qr);}else{qrFail(code);} })
-    .catch(function(){ qrFail(code); });
-}
-function renderQR(code, src) {
-  var b = document.getElementById('qr-' + code);
-  if (b) b.innerHTML = '<img src="' + src + '" alt="QR" onclick="openQR(\'' + code + '\',\'' + src + '\')">'; 
-}
-function qrFail(code) {
-  var b = document.getElementById('qr-' + code);
-  if (b) b.innerHTML = '<div class="qr-err">Failed<br><button onclick="loadQR(\'' + code + '\')" style="margin-top:4px;padding:2px 8px;border:1px solid #ef4444;border-radius:5px;background:#fff;color:#ef4444;cursor:pointer;font-size:11px;">Retry</button></div>';
-}
-function copyLink(code) {
-  var url = 'https://contactkar.vercel.app/tag/' + code;
-  if (navigator.clipboard) { navigator.clipboard.writeText(url).then(function(){ showToast('Link copied!', 'blue'); }); }
-  else { prompt('Copy this link:', url); }
-}
-function toggleContact(id, state) {
-  fetch(API + '/tags/' + id + '/toggle', {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + localStorage.getItem('token') },
-    body: JSON.stringify({ isContactable: state })
-  }).then(function(r){ return r.json(); })
-    .then(function(d){ if(d.success){ fetchMyTags(); showToast(state?'Tag is now visible.':'Tag is now hidden.','green'); } else { showToast('Failed: '+d.error,'red'); } })
-    .catch(function(){ showToast('Network error.','red'); });
+  fetch(API + '/tags/my', {
+    headers: { 'Authorization': 'Bearer ' + tok, 'Content-Type': 'application/json' }
+  })
+  .then(function(r){
+    if (r.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
+    return r.json();
+  })
+  .then(function(data){
+    if (!data) return;
+    var tags = data.tags || (Array.isArray(data) ? data : []);
+    var active = 0;
+    tags.forEach(function(t){ if (t.is_contactable !== false) active++; });
+    document.getElementById('stat-total').textContent  = tags.length;
+    document.getElementById('stat-active').textContent = active;
+    document.getElementById('stat-hidden').textContent = tags.length - active;
+
+    if (!tags.length) {
+      list.innerHTML =
+        '<div class="empty-state">' +
+          '<div style="font-size:3rem;margin-bottom:.6rem;">&#127991;</div>' +
+          '<h3>No Tags Yet</h3>' +
+          '<p style="font-size:.9rem;margin-bottom:1.2rem;">Purchase a plan to get your first tag.</p>' +
+          '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:8px;">&#128663; Vehicle</a>' +
+          '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.6rem 1.3rem;border-radius:8px;font-weight:700;text-decoration:none;">&#128062; Pet</a>' +
+        '</div>';
+      return;
+    }
+    list.innerHTML = '';
+    tags.forEach(function(t){ list.appendChild(makeCard(t)); });
+  })
+  .catch(function(){
+    list.innerHTML =
+      '<div class="empty-state">' +
+        '<div style="font-size:2.5rem;margin-bottom:.6rem;">&#9888;</div>' +
+        '<h3>Could not load tags</h3>' +
+        '<p style="font-size:.9rem;margin-bottom:1rem;">Render may be waking up. Wait 30s.</p>' +
+        '<button onclick="loadTags()" style="background:#2563eb;color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit;">&#128260; Retry</button>' +
+      '</div>';
+  });
 }
 
-function fetchMyTags() {
-  var token   = localStorage.getItem('token');
-  var loading = document.getElementById('tags-loading');
-  var empty   = document.getElementById('tags-empty');
-  var list    = document.getElementById('tags-list');
-  var msg     = document.getElementById('load-msg');
-  list.innerHTML = ''; empty.style.display = 'none'; loading.style.display = 'block';
-  msg.textContent = 'Loading your tags...';
-  if (!token) { loading.style.display='none'; empty.style.display='block'; return; }
+// ── BUILD CARD ────────────────────────────
+function makeCard(t) {
+  var id     = t.id;
+  var code   = t.tag_code || '';
+  var isPet  = t.type === 'pet';
+  var active = t.is_contactable !== false;
+  var qrUrl  = 'https://api.qrserver.com/v1/create-qr-code/?size=90x90&data=' +
+               encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
+  var date   = t.created_at
+    ? new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'})
+    : '';
 
-  var ctrl = new AbortController();
-  var timeout = setTimeout(function(){ ctrl.abort(); }, 20000);
+  // Card wrapper
+  var card = document.createElement('div');
+  card.className = 'tag-card';
+  card.id = 'tc-' + id;
 
-  fetch(API + '/tags/user', { headers: { Authorization: 'Bearer ' + token }, signal: ctrl.signal })
-    .then(function(res) {
-      clearTimeout(timeout);
-      if (res.status === 401) { localStorage.clear(); window.location.href = 'login.html'; return null; }
-      return res.json();
+  var inner = document.createElement('div');
+  inner.className = 'tag-inner';
+
+  // QR image
+  var qrBox = document.createElement('div');
+  qrBox.className = 'tag-qr';
+  var img = document.createElement('img');
+  img.src = qrUrl;
+  img.alt = 'QR';
+  img.onerror = function(){ qrBox.innerHTML = '<span style="font-size:.7rem;color:#9ca3af;text-align:center;">QR<br>Error</span>'; };
+  qrBox.appendChild(img);
+
+  // Body
+  var body = document.createElement('div');
+  body.className = 'tag-body';
+
+  // Title row
+  var titleRow = document.createElement('div');
+  titleRow.className = 'tag-title-row';
+
+  var codeSpan = document.createElement('span');
+  codeSpan.className = 'tag-code';
+  codeSpan.textContent = code;
+
+  var typeBadge = document.createElement('span');
+  typeBadge.className = 'badge ' + (isPet ? 'badge-pet' : 'badge-vehicle');
+  typeBadge.textContent = isPet ? 'Pet' : 'Vehicle';
+
+  var statusBadge = document.createElement('span');
+  statusBadge.className = 'badge ' + (active ? 'badge-active' : 'badge-hidden');
+  statusBadge.textContent = active ? 'Active' : 'Hidden';
+
+  titleRow.appendChild(codeSpan);
+  titleRow.appendChild(typeBadge);
+  titleRow.appendChild(statusBadge);
+  body.appendChild(titleRow);
+
+  // Meta fields
+  function addMeta(icon, val) {
+    if (!val) return;
+    var d = document.createElement('div');
+    d.className = 'tag-meta';
+    d.innerHTML = icon + ' <b>' + val + '</b>';
+    body.appendChild(d);
+  }
+  addMeta('&#128290;', t.vehicle_number);
+  addMeta('&#128054;', t.pet_name);
+  addMeta('&#128100;', t.owner_name);
+  addMeta('&#128680;', t.emergency_contact);
+  if (date) {
+    var d = document.createElement('div');
+    d.className = 'tag-meta';
+    d.textContent = 'Added: ' + date;
+    body.appendChild(d);
+  }
+
+  // ── BUTTONS ──────────────────────────────
+  var btns = document.createElement('div');
+  btns.className = 'tag-btns';
+
+  // View QR button
+  var btnQR = document.createElement('button');
+  btnQR.className = 'tbtn tbtn-blue';
+  btnQR.textContent = 'View QR';
+  btnQR.addEventListener('click', function(){ showQR(code); });
+
+  // Copy Link button
+  var btnCopy = document.createElement('button');
+  btnCopy.className = 'tbtn tbtn-gray';
+  btnCopy.textContent = 'Copy Link';
+  btnCopy.addEventListener('click', function(){
+    navigator.clipboard.writeText('https://contactkar.vercel.app/scan/' + code)
+      .then(function(){ toast('Link copied!', 'blue'); })
+      .catch(function(){ toast('Copy failed', 'red'); });
+  });
+
+  // DELETE button — red, prominent
+  var btnDel = document.createElement('button');
+  btnDel.className = 'tbtn tbtn-red';
+  btnDel.innerHTML = '&#128465;&#65039; Delete';
+  btnDel.addEventListener('click', function(){
+    if (!confirm('Delete tag ' + code + '?
+
+This cannot be undone.')) return;
+    card.style.opacity = '0.4';
+    fetch(API + '/tags/' + id, {
+      method: 'DELETE',
+      headers: { 'Authorization': 'Bearer ' + tok }
     })
-    .then(function(data) {
-      if (!data) return;
-      loading.style.display = 'none';
-      if (!data.success || !data.tags || data.tags.length === 0) { empty.style.display = 'block'; document.getElementById('stat-total').textContent='0'; document.getElementById('stat-active').textContent='0'; document.getElementById('stat-hidden').textContent='0'; return; }
-      var total  = data.tags.length;
-      var active = data.tags.filter(function(t){ return t.is_contactable; }).length;
-      document.getElementById('stat-total').textContent  = total;
-      document.getElementById('stat-active').textContent = active;
-      document.getElementById('stat-hidden').textContent = total - active;
-      var html = '';
-      for (var i = 0; i < data.tags.length; i++) {
-        var t  = data.tags[i];
-        var tb = t.type==='pet' ? '<span class="badge badge-pink">Pet</span>' : '<span class="badge badge-blue">Vehicle</span>';
-        var sb = t.is_contactable ? '<span class="badge badge-green">Active</span>' : '<span class="badge badge-red">Hidden</span>';
-        var ml = '';
-        if (t.vehicle_number)    ml += '<div class="tag-meta"><b>'+t.vehicle_number+'</b></div>';
-        if (t.owner_name)        ml += '<div class="tag-meta">'+t.owner_name+'</div>';
-        if (t.pet_name)          ml += '<div class="tag-meta">'+t.pet_name+(t.pet_breed?' - '+t.pet_breed:'')+'</div>';
-        if (t.emergency_contact) ml += '<div class="tag-meta">'+t.emergency_contact+'</div>';
-        var ds = '';
-        try { ds = new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); } catch(e) { ds = t.created_at; }
-        var tl = t.is_contactable ? 'Hide' : 'Show';
-        var tc = t.is_contactable ? 'abtn-red' : 'abtn-grey';
-        html += '<div class="tag-card" style="animation-delay:'+(i*0.07)+'s">';
-        html += '<div class="qr-box" id="qr-'+t.tag_code+'"><div class="qr-shimmer"></div></div>';
-        html += '<div class="tag-info">';
-        html += '<div class="tag-code-row"><span class="tag-code">'+t.tag_code+'</span>'+tb+sb+'</div>';
-        html += ml;
-        html += '<div class="tag-date">Added: '+ds+'</div>';
-        html += '<div class="tag-actions">';
-        html += '<button class="abtn abtn-blue" onclick="openQR(\''+t.tag_code+'\',qrCache[\''+t.tag_code+'\']\'\' || \'\')">View QR</button>';
-        html += '<button class="abtn abtn-grey" onclick="copyLink(\''+t.tag_code+'\')" >Copy Link</button>';
-        html += '<button class="abtn '+tc+'" onclick="toggleContact('+t.id+','+(String(!t.is_contactable))+')">' + tl + '</button>';
-        html += '</div></div></div>';
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.success) {
+        toast(code + ' deleted', 'red');
+        card.style.transition = 'all .3s';
+        card.style.transform = 'scaleY(0)';
+        card.style.maxHeight = '0';
+        card.style.margin = '0';
+        card.style.padding = '0';
+        setTimeout(function(){ card.remove(); loadTags(); }, 320);
+      } else {
+        card.style.opacity = '1';
+        toast('Delete failed: ' + (data.error || 'unknown'), 'red');
       }
-      list.innerHTML = html;
-      for (var k = 0; k < data.tags.length; k++) { loadQR(data.tags[k].tag_code); }
     })
-    .catch(function(e) {
-      loading.style.display = 'none';
-      if (e.name==='AbortError') { msg.textContent='Request timed out. Is the server running?'; loading.style.display='block'; }
-      else { msg.textContent = 'Error: ' + e.message; loading.style.display='block'; }
+    .catch(function(){
+      card.style.opacity = '1';
+      toast('Network error', 'red');
     });
+  });
+
+  btns.appendChild(btnQR);
+  btns.appendChild(btnCopy);
+  btns.appendChild(btnDel);
+  body.appendChild(btns);
+
+  inner.appendChild(qrBox);
+  inner.appendChild(body);
+  card.appendChild(inner);
+  return card;
 }
 
-document.addEventListener('DOMContentLoaded', function(){ fetchMyTags(); });
+// ── QR MODAL ──────────────────────────────
+function showQR(code) {
+  var old = document.getElementById('qr-overlay');
+  if (old) old.remove();
+  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' +
+              encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
+  var overlay = document.createElement('div');
+  overlay.id = 'qr-overlay';
+  overlay.className = 'qr-overlay';
+  overlay.innerHTML =
+    '<div class="qr-box">' +
+      '<div class="qr-title">QR &mdash; ' + code + '</div>' +
+      '<img class="qr-img" src="' + qrUrl + '" />' +
+      '<div class="qr-actions">' +
+        '<a href="' + qrUrl + '" download="qr-' + code + '.png" class="tbtn tbtn-gray" style="text-decoration:none;">&#11015; Download</a>' +
+        '<button class="tbtn tbtn-red" onclick="document.getElementById('qr-overlay').remove()">&#10005; Close</button>' +
+      '</div>' +
+    '</div>';
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+// ── INIT ──────────────────────────────────
+loadTags();
 </script>
+
 </body>
 </html>
