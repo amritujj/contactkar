@@ -284,15 +284,12 @@ app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
 // DELETE /api/tags/:id  — permanently delete a tag
 app.delete('/api/tags/:id', authRequired, async (req, res) => {
   try {
-    const own = await pool.query(
-      'SELECT id FROM tags WHERE id=$1 AND user_id=$2',
-      [req.params.id, req.userId]
-    );
+    const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
     if (!own.rows.length)
       return res.status(404).json({ success: false, error: 'Tag not found or not yours' });
 
     await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
-    res.json({ success: true, message: 'Tag deleted' });
+    res.json({ success: true });
   } catch (err) {
     console.error('Delete tag error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
