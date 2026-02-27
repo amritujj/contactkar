@@ -1,247 +1,210 @@
 const API = 'https://contactkar.onrender.com/api';
 
-// ── Auth Guard ─────────────────────────────────────────────────────
-const token = localStorage.getItem('token');
-if (!token) window.location.href = 'login.html';
+// ── Auth guard
+if (!localStorage.getItem('token')) window.location.href = 'login.html';
 
-// ── Greet User ─────────────────────────────────────────────────────
-const greetEl = document.getElementById('user-greeting');
-if (greetEl) greetEl.textContent = 'Hi, ' + (localStorage.getItem('userName') || 'User') + ' \u{1F44B}';
-
-// ── Logout ─────────────────────────────────────────────────────────
-const logoutBtn = document.getElementById('logout-btn');
-if (logoutBtn) logoutBtn.addEventListener('click', () => { localStorage.clear(); window.location.href = 'login.html'; });
-
-// ── Toast ──────────────────────────────────────────────────────────
-function showToast(msg, color) {
-  color = color || 'green';
-  var colors = { green: '#10b981', red: '#ef4444', blue: '#2563eb', amber: '#f59e0b' };
+// ── Toast helper
+function showToast(msg, type) {
+  var bg = { green:'#10b981', red:'#ef4444', blue:'#2563eb', amber:'#f59e0b' };
   var el = document.getElementById('ck-toast');
   if (!el) {
     el = document.createElement('div');
     el.id = 'ck-toast';
-    el.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 20px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:320px;transition:opacity .4s,transform .3s;opacity:0;pointer-events:none;';
+    el.style.cssText = 'position:fixed;bottom:24px;right:20px;z-index:99999;padding:12px 22px;border-radius:12px;font-weight:700;font-size:.875rem;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.2);max-width:320px;transition:opacity .4s,transform .3s;opacity:0;pointer-events:none;';
     document.body.appendChild(el);
   }
-  el.style.background = colors[color] || '#374151';
+  el.style.background = bg[type] || '#374151';
   el.textContent = msg;
   el.style.opacity = '1';
   el.style.transform = 'translateY(0)';
   clearTimeout(el._t);
-  el._t = setTimeout(function() { el.style.opacity = '0'; el.style.transform = 'translateY(10px)'; }, 3000);
+  el._t = setTimeout(function(){ el.style.opacity='0'; el.style.transform='translateY(8px)'; }, 3000);
 }
 
-// ── Load My Tags ───────────────────────────────────────────────────
+// ── Load and render all tags
 function loadMyTags() {
-  var container = document.getElementById('tags-container');
-  var statTotal  = document.getElementById('stat-total');
-  var statActive = document.getElementById('stat-active');
-  var statHidden = document.getElementById('stat-hidden');
-  if (!container) return;
+  var wrap = document.getElementById('tags-container');
+  var sTotal  = document.getElementById('stat-total');
+  var sActive = document.getElementById('stat-active');
+  var sHidden = document.getElementById('stat-hidden');
+  if (!wrap) return;
 
-  container.innerHTML =
-    '<div class="tag-loading-shimmer"></div>' +
-    '<div class="tag-loading-shimmer"></div>' +
-    '<div class="tag-loading-shimmer"></div>';
+  wrap.innerHTML = '<div class="tag-shimmer"></div><div class="tag-shimmer"></div><div class="tag-shimmer"></div>';
 
-  fetch(API + '/tags/my', {
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
-  })
-  .then(function(res) {
-    if (res.status === 401 || res.status === 403) { localStorage.clear(); window.location.href = 'login.html'; return; }
-    return res.json();
-  })
-  .then(function(data) {
-    if (!data) return;
-    var tags = Array.isArray(data) ? data : (data.tags || []);
-    var activeCount = tags.filter(function(t) { return t.is_contactable !== false; }).length;
-    var hiddenCount = tags.length - activeCount;
-    if (statTotal)  statTotal.textContent  = tags.length;
-    if (statActive) statActive.textContent = activeCount;
-    if (statHidden) statHidden.textContent = hiddenCount;
+  fetch(API + '/tags/my', { headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') } })
+    .then(function(r) {
+      if (r.status === 401) { localStorage.clear(); window.location.href = 'login.html'; }
+      return r.json();
+    })
+    .then(function(data) {
+      var tags = Array.isArray(data) ? data : (data.tags || []);
+      var active = tags.filter(function(t){ return t.is_contactable !== false; }).length;
+      if (sTotal)  sTotal.textContent  = tags.length;
+      if (sActive) sActive.textContent = active;
+      if (sHidden) sHidden.textContent = tags.length - active;
 
-    if (tags.length === 0) {
-      container.innerHTML =
-        '<div class="empty-block">' +
-          '<div style="font-size:3rem;margin-bottom:.8rem;">\uD83C\uDFF7\uFE0F</div>' +
-          '<h3>No Tags Yet</h3>' +
-          '<p style="margin:.4rem 0 1.2rem;font-size:.9rem;">You haven\'t purchased any tags yet.</p>' +
-          '<a href="vehicle.html" class="btn btn-primary" style="margin-right:8px;text-decoration:none;">\uD83D\uDE97 Get Vehicle Tag</a>' +
-          '<a href="pet.html" class="btn btn-pet" style="text-decoration:none;">\uD83D\uDC3E Get Pet Tag</a>' +
-        '</div>';
-      return;
-    }
-    container.innerHTML = tags.map(renderTagCard).join('');
-  })
-  .catch(function() {
-    container.innerHTML =
-      '<div class="empty-block">' +
-        '<div style="font-size:3rem;margin-bottom:.8rem;">\u26A0\uFE0F</div>' +
-        '<h3>Could not load tags</h3>' +
-        '<p style="margin:.4rem 0 1.2rem;font-size:.9rem;">Render server may be waking up. Wait 30s and retry.</p>' +
-        '<button class="btn btn-primary" onclick="loadMyTags()">\uD83D\uDD04 Retry</button>' +
-      '</div>';
-  });
+      if (!tags.length) {
+        wrap.innerHTML =
+          '<div style="border:2px dashed #e5e7eb;border-radius:14px;padding:2.5rem;text-align:center;color:#6b7280;background:#fff;">' +
+          '<div style="font-size:3rem;margin-bottom:.8rem;">&#127991;</div>' +
+          '<h3 style="color:#111827;margin-bottom:.5rem;">No Tags Yet</h3>' +
+          '<p style="margin-bottom:1.2rem;font-size:.9rem;">Purchase a plan to get your first tag.</p>' +
+          '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:8px;">&#128663; Vehicle Tag</a>' +
+          '<a href="pet.html"     style="background:#ec4899;color:#fff;padding:.6rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none;">&#128062; Pet Tag</a></div>';
+        return;
+      }
+      wrap.innerHTML = tags.map(renderCard).join('');
+    })
+    .catch(function() {
+      wrap.innerHTML =
+        '<div style="border:2px dashed #e5e7eb;border-radius:14px;padding:2.5rem;text-align:center;color:#6b7280;background:#fff;">' +
+        '<div style="font-size:2.5rem;margin-bottom:.8rem;">&#9888;&#65039;</div>' +
+        '<h3 style="color:#111827;">Could not load tags</h3>' +
+        '<p style="margin:.5rem 0 1rem;font-size:.9rem;">Server may be starting up. Wait 30s then retry.</p>' +
+        '<button onclick="loadMyTags()" style="background:#2563eb;color:#fff;border:none;padding:.6rem 1.4rem;border-radius:8px;font-weight:700;cursor:pointer;">&#128260; Retry</button></div>';
+    });
 }
 
-// ── Render Tag Card ────────────────────────────────────────────────
-function renderTagCard(tag) {
-  var tagId    = tag.id || tag._id;
-  var tagCode  = tag.tag_code || tag.tagCode || '';
-  var isActive = tag.is_contactable !== false;
-  var isPet    = tag.type === 'pet';
-  var typeLabel = isPet ? 'Pet' : 'Vehicle';
-  var typeColor = isPet ? '#ec4899' : '#2563eb';
-  var statusColor = isActive ? '#10b981' : '#ef4444';
-  var statusText  = isActive ? 'Active' : 'Hidden';
-  var addedDate   = tag.created_at
-    ? new Date(tag.created_at).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' })
-    : 'N/A';
-  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=' +
-    encodeURIComponent('https://contactkar.vercel.app/scan/' + tagCode);
+// ── Build one tag card HTML string
+function renderCard(tag) {
+  var id      = tag.id;
+  var code    = tag.tag_code || '';
+  var active  = tag.is_contactable !== false;
+  var isPet   = tag.type === 'pet';
+  var typeClr = isPet ? '#ec4899' : '#2563eb';
+  var stClr   = active ? '#10b981' : '#ef4444';
+  var stTxt   = active ? 'Active' : 'Hidden';
+  var date    = tag.created_at ? new Date(tag.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
+  var qr      = 'https://api.qrserver.com/v1/create-qr-code/?size=130x130&data=' + encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
+
+  var meta = '';
+  if (tag.vehicle_number) meta += '<div style="font-size:.82rem;color:#6b7280;margin-bottom:.2rem;">&#128290; <b>' + tag.vehicle_number + '</b></div>';
+  if (tag.pet_name)       meta += '<div style="font-size:.82rem;color:#6b7280;margin-bottom:.2rem;">&#128054; <b>' + tag.pet_name + '</b></div>';
+  if (tag.owner_name)     meta += '<div style="font-size:.82rem;color:#6b7280;margin-bottom:.2rem;">&#128100; <b>' + tag.owner_name + '</b></div>';
+  if (tag.emergency_contact) meta += '<div style="font-size:.82rem;color:#6b7280;margin-bottom:.2rem;">&#128680; <b>' + tag.emergency_contact + '</b></div>';
+  if (date)               meta += '<div style="font-size:.82rem;color:#9ca3af;">&#128197; Added: ' + date + '</div>';
+
+  var toggleLabel = active ? 'Hide' : 'Show';
+  var toggleStyle = active
+    ? 'background:#fff;color:#d97706;border:1.5px solid #fcd34d;'
+    : 'background:#10b981;color:#fff;border:none;';
 
   return (
-    '<div class="tag-card" id="tag-card-' + tagId + '">' +
-      '<div class="tag-card-inner">' +
+    '<div id="tc-' + id + '" style="background:#fff;border:1.5px solid #e5e7eb;border-radius:16px;margin-bottom:1rem;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .25s,transform .25s;overflow:hidden;">' +
+      '<div style="display:flex;gap:1rem;padding:1.2rem 1.4rem;align-items:flex-start;">' +
 
-        // QR image
-        '<div class="tag-qr-wrap">' +
-          '<img src="' + qrUrl + '" alt="QR" class="tag-qr-img"' +
-          ' onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\';"/>' +
-          '<div class="tag-qr-err" style="display:none;">\u274C<br>QR Error</div>' +
+        // QR
+        '<div style="flex-shrink:0;width:90px;height:90px;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#f9fafb;display:flex;align-items:center;justify-content:center;">' +
+          '<img src="' + qr + '" width="90" height="90" style="object-fit:contain;" onerror="this.parentElement.innerHTML='&#10060;'"/>' +
         '</div>' +
 
-        // Info block
-        '<div class="tag-info">' +
-          '<div class="tag-header">' +
-            '<span class="tag-code">' + tagCode + '</span>' +
-            '<span class="tag-badge" style="background:' + typeColor + '20;color:' + typeColor + ';">' + typeLabel + '</span>' +
-            '<span class="tag-badge" style="background:' + statusColor + '20;color:' + statusColor + ';">' + statusText + '</span>' +
+        // Info
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;margin-bottom:.45rem;">' +
+            '<span style="font-size:.95rem;font-weight:800;color:#111827;">' + code + '</span>' +
+            '<span style="font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:' + typeClr + '20;color:' + typeClr + ';">' + (isPet ? 'Pet' : 'Vehicle') + '</span>' +
+            '<span style="font-size:.7rem;font-weight:700;padding:2px 9px;border-radius:20px;background:' + stClr + '20;color:' + stClr + ';">' + stTxt + '</span>' +
           '</div>' +
-          (tag.vehicle_number ? '<div class="tag-meta">\uD83D\uDD22 Plate: <b>' + tag.vehicle_number + '</b></div>' : '') +
-          (tag.pet_name       ? '<div class="tag-meta">\uD83D\uDC36 Pet: <b>' + tag.pet_name + '</b></div>'         : '') +
-          (tag.owner_name     ? '<div class="tag-meta">\uD83D\uDC64 Owner: <b>' + tag.owner_name + '</b></div>'     : '') +
-          (tag.emergency_contact ? '<div class="tag-meta">\uD83D\uDEA8 Emergency: <b>' + tag.emergency_contact + '</b></div>' : '') +
-          '<div class="tag-meta">\uD83D\uDCC5 Added: ' + addedDate + '</div>' +
-
-          // Buttons — including DELETE
-          '<div class="tag-actions">' +
-            '<button class="tag-btn tag-btn-blue" onclick="viewQR(\'' + tagCode + '\')">View QR</button>' +
-            '<button class="tag-btn tag-btn-outline" onclick="copyTagLink(\'' + tagCode + '\')">Copy Link</button>' +
-            '<button class="tag-btn ' + (isActive ? 'tag-btn-amber' : 'tag-btn-green') + '" onclick="toggleTag(\'' + tagId + '\', ' + !isActive + ')">' +
-              (isActive ? 'Hide' : 'Show') +
-            '</button>' +
-            '<button class="tag-btn tag-btn-danger" onclick="deleteTag(\'' + tagId + '\', \'' + tagCode + '\')">\uD83D\uDDD1\uFE0F Delete</button>' +
+          meta +
+          // ── BUTTONS — View QR | Copy Link | Hide/Show | DELETE
+          '<div style="display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem;">' +
+            '<button onclick="viewQR('' + code + '')" style="padding:.35rem .8rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;background:#2563eb;color:#fff;font-family:inherit;">View QR</button>' +
+            '<button onclick="copyLink('' + code + '')" style="padding:.35rem .8rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#374151;border:1.5px solid #d1d5db;font-family:inherit;">Copy Link</button>' +
+            '<button onclick="toggleTag('' + id + '',' + !active + ')" style="padding:.35rem .8rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit;' + toggleStyle + '">' + toggleLabel + '</button>' +
+            '<button onclick="deleteTag('' + id + '','' + code + '')" style="padding:.35rem .8rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#ef4444;border:1.5px solid #fca5a5;font-family:inherit;">&#128465; Delete</button>' +
           '</div>' +
         '</div>' +
+
       '</div>' +
     '</div>'
   );
 }
 
-// ── View QR Modal ──────────────────────────────────────────────────
-function viewQR(tagCode) {
-  var qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' +
-    encodeURIComponent('https://contactkar.vercel.app/scan/' + tagCode);
+// ── View QR in modal
+function viewQR(code) {
+  var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=260x260&data=' + encodeURIComponent('https://contactkar.vercel.app/scan/' + code);
   var old = document.getElementById('qr-modal');
   if (old) old.remove();
-  var modal = document.createElement('div');
-  modal.id = 'qr-modal';
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;';
-  modal.innerHTML =
+  var m = document.createElement('div');
+  m.id = 'qr-modal';
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem;';
+  m.innerHTML =
     '<div style="background:#fff;border-radius:18px;padding:2rem;text-align:center;max-width:320px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);">' +
-      '<div style="font-weight:800;font-size:1.05rem;margin-bottom:1rem;">QR — ' + tagCode + '</div>' +
-      '<img src="' + qrUrl + '" style="border-radius:10px;border:1.5px solid #e5e7eb;padding:6px;width:260px;height:260px;" />' +
-      '<div style="margin-top:1rem;display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;">' +
-        '<a href="' + qrUrl + '" download="qr-' + tagCode + '.png" class="tag-btn tag-btn-outline" style="text-decoration:none;">\u2B07\uFE0F Download</a>' +
-        '<button onclick="document.getElementById(\'qr-modal\').remove()" class="tag-btn tag-btn-danger">\u2715 Close</button>' +
+      '<div style="font-weight:800;margin-bottom:1rem;">QR &mdash; ' + code + '</div>' +
+      '<img src="' + qr + '" style="width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:10px;padding:6px;"/>' +
+      '<div style="margin-top:1rem;display:flex;gap:.6rem;justify-content:center;">' +
+        '<a href="' + qr + '" download="qr-' + code + '.png" style="padding:.4rem .9rem;border-radius:8px;font-size:.82rem;font-weight:700;background:#fff;color:#374151;border:1.5px solid #d1d5db;text-decoration:none;">&#11015; Download</a>' +
+        '<button onclick="document.getElementById('qr-modal').remove()" style="padding:.4rem .9rem;border-radius:8px;font-size:.82rem;font-weight:700;background:#fff;color:#ef4444;border:1.5px solid #fca5a5;cursor:pointer;font-family:inherit;">&#10005; Close</button>' +
       '</div>' +
     '</div>';
-  modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
-  document.body.appendChild(modal);
+  m.addEventListener('click', function(e){ if(e.target===m) m.remove(); });
+  document.body.appendChild(m);
 }
 
-// ── Copy Tag Link ──────────────────────────────────────────────────
-function copyTagLink(tagCode) {
-  var link = 'https://contactkar.vercel.app/scan/' + tagCode;
-  navigator.clipboard.writeText(link)
-    .then(function() { showToast('\uD83D\uDD17 Link copied!', 'blue'); })
-    .catch(function() { showToast('Copy failed', 'red'); });
+// ── Copy scan link
+function copyLink(code) {
+  navigator.clipboard.writeText('https://contactkar.vercel.app/scan/' + code)
+    .then(function(){ showToast('Link copied!', 'blue'); })
+    .catch(function(){ showToast('Copy failed', 'red'); });
 }
 
-// ── Toggle Tag ─────────────────────────────────────────────────────
-function toggleTag(tagId, newStatus) {
-  fetch(API + '/tags/' + tagId + '/toggle', {
+// ── Toggle active / hidden
+function toggleTag(id, newVal) {
+  fetch(API + '/tags/' + id + '/toggle', {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-    body: JSON.stringify({ isContactable: newStatus })
+    headers: { 'Content-Type':'application/json', 'Authorization':'Bearer ' + localStorage.getItem('token') },
+    body: JSON.stringify({ isContactable: newVal })
   })
-  .then(function(r) { return r.json(); })
-  .then(function(data) {
-    if (data.success) {
-      showToast(newStatus ? '\u2705 Tag is now Active' : '\uD83D\uDD15 Tag is now Hidden', newStatus ? 'green' : 'amber');
-      loadMyTags();
-    } else {
-      showToast('Failed: ' + (data.error || 'Unknown'), 'red');
-    }
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (d.success) { showToast(newVal ? 'Tag is now Active' : 'Tag is now Hidden', newVal ? 'green' : 'amber'); loadMyTags(); }
+    else showToast('Error: ' + (d.error||'failed'), 'red');
   })
-  .catch(function() { showToast('Server error', 'red'); });
+  .catch(function(){ showToast('Network error', 'red'); });
 }
 
-// ── Delete Tag ─────────────────────────────────────────────────────
-function deleteTag(tagId, tagCode) {
-  if (!confirm('\uD83D\uDDD1\uFE0F Delete tag "' + tagCode + '"?\n\nThis permanently removes it from the system and cannot be undone.')) return;
-
-  var card = document.getElementById('tag-card-' + tagId);
+// ── Delete tag permanently
+function deleteTag(id, code) {
+  if (!confirm('Delete tag "' + code + '"?\nThis cannot be undone.')) return;
+  var card = document.getElementById('tc-' + id);
   if (card) card.style.opacity = '0.4';
 
-  fetch(API + '/tags/' + tagId, {
+  fetch(API + '/tags/' + id, {
     method: 'DELETE',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }
+    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
   })
-  .then(function(res) { return res.json().then(function(d) { return { ok: res.ok, data: d }; }); })
-  .then(function(result) {
-    if (result.ok && result.data.success) {
+  .then(function(r){ return r.json().then(function(d){ return { ok:r.ok, d:d }; }); })
+  .then(function(res){
+    if (res.ok && res.d.success) {
+      showToast('Tag ' + code + ' deleted', 'red');
       if (card) {
-        card.style.transition = 'all .3s ease';
-        card.style.transform  = 'scale(0.95)';
-        card.style.opacity    = '0';
+        card.style.transition = 'all .3s';
+        card.style.transform  = 'scaleY(0)';
         card.style.maxHeight  = '0';
         card.style.marginBottom = '0';
-        setTimeout(function() { card.remove(); loadMyTags(); }, 320);
+        setTimeout(function(){ card.remove(); loadMyTags(); }, 300);
       }
-      showToast('\uD83D\uDDD1\uFE0F Tag ' + tagCode + ' deleted', 'red');
     } else {
       if (card) card.style.opacity = '1';
-      showToast('Delete failed: ' + (result.data.error || 'Server error'), 'red');
+      showToast('Delete failed: ' + (res.d.error||'error'), 'red');
     }
   })
-  .catch(function() {
+  .catch(function(){
     if (card) card.style.opacity = '1';
-    showToast('Network error. Check Render status.', 'red');
+    showToast('Network error', 'red');
   });
 }
 
-// ── Order Calculator ───────────────────────────────────────────────
-function calculateTotal() {
-  var v = parseInt(document.getElementById('vehicleQty') && document.getElementById('vehicleQty').value) || 0;
-  var p = parseInt(document.getElementById('petQty') && document.getElementById('petQty').value) || 0;
-  var total = v + p;
-  var free  = total >= 5 ? 2 : (total >= 3 ? 1 : 0);
-  var cost  = Math.max(0, total - free) * 149;
-  var td = document.getElementById('totalTagsDisplay');
-  var cd = document.getElementById('costDisplay');
-  var sd = document.getElementById('savingsDisplay');
-  if (td) td.innerText = total;
-  if (cd) cd.innerText = '\u20B9' + cost;
-  if (sd) sd.innerText = free > 0 ? '(Save \u20B9' + (free * 149) + '!)' : '';
-}
+// ── Shimmer CSS injection (so no extra CSS file needed)
+(function(){
+  var s = document.createElement('style');
+  s.textContent = '.tag-shimmer{background:linear-gradient(90deg,#f3f4f6 25%,#e5e7eb 50%,#f3f4f6 75%);background-size:200% 100%;animation:ck-shimmer 1.4s infinite;border-radius:16px;height:110px;margin-bottom:1rem;}@keyframes ck-shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}';
+  document.head.appendChild(s);
+})();
 
-// ── Confirm Account Delete ─────────────────────────────────────────
-function confirmDelete() {
-  if (confirm('\u26A0\uFE0F Permanently delete your account and ALL tags?\nThis CANNOT be undone.'))
-    showToast('For account deletion, email support@contactkar.in', 'blue');
-}
+// ── Logout
+var logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) logoutBtn.addEventListener('click', function(){ localStorage.clear(); window.location.href='login.html'; });
 
-// ── Init ───────────────────────────────────────────────────────────
+// ── Init
 loadMyTags();
