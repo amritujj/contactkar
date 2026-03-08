@@ -283,7 +283,7 @@ app.put('/api/tags/:id/toggle', authRequired, async (req, res) => {
 
 app.get('/api/tags/:code/qrcode', async (req, res) => {
   try {
-    const url = 'https://contactkar.vercel.app/tag/' + encodeURIComponent(req.params.code);
+    const url = 'https://contactkar.vercel.app/scan/' + encodeURIComponent(req.params.code);
     const dataUrl = await QRCode.toDataURL(url);
     res.json({ success: true, code: req.params.code, qr: dataUrl });
   } catch (e) { res.status(500).json({ success: false, error: 'QR generation failed' }); }
@@ -359,7 +359,38 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
 
 // ---- START ----
 
-// ── PUBLIC: Scan page - get tag info (no owner name) ──
+// ---- DELETE TAG ----
+app.delete('/api/tags/:id', authRequired, async (req, res) => {
+  try {
+    const own = await pool.query('SELECT id FROM tags WHERE id=$1 AND user_id=$2', [req.params.id, req.userId]);
+    if (!own.rows.length) return res.status(404).json({ success: false, error: 'Tag not found or not yours' });
+    await pool.query('DELETE FROM tags WHERE id=$1', [req.params.id]);
+    res.json({ success: true });
+  } catch (e) {
+    console.error('Delete tag error:', e.message);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ---- CHANGE PASSWORD ----
+app.put('/api/me/password', authRequired, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) return res.status(400).json({ success: false, error: 'Missing fields' });
+    if (newPassword.length < 6) return res.status(400).json({ success: false, error: 'Password must be at least 6 characters' });
+    const user = (await pool.query('SELECT password_hash FROM users WHERE id=$1', [req.userId])).rows[0];
+    if (!user || !(await bcrypt.compare(currentPassword, user.password_hash)))
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await pool.query('UPDATE users SET password_hash=$1 WHERE id=$2', [newHash, req.userId]);
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (e) {
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// ---- SCAN PAGE (PUBLIC) ----
+// Returns tag info for scan page — owner name intentionally excluded for privacy
 app.get('/api/tags/scan/:code', async (req, res) => {
   try {
     const r = await pool.query(
@@ -381,7 +412,8 @@ app.get('/api/tags/scan/:code', async (req, res) => {
   }
 });
 
-// ── PUBLIC: Return emergency contact number for direct call ──
+// ---- CONTACT CALL (PUBLIC) ----
+// Returns emergency contact phone number only on button tap (not in HTML source)
 app.post('/api/contact/call/:code', async (req, res) => {
   try {
     const r = await pool.query(
@@ -390,8 +422,10 @@ app.post('/api/contact/call/:code', async (req, res) => {
     );
     if (!r.rows.length) return res.status(404).json({ success: false, error: 'Tag not found' });
     const tag = r.rows[0];
-    if (!tag.is_contactable) return res.status(403).json({ success: false, error: 'Owner has turned off contact' });
-    if (!tag.emergency_contact) return res.status(404).json({ success: false, error: 'No contact number set for this tag. Ask owner to update their tag.' });
+    if (!tag.is_contactable)
+      return res.status(403).json({ success: false, error: 'Owner has turned off contact for this tag' });
+    if (!tag.emergency_contact)
+      return res.status(404).json({ success: false, error: 'No contact number set for this tag. Owner needs to update it.' });
     res.json({ success: true, phone: tag.emergency_contact });
   } catch (e) {
     res.status(500).json({ success: false, error: 'Server error' });
