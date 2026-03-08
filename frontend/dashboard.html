@@ -39,7 +39,7 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 .meta{font-size:.78rem;color:#6b7280;margin-bottom:.18rem;}
 .meta b{color:#374151;}
 .btns{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;}
-.btn{padding:.32rem .75rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;cursor:pointer;}
+.btn{padding:.32rem .75rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;}
 .btn-blue{background:#2563eb;color:#fff;}
 .btn-blue:hover{background:#1d4ed8;}
 .btn-gray{background:#fff;color:#374151;border:1.5px solid #d1d5db;}
@@ -50,8 +50,6 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
 .empty{border:2px dashed #d1d5db;border-radius:13px;padding:2.5rem 1rem;text-align:center;background:#fff;}
 #toast{position:fixed;bottom:20px;right:20px;z-index:9999;padding:9px 16px;border-radius:9px;font-weight:700;font-size:.83rem;color:#fff;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.18);}
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:1rem;}
-.modal-box{background:#fff;border-radius:15px;padding:1.6rem;max-width:300px;width:100%;text-align:center;}
 @media(max-width:480px){
   .card-body{flex-direction:column;align-items:center;text-align:center;}
   .row1,.btns{justify-content:center;}
@@ -61,6 +59,7 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 </style>
 </head>
 <body>
+
 <nav>
   <a class="brand" href="index.html">Contact<span>Kar</span></a>
   <div style="display:flex;align-items:center;gap:.7rem;">
@@ -68,6 +67,7 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
     <button id="btn-logout">Logout</button>
   </div>
 </nav>
+
 <div class="wrap">
   <div class="tabs">
     <a href="dashboard.html" class="active">&#127991; My Tags</a>
@@ -80,22 +80,39 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
     <a href="vehicle.html">+ Buy New Tag</a>
   </div>
   <div class="stats">
-    <div class="stat"><div class="stat-n" id="n-total" style="color:#2563eb">-</div><div class="stat-l">Total</div></div>
-    <div class="stat"><div class="stat-n" id="n-active" style="color:#10b981">-</div><div class="stat-l">Active</div></div>
-    <div class="stat"><div class="stat-n" id="n-hidden" style="color:#ef4444">-</div><div class="stat-l">Hidden</div></div>
+    <div class="stat">
+      <div class="stat-n" id="n-total" style="color:#2563eb">-</div>
+      <div class="stat-l">Total</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" id="n-active" style="color:#10b981">-</div>
+      <div class="stat-l">Active</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" id="n-hidden" style="color:#ef4444">-</div>
+      <div class="stat-l">Hidden</div>
+    </div>
   </div>
-  <div id="list"><div class="shim"></div><div class="shim"></div></div>
+  <div id="list">
+    <div class="shim"></div>
+    <div class="shim"></div>
+  </div>
 </div>
+
 <div id="toast"></div>
+
 <script>
 var BASE = 'https://contactkar.onrender.com/api';
-var tok  = localStorage.getItem('token');
+var tok = localStorage.getItem('token');
 
-if (!tok) { window.location.href = 'login.html'; }
+if (!tok) {
+  window.location.href = 'login.html';
+}
 
-// Greeting - check multiple possible storage keys
 var uname = localStorage.getItem('userName') || localStorage.getItem('name') || '';
-if (uname) { document.getElementById('greeting').textContent = 'Hi, ' + uname; }
+if (uname) {
+  document.getElementById('greeting').textContent = 'Hi, ' + uname;
+}
 
 document.getElementById('btn-logout').onclick = function () {
   localStorage.clear();
@@ -104,21 +121,30 @@ document.getElementById('btn-logout').onclick = function () {
 
 function showToast(msg, color) {
   var t = document.getElementById('toast');
-  if (color === 'g') t.style.background = '#10b981';
-  else if (color === 'r') t.style.background = '#ef4444';
-  else if (color === 'b') t.style.background = '#2563eb';
-  else t.style.background = '#374151';
+  if (color === 'g') {
+    t.style.background = '#10b981';
+  } else if (color === 'r') {
+    t.style.background = '#ef4444';
+  } else if (color === 'b') {
+    t.style.background = '#2563eb';
+  } else {
+    t.style.background = '#374151';
+  }
   t.textContent = msg;
   t.style.opacity = '1';
   clearTimeout(t._timer);
-  t._timer = setTimeout(function () { t.style.opacity = '0'; }, 3000);
+  t._timer = setTimeout(function () {
+    t.style.opacity = '0';
+  }, 3000);
 }
 
 function loadTags() {
   var list = document.getElementById('list');
   list.innerHTML = '<div class="shim"></div><div class="shim"></div>';
 
-  fetch(BASE + '/tags/user', { headers: { 'Authorization': 'Bearer ' + tok } })
+  fetch(BASE + '/tags/user', {
+    headers: { 'Authorization': 'Bearer ' + tok }
+  })
   .then(function (r) {
     if (r.status === 401 || r.status === 403) {
       localStorage.clear();
@@ -130,11 +156,19 @@ function loadTags() {
   .then(function (data) {
     if (!data) return;
 
-    var tags = (data.tags && Array.isArray(data.tags)) ? data.tags : (Array.isArray(data) ? data : []);
-    var active = 0;
-    for (var i = 0; i < tags.length; i++) { if (tags[i].is_contactable !== false) active++; }
+    var tags = [];
+    if (data.tags && Array.isArray(data.tags)) {
+      tags = data.tags;
+    } else if (Array.isArray(data)) {
+      tags = data;
+    }
 
-    document.getElementById('n-total').textContent  = tags.length;
+    var active = 0;
+    for (var i = 0; i < tags.length; i++) {
+      if (tags[i].is_contactable !== false) active++;
+    }
+
+    document.getElementById('n-total').textContent = tags.length;
     document.getElementById('n-active').textContent = active;
     document.getElementById('n-hidden').textContent = tags.length - active;
 
@@ -143,11 +177,11 @@ function loadTags() {
     if (tags.length === 0) {
       list.innerHTML =
         '<div class="empty">' +
-          '<div style="font-size:2.8rem;margin-bottom:.5rem">&#127991;</div>' +
-          '<h3 style="color:#111827;margin-bottom:.4rem">No Tags Yet</h3>' +
-          '<p style="font-size:.85rem;color:#6b7280;margin-bottom:1.1rem">Buy a plan to get your first tag.</p>' +
-          '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:6px">&#128663; Vehicle</a>' +
-          '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none">&#128062; Pet</a>' +
+        '<div style="font-size:2.8rem;margin-bottom:.5rem">&#127991;</div>' +
+        '<h3 style="color:#111827;margin-bottom:.4rem">No Tags Yet</h3>' +
+        '<p style="font-size:.85rem;color:#6b7280;margin-bottom:1.1rem">Buy a plan to get your first tag.</p>' +
+        '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:6px">&#128663; Vehicle</a>' +
+        '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none">&#128062; Pet</a>' +
         '</div>';
       return;
     }
@@ -158,96 +192,135 @@ function loadTags() {
   })
   .catch(function (err) {
     console.error(err);
-    list.innerHTML =
+    document.getElementById('list').innerHTML =
       '<div class="empty">' +
-        '<p style="color:#6b7280;margin-bottom:1rem">&#9888; Could not connect. Server may be starting up (wait 30s).</p>' +
-        '<button class="btn btn-blue" onclick="loadTags()">&#128260; Retry</button>' +
+      '<p style="color:#6b7280;margin-bottom:1rem">&#9888; Could not connect. Server may be starting up.</p>' +
+      '<button class="btn btn-blue" onclick="loadTags()">&#128260; Retry</button>' +
       '</div>';
   });
 }
 
 function buildCard(t) {
-  var id      = t.id;
-  var code    = t.tag_code || '';
-  var isPet   = (t.type === 'pet');
-  var isOn    = (t.is_contactable !== false);
+  var id = t.id;
+  var code = t.tag_code || '';
+  var isPet = (t.type === 'pet');
+  var isOn = (t.is_contactable !== false);
   var scanUrl = 'https://contactkar.vercel.app/scan/' + code;
-  var qrSrc   = (t.qr_code_url && t.qr_code_url.indexOf('data:image') === 0)
-                  ? t.qr_code_url
-                  : 'https://api.qrserver.com/v1/create-qr-code/?size=86x86&data=' + encodeURIComponent(scanUrl);
-  var dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
 
-  var card = document.createElement('div'); card.className = 'card';
-  var body = document.createElement('div'); body.className = 'card-body';
+  var qrSrc;
+  if (t.qr_code_url && t.qr_code_url.indexOf('data:image') === 0) {
+    qrSrc = t.qr_code_url;
+  } else {
+    qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&margin=1&data=' + encodeURIComponent(scanUrl);
+  }
 
-  var qbox = document.createElement('div'); qbox.className = 'qr-box';
-  var qimg = document.createElement('img'); qimg.src = qrSrc; qimg.alt = 'QR';
+  var dateStr = '';
+  if (t.created_at) {
+    dateStr = new Date(t.created_at).toLocaleDateString('en-IN', {
+      day: '2-digit', month: 'short', year: 'numeric'
+    });
+  }
+
+  var card = document.createElement('div');
+  card.className = 'card';
+
+  var body = document.createElement('div');
+  body.className = 'card-body';
+
+  var qbox = document.createElement('div');
+  qbox.className = 'qr-box';
+  var qimg = document.createElement('img');
+  qimg.src = qrSrc;
+  qimg.alt = 'QR';
   qbox.appendChild(qimg);
 
-  var info = document.createElement('div'); info.className = 'info';
+  var info = document.createElement('div');
+  info.className = 'info';
 
-  var row1 = document.createElement('div'); row1.className = 'row1';
+  var row1 = document.createElement('div');
+  row1.className = 'row1';
   row1.innerHTML =
     '<span class="tag-code">' + code + '</span>' +
     '<span class="badge ' + (isPet ? 'b-pet' : 'b-veh') + '">' + (isPet ? 'Pet' : 'Vehicle') + '</span>' +
-    '<span class="badge ' + (isOn  ? 'b-on'  : 'b-off') + '">' + (isOn  ? 'Active' : 'Hidden') + '</span>';
+    '<span class="badge ' + (isOn ? 'b-on' : 'b-off') + '">' + (isOn ? 'Active' : 'Hidden') + '</span>';
   info.appendChild(row1);
 
-  function meta(icon, val) {
+  function addMeta(icon, val) {
     if (!val) return;
-    var d = document.createElement('div'); d.className = 'meta';
+    var d = document.createElement('div');
+    d.className = 'meta';
     d.innerHTML = icon + ' <b>' + val + '</b>';
     info.appendChild(d);
   }
-  meta('&#128290;', t.vehicle_number);
-  meta('&#128054;', t.pet_name);
-  meta('&#128100;', t.owner_name);
-  meta('&#128680;', t.emergency_contact);
-  if (dateStr) meta('&#128197;', dateStr);
 
-  var btns = document.createElement('div'); btns.className = 'btns';
+  addMeta('&#128290;', t.vehicle_number);
+  addMeta('&#128054;', t.pet_name);
+  addMeta('&#128100;', t.owner_name);
+  addMeta('&#128680;', t.emergency_contact);
+  if (dateStr) { addMeta('&#128197;', dateStr); }
 
-  var bQR = document.createElement('button'); bQR.className = 'btn btn-blue'; bQR.textContent = 'View QR';
-  bQR.onclick = function () { showQRModal(code, qrSrc); };
+  var btns = document.createElement('div');
+  btns.className = 'btns';
 
-  var bLink = document.createElement('button'); bLink.className = 'btn btn-gray'; bLink.textContent = 'Copy Link';
-  bLink.onclick = function () {
-    if (navigator.clipboard) {
-      navigator.clipboard.writeText(scanUrl).then(function () { showToast('Link copied!', 'b'); });
-    }
-  };
+  var bQR = document.createElement('button');
+  bQR.className = 'btn btn-blue';
+  bQR.textContent = 'View QR';
+  bQR.onclick = (function (c, tp) {
+    return function () {
+      window.open('qr_card.html?code=' + c + '&type=' + tp, '_blank');
+    };
+  }(code, isPet ? 'pet' : 'vehicle'));
 
-  var bDel = document.createElement('button'); bDel.className = 'btn btn-red'; bDel.innerHTML = '&#128465; Delete';
-  bDel.onclick = function () {
-    if (!confirm('Delete "' + code + '"? This cannot be undone.')) return;
-    card.style.opacity = '.4';
-    fetch(BASE + '/tags/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + tok } })
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      if (d.success) { showToast('Deleted', 'r'); loadTags(); }
-      else { card.style.opacity = '1'; showToast(d.error || 'Delete failed', 'r'); }
-    })
-    .catch(function () { card.style.opacity = '1'; showToast('Network error', 'r'); });
-  };
+  var bLink = document.createElement('button');
+  bLink.className = 'btn btn-gray';
+  bLink.textContent = 'Copy Link';
+  bLink.onclick = (function (url) {
+    return function () {
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(url).then(function () {
+          showToast('Link copied!', 'b');
+        });
+      }
+    };
+  }(scanUrl));
 
-  btns.appendChild(bQR); btns.appendChild(bLink); btns.appendChild(bDel);
+  var bDel = document.createElement('button');
+  bDel.className = 'btn btn-red';
+  bDel.innerHTML = '&#128465; Delete';
+  bDel.onclick = (function (tagId, tagCode, cardEl) {
+    return function () {
+      if (!confirm('Delete tag "' + tagCode + '"?\nThis cannot be undone.')) return;
+      cardEl.style.opacity = '.4';
+      fetch(BASE + '/tags/' + tagId, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + tok }
+      })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d.success) {
+          showToast('Tag deleted', 'r');
+          loadTags();
+        } else {
+          cardEl.style.opacity = '1';
+          showToast(d.error || 'Delete failed', 'r');
+        }
+      })
+      .catch(function () {
+        cardEl.style.opacity = '1';
+        showToast('Network error', 'r');
+      });
+    };
+  }(id, code, card));
+
+  btns.appendChild(bQR);
+  btns.appendChild(bLink);
+  btns.appendChild(bDel);
   info.appendChild(btns);
-  body.appendChild(qbox); body.appendChild(info); card.appendChild(body);
-  return card;
-}
 
-function showQRModal(code, qrSrc) {
-  var old = document.getElementById('qr-modal'); if (old) old.remove();
-  var bg = document.createElement('div'); bg.id = 'qr-modal'; bg.className = 'modal-bg';
-  bg.innerHTML =
-    '<div class="modal-box">' +
-      '<div style="font-weight:800;margin-bottom:1rem">QR &mdash; ' + code + '</div>' +
-      '<img src="' + qrSrc + '" style="width:240px;height:240px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/>' +
-      '<p style="font-size:.75rem;color:#6b7280;margin:.7rem 0 1rem">Scan to open the contact page</p>' +
-      '<button class="btn btn-red" onclick="document.getElementById(&quot;qr-modal&quot;).remove()">&#10005; Close</button>' +
-    '</div>';
-  bg.onclick = function (e) { if (e.target === bg) bg.remove(); };
-  document.body.appendChild(bg);
+  body.appendChild(qbox);
+  body.appendChild(info);
+  card.appendChild(body);
+  return card;
 }
 
 loadTags();
