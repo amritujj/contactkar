@@ -416,4 +416,22 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
 });
 
 // ── START ─────────────────────────────────────────────────────────────────────
+
+// ── ONE-TIME MIGRATION: Fix existing tags with null qr_code_url ──
+app.get('/api/admin/fix-qr-codes', async (req, res) => {
+  try {
+    const tags = (await pool.query("SELECT id, tag_code FROM tags WHERE qr_code_url IS NULL OR qr_code_url NOT LIKE 'data:%'")).rows;
+    let fixed = 0;
+    for (const tag of tags) {
+      const scanUrl   = 'https://contactkar.vercel.app/scan/' + tag.tag_code;
+      const qrDataUrl = await QRCode.toDataURL(scanUrl, { errorCorrectionLevel: 'H', width: 300 });
+      await pool.query('UPDATE tags SET qr_code_url=$1 WHERE id=$2', [qrDataUrl, tag.id]);
+      fixed++;
+    }
+    res.json({ success: true, message: `Fixed ${fixed} tags with correct QR codes` });
+  } catch (e) {
+    res.status(500).json({ success: false, error: e.message });
+  }
+});
+
 app.listen(PORT, () => console.log(`ContactKar Server v4 running on port ${PORT}`));
