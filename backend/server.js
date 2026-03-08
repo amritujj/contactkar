@@ -113,7 +113,8 @@ async function setupDB() {
     "ALTER TABLE tags ADD COLUMN IF NOT EXISTS owner_name TEXT",
     "ALTER TABLE tags ADD COLUMN IF NOT EXISTS emergency_contact TEXT",
     "ALTER TABLE tags ADD COLUMN IF NOT EXISTS is_hard_copy_ordered BOOLEAN DEFAULT FALSE",
-    "ALTER TABLE tags ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(20) DEFAULT 'none'"
+    "ALTER TABLE tags ADD COLUMN IF NOT EXISTS delivery_status VARCHAR(20) DEFAULT 'none'",
+    "ALTER TABLE tags ADD COLUMN IF NOT EXISTS qr_code_url TEXT"
   ];
   for (const m of migrations) { await pool.query(m).catch(() => {}); }
   console.log('✅ DB ready');
@@ -337,16 +338,16 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
     for (let i = 0; i < vQty; i++) {
       const tagCode = 'CAR-' + Math.random().toString(36).substr(2, 6).toUpperCase();
       await pool.query(
-        "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered, vehicle_number, owner_name, emergency_contact) VALUES ($1,$2,'vehicle',$3,$4,$5,$6)",
-        [req.userId, tagCode, isHardCopy, vehiclenumber || null, ownername || null, emergency || null]
+        "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered, vehicle_number, owner_name, emergency_contact, qr_code_url) VALUES ($1,$2,'vehicle',$3,$4,$5,$6,$7)",
+        [req.userId, tagCode, isHardCopy, vehiclenumber || null, ownername || null, emergency || null, 'https://contactkar.vercel.app/scan/' + tagCode]
       );
     }
 
     for (let i = 0; i < pQty; i++) {
       const tagCode = 'PET-' + Math.random().toString(36).substr(2, 6).toUpperCase();
       await pool.query(
-        "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered) VALUES ($1,$2,'pet',$3)",
-        [req.userId, tagCode, isHardCopy]
+        "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered, qr_code_url) VALUES ($1,$2,'pet',$3,$4)",
+        [req.userId, tagCode, isHardCopy, 'https://contactkar.vercel.app/scan/' + tagCode]
       );
     }
 
