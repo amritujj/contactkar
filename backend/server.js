@@ -337,17 +337,21 @@ app.post('/api/orders/place', authRequired, async (req, res) => {
 
     for (let i = 0; i < vQty; i++) {
       const tagCode = 'CAR-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+      const scanUrl = 'https://contactkar.vercel.app/scan/' + tagCode;
+      const qrDataUrl = await QRCode.toDataURL(scanUrl, { errorCorrectionLevel: 'H', width: 300 });
       await pool.query(
         "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered, vehicle_number, owner_name, emergency_contact, qr_code_url) VALUES ($1,$2,'vehicle',$3,$4,$5,$6,$7)",
-        [req.userId, tagCode, isHardCopy, vehiclenumber || null, ownername || null, emergency || null, 'https://contactkar.vercel.app/scan/' + tagCode]
+        [req.userId, tagCode, isHardCopy, vehiclenumber || null, ownername || null, emergency || null, qrDataUrl]
       );
     }
 
     for (let i = 0; i < pQty; i++) {
       const tagCode = 'PET-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+      const scanUrl = 'https://contactkar.vercel.app/scan/' + tagCode;
+      const qrDataUrl = await QRCode.toDataURL(scanUrl, { errorCorrectionLevel: 'H', width: 300 });
       await pool.query(
         "INSERT INTO tags (user_id, tag_code, type, is_hard_copy_ordered, qr_code_url) VALUES ($1,$2,'pet',$3,$4)",
-        [req.userId, tagCode, isHardCopy, 'https://contactkar.vercel.app/scan/' + tagCode]
+        [req.userId, tagCode, isHardCopy, qrDataUrl]
       );
     }
 
