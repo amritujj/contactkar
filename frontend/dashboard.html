@@ -244,7 +244,7 @@ function showQRModal(code, qrSrc) {
       '<div style="font-weight:800;margin-bottom:1rem">QR &mdash; ' + code + '</div>' +
       '<img src="' + qrSrc + '" style="width:240px;height:240px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/>' +
       '<p style="font-size:.75rem;color:#6b7280;margin:.7rem 0 1rem">Scan to open the contact page</p>' +
-      '<button class="btn btn-red" onclick="document.getElementById('qr-modal').remove()">&#10005; Close</button>' +
+      '<button class="btn btn-red" onclick="document.getElementById(&quot;qr-modal&quot;).remove()">&#10005; Close</button>' +
     '</div>';
   bg.onclick = function (e) { if (e.target === bg) bg.remove(); };
   document.body.appendChild(bg);
