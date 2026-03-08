@@ -7,62 +7,70 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;}
-nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.brand{font-size:1.35rem;font-weight:900;color:#111827;text-decoration:none;}
+nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;box-shadow:0 1px 3px rgba(0,0,0,.06);}
+.brand{font-size:1.3rem;font-weight:900;color:#111827;text-decoration:none;}
 .brand span{color:#2563eb;}
-.nav-right{display:flex;align-items:center;gap:.8rem;}
-#greeting{font-weight:600;font-size:.9rem;color:#374151;}
+#greeting{font-size:.9rem;font-weight:600;color:#374151;}
 #btn-logout{padding:5px 14px;border:1.5px solid #e5e7eb;border-radius:8px;background:#fff;cursor:pointer;font-size:.85rem;font-weight:600;color:#374151;font-family:inherit;}
 #btn-logout:hover{background:#fef2f2;border-color:#fca5a5;color:#ef4444;}
-.wrap{max-width:1000px;margin:0 auto;padding:2rem 1.2rem 4rem;}
-.tabs{display:flex;gap:.4rem;margin-bottom:1.8rem;flex-wrap:wrap;}
-.tabs a{padding:.5rem 1rem;border-radius:10px;font-weight:600;font-size:.875rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;}
-.tabs a.on{background:#2563eb;color:#fff;border-color:#2563eb;}
-.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.4rem;}
-.hdr h1{font-size:1.4rem;font-weight:900;color:#111827;}
-.hdr a{background:#2563eb;color:#fff;padding:.6rem 1.2rem;border-radius:10px;font-weight:700;font-size:.875rem;text-decoration:none;}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.4rem;}
-.stat{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:1rem;text-align:center;}
-.stat .n{font-size:1.9rem;font-weight:900;line-height:1;}
-.stat .l{font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:.25rem;}
-.card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;margin-bottom:1rem;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s;}
-.card:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);transform:translateY(-1px);}
-.card-inner{display:flex;gap:1rem;padding:1.1rem 1.3rem;align-items:flex-start;}
-.qr-wrap{flex-shrink:0;width:90px;height:90px;border:1.5px solid #e5e7eb;border-radius:10px;overflow:hidden;background:#f9fafb;display:flex;align-items:center;justify-content:center;}
-.qr-wrap img{width:90px;height:90px;object-fit:contain;}
+.wrap{max-width:960px;margin:0 auto;padding:2rem 1rem 4rem;}
+.tabs{display:flex;gap:.4rem;margin-bottom:1.6rem;flex-wrap:wrap;}
+.tabs a{padding:.45rem .95rem;border-radius:9px;font-weight:600;font-size:.85rem;color:#374151;border:1.5px solid #e5e7eb;background:#fff;text-decoration:none;}
+.tabs a.active{background:#2563eb;color:#fff;border-color:#2563eb;}
+.hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.3rem;}
+.hdr h1{font-size:1.35rem;font-weight:900;color:#111827;}
+.hdr a{background:#2563eb;color:#fff;padding:.55rem 1.1rem;border-radius:9px;font-weight:700;font-size:.85rem;text-decoration:none;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.9rem;margin-bottom:1.3rem;}
+.stat{background:#fff;border:1.5px solid #e5e7eb;border-radius:12px;padding:.9rem;text-align:center;}
+.stat-n{font-size:1.8rem;font-weight:900;line-height:1.1;}
+.stat-l{font-size:.68rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.5px;margin-top:.2rem;}
+.card{background:#fff;border:1.5px solid #e5e7eb;border-radius:13px;margin-bottom:.9rem;box-shadow:0 1px 4px rgba(0,0,0,.04);}
+.card-body{display:flex;gap:.9rem;padding:1rem 1.1rem;align-items:flex-start;}
+.qr-box{flex-shrink:0;width:86px;height:86px;border:1.5px solid #e5e7eb;border-radius:9px;overflow:hidden;background:#f9fafb;display:flex;align-items:center;justify-content:center;}
+.qr-box img{width:86px;height:86px;object-fit:contain;}
 .info{flex:1;min-width:0;}
-.info-top{display:flex;flex-wrap:wrap;align-items:center;gap:.35rem;margin-bottom:.4rem;}
-.code{font-size:.95rem;font-weight:800;color:#111827;}
-.tag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;}
-.tv{background:#dbeafe;color:#1d4ed8;}.tp{background:#fce7f3;color:#be185d;}
-.ton{background:#d1fae5;color:#065f46;}.toff{background:#fee2e2;color:#991b1b;}
-.meta{font-size:.8rem;color:#6b7280;margin-bottom:.2rem;}
+.row1{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem;margin-bottom:.35rem;}
+.tag-code{font-size:.95rem;font-weight:800;color:#111827;}
+.badge{display:inline-block;font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:20px;}
+.b-veh{background:#dbeafe;color:#1d4ed8;}
+.b-pet{background:#fce7f3;color:#be185d;}
+.b-on{background:#d1fae5;color:#065f46;}
+.b-off{background:#fee2e2;color:#991b1b;}
+.meta{font-size:.78rem;color:#6b7280;margin-bottom:.18rem;}
 .meta b{color:#374151;}
-.btns{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.7rem;}
-.btn{padding:.38rem .85rem;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;white-space:nowrap;transition:all .15s;}
-.b-blue{background:#2563eb;color:#fff;}.b-blue:hover{background:#1d4ed8;}
-.b-gray{background:#fff;color:#374151;border:1.5px solid #d1d5db;}.b-gray:hover{background:#f9fafb;}
-.b-red{background:#ef4444;color:#fff;}.b-red:hover{background:#dc2626;}
-.shim{background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:sh 1.4s infinite;border-radius:14px;height:110px;margin-bottom:1rem;}
+.btns{display:flex;flex-wrap:wrap;gap:.3rem;margin-top:.6rem;}
+.btn{padding:.32rem .75rem;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;border:none;font-family:inherit;cursor:pointer;}
+.btn-blue{background:#2563eb;color:#fff;}
+.btn-blue:hover{background:#1d4ed8;}
+.btn-gray{background:#fff;color:#374151;border:1.5px solid #d1d5db;}
+.btn-gray:hover{background:#f9fafb;}
+.btn-red{background:#ef4444;color:#fff;}
+.btn-red:hover{background:#dc2626;}
+.shim{border-radius:13px;height:108px;margin-bottom:.9rem;background:linear-gradient(90deg,#f3f4f6 25%,#e9ebee 50%,#f3f4f6 75%);background-size:200% 100%;animation:sh 1.4s infinite;}
 @keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
-.empty{border:2px dashed #d1d5db;border-radius:14px;padding:3rem 1.5rem;text-align:center;background:#fff;}
-#toast{position:fixed;bottom:20px;right:20px;z-index:9999;padding:10px 18px;border-radius:10px;font-weight:700;font-size:.85rem;color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.2);opacity:0;transition:opacity .3s;pointer-events:none;}
+.empty{border:2px dashed #d1d5db;border-radius:13px;padding:2.5rem 1rem;text-align:center;background:#fff;}
+#toast{position:fixed;bottom:20px;right:20px;z-index:9999;padding:9px 16px;border-radius:9px;font-weight:700;font-size:.83rem;color:#fff;opacity:0;transition:opacity .3s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.18);}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9998;display:flex;align-items:center;justify-content:center;padding:1rem;}
-.modal-box{background:#fff;border-radius:16px;padding:1.8rem;max-width:320px;width:100%;text-align:center;}
-@media(max-width:500px){.card-inner{flex-direction:column;align-items:center;text-align:center;}.info-top,.btns{justify-content:center;}.stats{grid-template-columns:1fr 1fr;}.stat:last-child{grid-column:span 2;}}
+.modal-box{background:#fff;border-radius:15px;padding:1.6rem;max-width:300px;width:100%;text-align:center;}
+@media(max-width:480px){
+  .card-body{flex-direction:column;align-items:center;text-align:center;}
+  .row1,.btns{justify-content:center;}
+  .stats{grid-template-columns:1fr 1fr;}
+  .stat:last-child{grid-column:span 2;}
+}
 </style>
 </head>
 <body>
 <nav>
   <a class="brand" href="index.html">Contact<span>Kar</span></a>
-  <div class="nav-right">
+  <div style="display:flex;align-items:center;gap:.7rem;">
     <span id="greeting">Hi, User</span>
     <button id="btn-logout">Logout</button>
   </div>
 </nav>
 <div class="wrap">
   <div class="tabs">
-    <a href="dashboard.html" class="on">&#127991; My Tags</a>
+    <a href="dashboard.html" class="active">&#127991; My Tags</a>
     <a href="profile.html">&#128100; Profile</a>
     <a href="billing.html">&#128179; Billing</a>
     <a href="settings.html">&#9881; Settings</a>
@@ -72,132 +80,177 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
     <a href="vehicle.html">+ Buy New Tag</a>
   </div>
   <div class="stats">
-    <div class="stat"><div class="n" id="s-total" style="color:#2563eb">-</div><div class="l">Total</div></div>
-    <div class="stat"><div class="n" id="s-active" style="color:#10b981">-</div><div class="l">Active</div></div>
-    <div class="stat"><div class="n" id="s-hidden" style="color:#ef4444">-</div><div class="l">Hidden</div></div>
+    <div class="stat"><div class="stat-n" id="n-total" style="color:#2563eb">-</div><div class="stat-l">Total</div></div>
+    <div class="stat"><div class="stat-n" id="n-active" style="color:#10b981">-</div><div class="stat-l">Active</div></div>
+    <div class="stat"><div class="stat-n" id="n-hidden" style="color:#ef4444">-</div><div class="stat-l">Hidden</div></div>
   </div>
   <div id="list"><div class="shim"></div><div class="shim"></div></div>
 </div>
 <div id="toast"></div>
 <script>
-var BASE='https://contactkar.onrender.com/api';
-var tok=localStorage.getItem('token');
-if(!tok){window.location.href='login.html';}
-var nm=localStorage.getItem('userName')||'';
-if(nm) document.getElementById('greeting').textContent='Hi, '+nm;
-document.getElementById('btn-logout').onclick=function(){localStorage.clear();window.location.href='login.html';};
+var BASE = 'https://contactkar.onrender.com/api';
+var tok  = localStorage.getItem('token');
 
-function showToast(msg,col){
-  var t=document.getElementById('toast');
-  t.style.background={g:'#10b981',r:'#ef4444',b:'#2563eb'}[col]||'#374151';
-  t.textContent=msg;t.style.opacity='1';
-  clearTimeout(t._x);t._x=setTimeout(function(){t.style.opacity='0';},3000);
+if (!tok) { window.location.href = 'login.html'; }
+
+// Greeting - check multiple possible storage keys
+var uname = localStorage.getItem('userName') || localStorage.getItem('name') || '';
+if (uname) { document.getElementById('greeting').textContent = 'Hi, ' + uname; }
+
+document.getElementById('btn-logout').onclick = function () {
+  localStorage.clear();
+  window.location.href = 'login.html';
+};
+
+function showToast(msg, color) {
+  var t = document.getElementById('toast');
+  if (color === 'g') t.style.background = '#10b981';
+  else if (color === 'r') t.style.background = '#ef4444';
+  else if (color === 'b') t.style.background = '#2563eb';
+  else t.style.background = '#374151';
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function () { t.style.opacity = '0'; }, 3000);
 }
 
-function load(){
-  var list=document.getElementById('list');
-  list.innerHTML='<div class="shim"></div><div class="shim"></div>';
-  fetch(BASE+'/tags/user',{headers:{'Authorization':'Bearer '+tok}})
-  .then(function(r){
-    if(r.status===401||r.status===403){localStorage.clear();window.location.href='login.html';return null;}
+function loadTags() {
+  var list = document.getElementById('list');
+  list.innerHTML = '<div class="shim"></div><div class="shim"></div>';
+
+  fetch(BASE + '/tags/user', { headers: { 'Authorization': 'Bearer ' + tok } })
+  .then(function (r) {
+    if (r.status === 401 || r.status === 403) {
+      localStorage.clear();
+      window.location.href = 'login.html';
+      return null;
+    }
     return r.json();
   })
-  .then(function(data){
-    if(!data)return;
-    var tags=data.tags||(Array.isArray(data)?data:[]);
-    var active=0;
-    tags.forEach(function(t){if(t.is_contactable!==false)active++;});
-    document.getElementById('s-total').textContent=tags.length;
-    document.getElementById('s-active').textContent=active;
-    document.getElementById('s-hidden').textContent=tags.length-active;
-    if(!tags.length){
-      list.innerHTML='<div class="empty"><div style="font-size:3rem">&#127991;</div><h3 style="margin:.5rem 0 .4rem;color:#111827">No Tags Yet</h3><p style="font-size:.88rem;color:#6b7280;margin-bottom:1rem">Buy a plan to get your first tag.</p><a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:6px">&#128663; Vehicle</a><a href="pet.html" style="background:#ec4899;color:#fff;padding:.55rem 1.2rem;border-radius:8px;font-weight:700;text-decoration:none">&#128062; Pet</a></div>';
+  .then(function (data) {
+    if (!data) return;
+
+    var tags = (data.tags && Array.isArray(data.tags)) ? data.tags : (Array.isArray(data) ? data : []);
+    var active = 0;
+    for (var i = 0; i < tags.length; i++) { if (tags[i].is_contactable !== false) active++; }
+
+    document.getElementById('n-total').textContent  = tags.length;
+    document.getElementById('n-active').textContent = active;
+    document.getElementById('n-hidden').textContent = tags.length - active;
+
+    list.innerHTML = '';
+
+    if (tags.length === 0) {
+      list.innerHTML =
+        '<div class="empty">' +
+          '<div style="font-size:2.8rem;margin-bottom:.5rem">&#127991;</div>' +
+          '<h3 style="color:#111827;margin-bottom:.4rem">No Tags Yet</h3>' +
+          '<p style="font-size:.85rem;color:#6b7280;margin-bottom:1.1rem">Buy a plan to get your first tag.</p>' +
+          '<a href="vehicle.html" style="background:#2563eb;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none;margin-right:6px">&#128663; Vehicle</a>' +
+          '<a href="pet.html" style="background:#ec4899;color:#fff;padding:.5rem 1.1rem;border-radius:8px;font-weight:700;text-decoration:none">&#128062; Pet</a>' +
+        '</div>';
       return;
     }
-    list.innerHTML='';
-    tags.forEach(function(t){list.appendChild(mk(t));});
+
+    for (var j = 0; j < tags.length; j++) {
+      list.appendChild(buildCard(tags[j]));
+    }
   })
-  .catch(function(){
-    document.getElementById('list').innerHTML='<div class="empty"><p style="color:#6b7280;margin-bottom:1rem">Could not connect. Server may be waking up.</p><button class="btn b-blue" onclick="load()">&#128260; Retry</button></div>';
+  .catch(function (err) {
+    console.error(err);
+    list.innerHTML =
+      '<div class="empty">' +
+        '<p style="color:#6b7280;margin-bottom:1rem">&#9888; Could not connect. Server may be starting up (wait 30s).</p>' +
+        '<button class="btn btn-blue" onclick="loadTags()">&#128260; Retry</button>' +
+      '</div>';
   });
 }
 
-function mk(t){
-  var id=t.id, code=t.tag_code||'', isPet=t.type==='pet', on=t.is_contactable!==false;
-  var scanUrl='https://contactkar.vercel.app/scan/'+code;
+function buildCard(t) {
+  var id      = t.id;
+  var code    = t.tag_code || '';
+  var isPet   = (t.type === 'pet');
+  var isOn    = (t.is_contactable !== false);
+  var scanUrl = 'https://contactkar.vercel.app/scan/' + code;
+  var qrSrc   = (t.qr_code_url && t.qr_code_url.indexOf('data:image') === 0)
+                  ? t.qr_code_url
+                  : 'https://api.qrserver.com/v1/create-qr-code/?size=86x86&data=' + encodeURIComponent(scanUrl);
+  var dateStr = t.created_at ? new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '';
 
-  // Use stored base64 QR from DB if available, else generate via qrserver
-  var qrSrc = t.qr_code_url && t.qr_code_url.startsWith('data:')
-    ? t.qr_code_url
-    : 'https://api.qrserver.com/v1/create-qr-code/?size=90x90&data='+encodeURIComponent(scanUrl);
+  var card = document.createElement('div'); card.className = 'card';
+  var body = document.createElement('div'); body.className = 'card-body';
 
-  var dt=t.created_at?new Date(t.created_at).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}):'';
-  var card=document.createElement('div');card.className='card';
-  var ci=document.createElement('div');ci.className='card-inner';
-  var qw=document.createElement('div');qw.className='qr-wrap';
-  var qi=document.createElement('img');qi.src=qrSrc;qi.alt='QR';
-  qw.appendChild(qi);
-  var info=document.createElement('div');info.className='info';
-  var top=document.createElement('div');top.className='info-top';
-  var c=document.createElement('span');c.className='code';c.textContent=code;
-  var tb=document.createElement('span');tb.className='tag '+(isPet?'tp':'tv');tb.textContent=isPet?'Pet':'Vehicle';
-  var sb=document.createElement('span');sb.className='tag '+(on?'ton':'toff');sb.textContent=on?'Active':'Hidden';
-  top.appendChild(c);top.appendChild(tb);top.appendChild(sb);info.appendChild(top);
-  function addMeta(icon,val){if(!val)return;var d=document.createElement('div');d.className='meta';d.innerHTML=icon+' <b>'+val+'</b>';info.appendChild(d);}
-  addMeta('&#128290;',t.vehicle_number);
-  addMeta('&#128054;',t.pet_name);
-  addMeta('&#128100;',t.owner_name);
-  addMeta('&#128680;',t.emergency_contact);
-  if(dt){var dd=document.createElement('div');dd.className='meta';dd.textContent='Added: '+dt;info.appendChild(dd);}
-  var btns=document.createElement('div');btns.className='btns';
+  var qbox = document.createElement('div'); qbox.className = 'qr-box';
+  var qimg = document.createElement('img'); qimg.src = qrSrc; qimg.alt = 'QR';
+  qbox.appendChild(qimg);
 
-  var bv=document.createElement('button');bv.className='btn b-blue';bv.textContent='View QR';
-  bv.onclick=function(){showQR(code,qrSrc);};
+  var info = document.createElement('div'); info.className = 'info';
 
-  var bc=document.createElement('button');bc.className='btn b-gray';bc.textContent='Copy Link';
-  bc.onclick=function(){
-    navigator.clipboard.writeText(scanUrl)
-    .then(function(){showToast('Link copied!','b');})
-    .catch(function(){showToast('Copy failed','r');});
+  var row1 = document.createElement('div'); row1.className = 'row1';
+  row1.innerHTML =
+    '<span class="tag-code">' + code + '</span>' +
+    '<span class="badge ' + (isPet ? 'b-pet' : 'b-veh') + '">' + (isPet ? 'Pet' : 'Vehicle') + '</span>' +
+    '<span class="badge ' + (isOn  ? 'b-on'  : 'b-off') + '">' + (isOn  ? 'Active' : 'Hidden') + '</span>';
+  info.appendChild(row1);
+
+  function meta(icon, val) {
+    if (!val) return;
+    var d = document.createElement('div'); d.className = 'meta';
+    d.innerHTML = icon + ' <b>' + val + '</b>';
+    info.appendChild(d);
+  }
+  meta('&#128290;', t.vehicle_number);
+  meta('&#128054;', t.pet_name);
+  meta('&#128100;', t.owner_name);
+  meta('&#128680;', t.emergency_contact);
+  if (dateStr) meta('&#128197;', dateStr);
+
+  var btns = document.createElement('div'); btns.className = 'btns';
+
+  var bQR = document.createElement('button'); bQR.className = 'btn btn-blue'; bQR.textContent = 'View QR';
+  bQR.onclick = function () { showQRModal(code, qrSrc); };
+
+  var bLink = document.createElement('button'); bLink.className = 'btn btn-gray'; bLink.textContent = 'Copy Link';
+  bLink.onclick = function () {
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(scanUrl).then(function () { showToast('Link copied!', 'b'); });
+    }
   };
 
-  var bd=document.createElement('button');bd.className='btn b-red';bd.innerHTML='&#128465; Delete';
-  bd.onclick=function(){
-    if(!confirm('Delete tag "'+code+'"?
-This cannot be undone.'))return;
-    card.style.opacity='.4';
-    fetch(BASE+'/tags/'+id,{method:'DELETE',headers:{'Authorization':'Bearer '+tok}})
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if(d.success){showToast('Tag deleted','r');load();}
-      else{card.style.opacity='1';showToast('Delete failed','r');}
+  var bDel = document.createElement('button'); bDel.className = 'btn btn-red'; bDel.innerHTML = '&#128465; Delete';
+  bDel.onclick = function () {
+    if (!confirm('Delete "' + code + '"? This cannot be undone.')) return;
+    card.style.opacity = '.4';
+    fetch(BASE + '/tags/' + id, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + tok } })
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      if (d.success) { showToast('Deleted', 'r'); loadTags(); }
+      else { card.style.opacity = '1'; showToast(d.error || 'Delete failed', 'r'); }
     })
-    .catch(function(){card.style.opacity='1';showToast('Network error','r');});
+    .catch(function () { card.style.opacity = '1'; showToast('Network error', 'r'); });
   };
 
-  btns.appendChild(bv);btns.appendChild(bc);btns.appendChild(bd);
+  btns.appendChild(bQR); btns.appendChild(bLink); btns.appendChild(bDel);
   info.appendChild(btns);
-  ci.appendChild(qw);ci.appendChild(info);card.appendChild(ci);
+  body.appendChild(qbox); body.appendChild(info); card.appendChild(body);
   return card;
 }
 
-function showQR(code,qrSrc){
-  var old=document.getElementById('qr-modal');if(old)old.remove();
-  var bg=document.createElement('div');bg.id='qr-modal';bg.className='modal-bg';
-  bg.innerHTML=
-    '<div class="modal-box">'+
-      '<div style="font-weight:800;font-size:1rem;margin-bottom:1rem">QR &mdash; '+code+'</div>'+
-      '<img src="'+qrSrc+'" style="width:260px;height:260px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/>'+
-      '<p style="font-size:.75rem;color:#6b7280;margin:.75rem 0 1rem">Scan this QR to open the contact page</p>'+
-      '<div style="display:flex;gap:.5rem;justify-content:center">'+
-        '<button class="btn b-red" onclick="document.getElementById('qr-modal').remove()">&#10005; Close</button>'+
-      '</div>'+
+function showQRModal(code, qrSrc) {
+  var old = document.getElementById('qr-modal'); if (old) old.remove();
+  var bg = document.createElement('div'); bg.id = 'qr-modal'; bg.className = 'modal-bg';
+  bg.innerHTML =
+    '<div class="modal-box">' +
+      '<div style="font-weight:800;margin-bottom:1rem">QR &mdash; ' + code + '</div>' +
+      '<img src="' + qrSrc + '" style="width:240px;height:240px;border:1.5px solid #e5e7eb;border-radius:8px;padding:4px"/>' +
+      '<p style="font-size:.75rem;color:#6b7280;margin:.7rem 0 1rem">Scan to open the contact page</p>' +
+      '<button class="btn btn-red" onclick="document.getElementById('qr-modal').remove()">&#10005; Close</button>' +
     '</div>';
-  bg.onclick=function(e){if(e.target===bg)bg.remove();};
+  bg.onclick = function (e) { if (e.target === bg) bg.remove(); };
   document.body.appendChild(bg);
 }
 
-load();
+loadTags();
 </script>
 </body>
 </html>
