@@ -23,16 +23,32 @@
         </div>
     </nav>
 
-    <header class="hero">
-        <div class="container">
-            <h1>Smart Contact Tags for<br><span style="color: var(--primary);">Vehicles</span> & <span style="color: var(--pet-color);">Pets</span></h1>
-            <p>The privacy-first way to be reachable. No phone number sharing required.</p>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
+   <header class="hero" style="text-align: left; padding: 4rem 0;">
+    <div class="container" style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+        
+        <!-- Left side: Text -->
+        <div style="flex: 1; min-width: 300px;">
+            <h1 style="font-size: 2.8rem; margin-bottom: 1rem; line-height: 1.2;">
+                Smart Contact Tags for<br>
+                <span style="color: var(--primary);">Vehicles</span> & 
+                <span style="color: var(--pet-color);">Pets</span>
+            </h1>
+            <p style="font-size: 1.1rem; color: #4b5563; margin-bottom: 2rem;">
+                The privacy-first way to be reachable. No phone number sharing required.
+            </p>
+            <div style="display: flex; gap: 1rem;">
                 <a href="vehicle.html" class="btn btn-primary">Explore Vehicle Tags</a>
                 <a href="pet.html" class="btn btn-pet">Explore Pet Tags</a>
             </div>
         </div>
-    </header>
+
+        <!-- Right side: Image -->
+        <div style="flex: 1; min-width: 300px; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            <img src="images/hero-bg.jpg" alt="Person scanning ContactKar QR code" style="width: 100%; height: auto; display: block;">
+        </div>
+
+    </div>
+</header>
 
     <section class="container">
         <div class="features-grid">
