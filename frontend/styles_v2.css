@@ -188,6 +188,20 @@ input:checked + .slider::before { transform: translateX(22px); }
         transition: max-height 0.4s ease-in-out, padding 0.4s ease-in-out; text-align: center; width: 100%;
     }
     .nav-menu.active { max-height: 500px; padding: 1.5rem 0; border-top: 1px solid var(--border); }
+    /* Hide the login/account buttons when menu is closed */
+    .nav-menu .btn-login, 
+    .nav-menu .btn-account {
+        display: none !important;
+    }
+
+    /* Show the buttons ONLY when the menu is active */
+    .nav-menu.active .btn-login {
+        display: flex !important;
+    }
+    
+    .nav-menu.active .btn-account {
+        display: flex !important;
+    }
 
     /* Bigger tap targets for mobile links */
     .nav-link { display: block; padding: 1rem; font-size: 1.1rem; }

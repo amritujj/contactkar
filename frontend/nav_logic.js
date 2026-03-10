@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
     const loginBtn = document.getElementById('loginBtn');
     const accountBtn = document.getElementById('accountBtn');
-    if (loginBtn) loginBtn.style.display = isLoggedIn ? 'none' : 'inline-block';
-    if (accountBtn) accountBtn.style.display = isLoggedIn ? 'inline-block' : 'none';
+    if (loginBtn) loginBtn.style.display = isLoggedIn ? 'none' : 'flex';
+    if (accountBtn) accountBtn.style.display = isLoggedIn ? 'flex' : 'none';
 
     // --- NEW MOBILE MENU LOGIC ---
     const mobileBtn = document.querySelector('.mobile-menu-btn');
