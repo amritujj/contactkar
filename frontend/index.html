@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <link rel="icon" type="image/png" href="images/logo.png">
 <link rel="stylesheet" href="globalanimations.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,7 +11,10 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="nav-brand">Contact<span>Kar</span></a>
+            <a href="index.html" class="nav-brand" style="display: flex; align-items: center; gap: 8px;">
+                <img src="images/logo.png" alt="ContactKar Logo" style="height: 32px; width: auto; border-radius: 6px;">
+                Contact<span>Kar</span>
+            </a>
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link active">Home</a></li>
                 <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
@@ -23,79 +27,36 @@
         </div>
     </nav>
 
-   <header class="hero" style="text-align: left; padding: 4rem 0;">
-    <div class="container" style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
-        
-        <!-- Left side: Text -->
-        <div style="flex: 1; min-width: 300px;">
-            <h1 style="font-size: 2.8rem; margin-bottom: 1rem; line-height: 1.2;">
-                Smart Contact Tags for<br>
-                <span style="color: var(--primary);">Vehicles</span> & 
-                <span style="color: var(--pet-color);">Pets</span>
-            </h1>
-            <p style="font-size: 1.1rem; color: #4b5563; margin-bottom: 2rem;">
-                The privacy-first way to be reachable. No phone number sharing required.
-            </p>
-            <div style="display: flex; gap: 1rem;">
+    <header class="hero">
+        <div class="container">
+            <h1>Smart Contact Tags for<br><span style="color: var(--primary);">Vehicles</span> & <span style="color: var(--pet-color);">Pets</span></h1>
+            <p>The privacy-first way to be reachable. No phone number sharing required.</p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
                 <a href="vehicle.html" class="btn btn-primary">Explore Vehicle Tags</a>
                 <a href="pet.html" class="btn btn-pet">Explore Pet Tags</a>
             </div>
         </div>
+    </header>
 
-        <!-- Right side: Image -->
-        <div style="flex: 1; min-width: 300px; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-            <img src="images/hero-bg.jpg" alt="Person scanning ContactKar QR code" style="width: 100%; height: auto; display: block;">
+    <section class="container">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="icon">🚗</span>
+                <h3>For Cars & Bikes</h3>
+                <p>QR stickers for parking issues. Includes Number Plate calling.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🐾</span>
+                <h3>For Dogs & Cats</h3>
+                <p>Digital lockets. If lost, finder scans to call you instantly.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🔒</span>
+                <h3>100% Private</h3>
+                <p>Your mobile number is never revealed. Calls are bridged securely.</p>
+            </div>
         </div>
-
-    </div>
-</header>
-<section class="container" style="padding: 4rem 0; text-align: center;">
-    <h2 style="font-size: 2.2rem; color: #111827; margin-bottom: 1rem;">Complete Protection for What Matters</h2>
-    <p style="color: #4b5563; font-size: 1.1rem; max-width: 600px; margin: 0 auto 3rem;">One smart platform to keep your vehicles safe and your pets secure without compromising your personal privacy.</p>
-    
-    <!-- Trust Shield Image -->
-    <img src="images/trust-safety.jpg" alt="Privacy and Safety features" style="max-width: 100%; width: 500px; border-radius: 16px; margin-bottom: 3rem;">
-
-    <div class="features-grid">
-        <div class="feature-card">
-            <span class="icon">🚗</span>
-            <h3>For Cars & Bikes</h3>
-            <p>QR stickers for parking issues. Includes Number Plate calling.</p>
-        </div>
-        <div class="feature-card">
-            <span class="icon">🐾</span>
-            <h3>For Dogs & Cats</h3>
-            <p>Digital lockets. If lost, finder scans to call you instantly.</p>
-        </div>
-        <div class="feature-card">
-            <span class="icon">🔒</span>
-            <h3>100% Private</h3>
-            <p>Your mobile number is never revealed. Calls are bridged securely.</p>
-        </div>
-    </div>
-</section>
-
-<section style="background: #eff6ff; padding: 4rem 0; margin-top: 4rem;">
-    <div class="container" style="display: flex; gap: 3rem; align-items: center; flex-wrap: wrap;">
-        
-        <!-- Text Side -->
-        <div style="flex: 1; min-width: 300px;">
-            <h2 style="font-size: 2.2rem; color: #1e40af; margin-bottom: 1rem;">Resolving Issues Peacefully</h2>
-            <p style="font-size: 1.1rem; color: #4b5563; margin-bottom: 1.5rem; line-height: 1.6;">
-                Whether you accidentally blocked a driveway or left your lights on, ContactKar allows neighbors and strangers to reach out to you directly and politely. 
-            </p>
-            <p style="font-size: 1.1rem; color: #4b5563; line-height: 1.6;">
-                No more stressful towing situations or arguments. Just a quick, private notification to your phone so you can handle it with a smile.
-            </p>
-        </div>
-
-        <!-- Image Side -->
-        <div style="flex: 1; min-width: 300px; text-align: center;">
-            <img src="images/lifestyle-support.jpg" alt="People resolving parking issue peacefully" style="width: 100%; max-width: 400px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-        </div>
-
-    </div>
-</section>
+    </section>
 
     <footer>
         <div class="container footer-content">
