@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/jpeg" href="images/favicon.jpg">
+<link rel="icon" type="image/png" href="images/logo.png">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>My Tags - ContactKar</title>
@@ -62,8 +62,9 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 <body>
 
 <nav>
-  <a href="index.html" class="nav-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-    <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
+  <a href="index.html" class="nav-brand" style="display: flex; align-items: center; gap: 8px;">
+  <img src="images/logo.png" alt="ContactKar Logo" style="height: 32px; width: auto; border-radius: 6px;">
+  Contact<span>Kar</span>
 </a>
   <div style="display:flex;align-items:center;gap:.7rem;">
     <span id="greeting">Hi, User</span>
@@ -164,6 +165,8 @@ function loadTags() {
       tags = data.tags;
     } else if (Array.isArray(data)) {
       tags = data;
+    } else if (data.data && Array.isArray(data.data)) {
+      tags = data.data; // Just in case the API wraps it in 'data'
     }
 
     var active = 0;
@@ -190,11 +193,15 @@ function loadTags() {
     }
 
     for (var j = 0; j < tags.length; j++) {
-      list.appendChild(buildCard(tags[j]));
+      try {
+        list.appendChild(buildCard(tags[j]));
+      } catch(e) {
+        console.error("Error building card for tag:", tags[j], e);
+      }
     }
   })
   .catch(function (err) {
-    console.error(err);
+    console.error("Fetch error:", err);
     document.getElementById('list').innerHTML =
       '<div class="empty">' +
       '<p style="color:#6b7280;margin-bottom:1rem">&#9888; Could not connect to load tags.</p>' +
@@ -204,8 +211,8 @@ function loadTags() {
 }
 
 function buildCard(t) {
-  var id = t.id;
-  var code = t.tag_code || '';
+  var id = t.id || t._id;
+  var code = t.tag_code || 'Unknown';
   var isPet = (t.type === 'pet');
   var isOn = (t.is_contactable !== false);
   var scanUrl = 'https://contactkar.vercel.app/scan/' + code;
@@ -251,7 +258,7 @@ function buildCard(t) {
   info.appendChild(row1);
 
   function addMeta(icon, val) {
-    if (!val || val === 'null' || val === 'undefined') return;
+    if (val === null || val === undefined || val === 'null' || val === '' || val === 'undefined') return;
     var d = document.createElement('div');
     d.className = 'meta';
     d.innerHTML = icon + ' <b>' + val + '</b>';
@@ -278,20 +285,32 @@ function buildCard(t) {
   bLink.className = 'btn btn-gray';
   bLink.textContent = 'Copy Link';
   bLink.onclick = function() {
-      if (navigator.clipboard) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(scanUrl).then(function () {
           showToast('Link copied!', 'b');
+        }).catch(function() {
+          fallbackCopyTextToClipboard(scanUrl);
         });
       } else {
-        var tempInput = document.createElement("input");
-        tempInput.value = scanUrl;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand("copy");
-        document.body.removeChild(tempInput);
-        showToast('Link copied!', 'b');
+        fallbackCopyTextToClipboard(scanUrl);
       }
   };
+
+  function fallbackCopyTextToClipboard(text) {
+    var textArea = document.createElement("textarea");
+    textArea.value = text;
+    textArea.style.position = "fixed";  // avoid scrolling to bottom
+    document.body.appendChild(textArea);
+    textArea.focus();
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showToast('Link copied!', 'b');
+    } catch (err) {
+      showToast('Failed to copy', 'r');
+    }
+    document.body.removeChild(textArea);
+  }
 
   var bDel = document.createElement('button');
   bDel.className = 'btn btn-red';
