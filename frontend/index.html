@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="icon" type="image/jpeg" href="images/favicon.jpg">
-<link rel="stylesheet" href="globalanimations.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContactKar - Home</title>
+    <link rel="icon" type="image/jpeg" href="images/favicon.jpg">
     <link rel="stylesheet" href="styles_v2.css">
+    <link rel="stylesheet" href="globalanimations.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-           <a href="index.html" class="nav-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-    <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
-</a>
-
+            <a href="index.html" class="nav-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+                <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
+            </a>
             <ul class="nav-menu">
                 <li><a href="index.html" class="nav-link active">Home</a></li>
                 <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
@@ -30,7 +29,7 @@
     <header class="hero">
         <div class="container">
             <h1>Smart Contact Tags for<br><span style="color: var(--primary);">Vehicles</span> & <span style="color: var(--pet-color);">Pets</span></h1>
-            <p>The privacy-first way to be reachable. No phone number sharing required.</p>
+            <p>One smart platform to keep your vehicles safe and your pets secure without compromising your personal privacy.</p>
             <div style="display: flex; gap: 1rem; justify-content: center;">
                 <a href="vehicle.html" class="btn btn-primary">Explore Vehicle Tags</a>
                 <a href="pet.html" class="btn btn-pet">Explore Pet Tags</a>
@@ -38,22 +37,52 @@
         </div>
     </header>
 
-    <section class="container">
-        <div class="features-grid">
-            <div class="feature-card">
-                <span class="icon">🚗</span>
-                <h3>For Cars & Bikes</h3>
-                <p>QR stickers for parking issues. Includes Number Plate calling.</p>
+    <section class="container" style="padding: 2rem 0 4rem;">
+        <!-- Vehicle Section -->
+        <div style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; margin-bottom: 5rem;">
+            <div style="flex: 1; min-width: 300px;">
+                <img src="images/generated-image-6-2.jpg" alt="Vehicle Tag" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
             </div>
-            <div class="feature-card">
-                <span class="icon">🐾</span>
-                <h3>For Dogs & Cats</h3>
-                <p>Digital lockets. If lost, finder scans to call you instantly.</p>
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.2;">QR stickers for parking issues</h2>
+                <p style="font-size: 1.15rem; color: var(--text-light); margin-bottom: 1.5rem;">Whether you accidentally blocked a driveway or left your lights on, ContactKar allows neighbors and strangers to reach out to you directly and politely.</p>
+                <ul class="feature-list">
+                    <li>Includes Number Plate calling</li>
+                    <li>No more stressful towing situations</li>
+                    <li>Handle it with a smile</li>
+                </ul>
             </div>
-            <div class="feature-card">
-                <span class="icon">🔒</span>
-                <h3>100% Private</h3>
-                <p>Your mobile number is never revealed. Calls are bridged securely.</p>
+        </div>
+
+        <!-- Pet Section -->
+        <div style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap-reverse; margin-bottom: 5rem;">
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.2;">Digital lockets for your Pets</h2>
+                <p style="font-size: 1.15rem; color: var(--text-light); margin-bottom: 1.5rem;">If your furry friend ever gets lost, the finder simply scans their tag to call you instantly.</p>
+                <ul class="feature-list">
+                    <li>Durable and waterproof tags</li>
+                    <li>Instant notifications when scanned</li>
+                    <li>Peace of mind for pet parents</li>
+                </ul>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <img src="images/generated-image-2.jpg" alt="Pet Tag" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+
+        <!-- Privacy Section -->
+        <div style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; margin-bottom: 2rem;">
+            <div style="flex: 1; min-width: 300px;">
+                <img src="images/generated-image-7-3.jpg" alt="Privacy Shield" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            </div>
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.2;">100% Private & Secure</h2>
+                <p style="font-size: 1.15rem; color: var(--text-light); margin-bottom: 1.5rem;">Your mobile number is never revealed. Calls are bridged securely using our advanced platform.</p>
+                <ul class="feature-list">
+                    <li>No app download required for finders</li>
+                    <li>Complete control over your visibility</li>
+                    <li>Spam-free communication</li>
+                </ul>
             </div>
         </div>
     </section>
@@ -78,6 +107,6 @@
     </footer>
 
     <script src="nav_logic.js"></script>
-<script src="animations.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
