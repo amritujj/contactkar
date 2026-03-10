@@ -33,17 +33,20 @@
         <div id="error-box" class="error-msg"></div>
         <div id="success-box" class="success-msg"></div>
 
-        <!-- STEP 1: Email/Password Form -->
+                <!-- STEP 1: Email/Mobile & Password Form -->
         <div id="credentials-section">
             <form onsubmit="sendOTP(event)">
                 <div id="signup-name" style="display:none;" class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="name" class="form-input" placeholder="Rahul Sharma">
                 </div>
+                
+                <!-- 👇 Changed from Email to Email or Mobile 👇 -->
                 <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="email" class="form-input" placeholder="you@example.com" required>
+                    <label>Email or Mobile Number</label>
+                    <input type="text" id="contact-method" class="form-input" placeholder="you@example.com or 9876543210" required>
                 </div>
+                
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="password" class="form-input" placeholder="••••••••" required minlength="6">
