@@ -7,6 +7,15 @@
     <link rel="icon" type="image/jpeg" href="images/favicon.jpg">
     <link rel="stylesheet" href="styles_v2.css">
     <link rel="stylesheet" href="globalanimations.css">
+    <style>
+        .hero {
+            background-image: linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.85)), url('images/hero-bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            padding: 6rem 0;
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar">
@@ -37,7 +46,44 @@
         </div>
     </header>
 
-    <section class="container" style="padding: 2rem 0 4rem;">
+    <section class="container" style="padding: 4rem 0;">
+        <div class="features-grid">
+            <div class="feature-card">
+                <span class="icon">🚗</span>
+                <h3>For Cars & Bikes</h3>
+                <p>QR stickers for parking issues. Includes Number Plate calling.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🐾</span>
+                <h3>For Dogs & Cats</h3>
+                <p>Digital lockets. If lost, finder scans to call you instantly.</p>
+            </div>
+            <div class="feature-card">
+                <span class="icon">🔒</span>
+                <h3>100% Private</h3>
+                <p>Your mobile number is never revealed. Calls are bridged securely.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container" style="padding: 0 0 4rem;">
+
+        <!-- Lifestyle Support Section -->
+        <div style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap-reverse; margin-bottom: 5rem;">
+            <div style="flex: 1; min-width: 300px; text-align: left;">
+                <h2 style="font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.2;">Help your community seamlessly</h2>
+                <p style="font-size: 1.15rem; color: var(--text-light); margin-bottom: 1.5rem;">Create a safer, friendlier neighborhood. Whether it's a window left down or a blocked driveway, connecting with vehicle owners has never been easier or more secure.</p>
+                <ul class="feature-list">
+                    <li>Scan instantly with any smartphone camera</li>
+                    <li>Avoid unnecessary towing and fines</li>
+                    <li>Promote a helpful community</li>
+                </ul>
+            </div>
+            <div style="flex: 1; min-width: 300px;">
+                <img src="images/lifestyle-support-2.jpg" alt="Friendly community interactions" style="width: 100%; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+            </div>
+        </div>
+
         <!-- Vehicle Section -->
         <div style="display: flex; align-items: center; gap: 3rem; flex-wrap: wrap; margin-bottom: 5rem;">
             <div style="flex: 1; min-width: 300px;">
