@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ContactKar - Dashboard</title>
 <link rel="icon" type="image/jpeg" href="images/favicon.jpg">
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>My Tags - ContactKar</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f1f5f9;min-height:100vh;}
@@ -59,12 +59,12 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 }
 </style>
 </head>
-<body>
 
+<body>
 <nav>
-  <a href="index.html" class="nav-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-      <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
-    </a>
+  <a href="index.html" class="brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
+    <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
+  </a>
   <div style="display:flex;align-items:center;gap:.7rem;">
     <span id="greeting">Hi, User</span>
     <button id="btn-logout">Logout</button>
@@ -73,15 +73,19 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
 
 <div class="wrap">
   <div class="tabs">
-    <a href="dashboard.html" class="active">&#127991; My Tags</a>
-    <a href="profile.html">&#128100; Profile</a>
-    <a href="billing.html">&#128179; Billing</a>
-    <a href="settings.html">&#9881; Settings</a>
+    <a href="dashboard.html" class="active">My Tags</a>
+    <a href="profile.html">Profile</a>
+    <a href="settings.html">Settings</a>
   </div>
+
   <div class="hdr">
-    <h1>&#127991; My Tags</h1>
-    <a href="vehicle.html">+ Buy New Tag</a>
+    <h1>My Tags</h1>
+    <div>
+      <a href="vehicle.html" style="margin-right:6px">+ Vehicle</a>
+      <a href="pet.html" style="background:#ec4899">+ Pet</a>
+    </div>
   </div>
+
   <div class="stats">
     <div class="stat">
       <div class="stat-n" id="n-total" style="color:#2563eb">-</div>
@@ -96,6 +100,7 @@ nav{background:#fff;border-bottom:1px solid #e5e7eb;padding:.9rem 1.5rem;display
       <div class="stat-l">Hidden</div>
     </div>
   </div>
+
   <div id="list">
     <div class="shim"></div>
     <div class="shim"></div>
@@ -124,15 +129,11 @@ document.getElementById('btn-logout').onclick = function () {
 
 function showToast(msg, color) {
   var t = document.getElementById('toast');
-  if (color === 'g') {
-    t.style.background = '#10b981';
-  } else if (color === 'r') {
-    t.style.background = '#ef4444';
-  } else if (color === 'b') {
-    t.style.background = '#2563eb';
-  } else {
-    t.style.background = '#374151';
-  }
+  if (color === 'g') t.style.background = '#10b981';
+  else if (color === 'r') t.style.background = '#ef4444';
+  else if (color === 'b') t.style.background = '#2563eb';
+  else t.style.background = '#374151';
+
   t.textContent = msg;
   t.style.opacity = '1';
   clearTimeout(t._timer);
@@ -160,12 +161,12 @@ function loadTags() {
     if (!data) return;
 
     var tags = [];
-    if (data.tags && Array.isArray(data.tags)) {
+    if (data && Array.isArray(data.tags)) {
       tags = data.tags;
+    } else if (data && Array.isArray(data.data)) {
+      tags = data.data;
     } else if (Array.isArray(data)) {
       tags = data;
-    } else if (data.data && Array.isArray(data.data)) {
-      tags = data.data; // Just in case the API wraps it in 'data'
     }
 
     var active = 0;
@@ -193,9 +194,10 @@ function loadTags() {
 
     for (var j = 0; j < tags.length; j++) {
       try {
-        list.appendChild(buildCard(tags[j]));
-      } catch(e) {
-        console.error("Error building card for tag:", tags[j], e);
+        var card = buildCard(tags[j]);
+        if (card) list.appendChild(card);
+      } catch(err) {
+        console.error("Error creating card for tag:", tags[j], err);
       }
     }
   })
@@ -204,12 +206,13 @@ function loadTags() {
     document.getElementById('list').innerHTML =
       '<div class="empty">' +
       '<p style="color:#6b7280;margin-bottom:1rem">&#9888; Could not connect to load tags.</p>' +
-      '<button onclick="loadTags()" style="background:#374151;color:white;border:none;padding:.5rem 1rem;border-radius:6px;cursor:pointer">Retry</button>' +
+      '<button class="btn btn-blue" onclick="loadTags()">&#128260; Retry</button>' +
       '</div>';
   });
 }
 
 function buildCard(t) {
+  if (!t) return null;
   var id = t.id || t._id;
   var code = t.tag_code || 'Unknown';
   var isPet = (t.type === 'pet');
@@ -217,7 +220,7 @@ function buildCard(t) {
   var scanUrl = 'https://contactkar.vercel.app/scan/' + code;
 
   var qrSrc;
-  if (t.qr_code_url && t.qr_code_url.indexOf('data:image') === 0) {
+  if (t.qr_code_url && typeof t.qr_code_url === 'string' && t.qr_code_url.indexOf('data:image') === 0) {
     qrSrc = t.qr_code_url;
   } else {
     qrSrc = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&ecc=H&margin=1&data=' + encodeURIComponent(scanUrl);
@@ -226,9 +229,12 @@ function buildCard(t) {
   var dateStr = '';
   if (t.created_at) {
     try {
-      dateStr = new Date(t.created_at).toLocaleDateString('en-IN', {
-        day: '2-digit', month: 'short', year: 'numeric'
-      });
+      var dObj = new Date(t.created_at);
+      if (!isNaN(dObj.getTime())) {
+        dateStr = dObj.toLocaleDateString('en-IN', {
+          day: '2-digit', month: 'short', year: 'numeric'
+        });
+      }
     } catch(e) {}
   }
 
@@ -287,36 +293,29 @@ function buildCard(t) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(scanUrl).then(function () {
           showToast('Link copied!', 'b');
-        }).catch(function() {
-          fallbackCopyTextToClipboard(scanUrl);
-        });
+        }).catch(function() { fallbackCopy(scanUrl); });
       } else {
-        fallbackCopyTextToClipboard(scanUrl);
+        fallbackCopy(scanUrl);
       }
   };
 
-  function fallbackCopyTextToClipboard(text) {
-    var textArea = document.createElement("textarea");
-    textArea.value = text;
-    textArea.style.position = "fixed";  // avoid scrolling to bottom
-    document.body.appendChild(textArea);
-    textArea.focus();
-    textArea.select();
-    try {
-      document.execCommand('copy');
-      showToast('Link copied!', 'b');
-    } catch (err) {
-      showToast('Failed to copy', 'r');
-    }
-    document.body.removeChild(textArea);
+  function fallbackCopy(text) {
+    var ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); showToast('Link copied!', 'b'); } 
+    catch (e) { showToast('Failed to copy', 'r'); }
+    document.body.removeChild(ta);
   }
 
   var bDel = document.createElement('button');
   bDel.className = 'btn btn-red';
   bDel.innerHTML = '&#128465; Delete';
   bDel.onclick = function() {
-      if (!confirm('Delete tag "' + code + '"?
-This cannot be undone.')) return;
+      if (!confirm('Delete tag "' + code + '"?\nThis cannot be undone.')) return;
       card.style.opacity = '.4';
       fetch(BASE + '/tags/' + id, {
         method: 'DELETE',
@@ -330,7 +329,7 @@ This cannot be undone.')) return;
         } else {
           card.style.opacity = '1';
           showToast(d.error || 'Delete failed', 'r');
-          loadTags(); // Reload anyway to ensure sync
+          loadTags();
         }
       })
       .catch(function () {
@@ -353,4 +352,5 @@ This cannot be undone.')) return;
 window.onload = loadTags;
 </script>
 </body>
+
 </html>
