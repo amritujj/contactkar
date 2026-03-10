@@ -167,19 +167,89 @@ input:checked + .slider::before { transform: translateX(22px); }
   .price { font-size: 1.8rem; }
 }
 
-/* --- Scroll Animation Classes --- */
+/* Replace existing scroll animation classes in styles_v2.css */
 .hidden-element {
     opacity: 0;
-    transform: translateY(40px);
-    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1); /* Super smooth Apple-like easing */
+    filter: blur(8px);
+    transform: translateY(50px) scale(0.95);
+    transition: all 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .show-element {
     opacity: 1;
-    transform: translateY(0);
+    filter: blur(0);
+    transform: translateY(0) scale(1);
 }
 
-/* Add slight delays to feature cards so they pop up one-by-one */
-.feature-card:nth-child(1) { transition-delay: 0.1s; }
-.feature-card:nth-child(2) { transition-delay: 0.2s; }
-.feature-card:nth-child(3) { transition-delay: 0.3s; }
+/* Staggered delays for grids so cards don't appear all at once */
+.features-grid .feature-card:nth-child(1) { transition-delay: 0.1s; }
+.features-grid .feature-card:nth-child(2) { transition-delay: 0.25s; }
+.features-grid .feature-card:nth-child(3) { transition-delay: 0.4s; }
+
+.pricing-grid .tier-card:nth-child(1) { transition-delay: 0.1s; }
+.pricing-grid .tier-card:nth-child(2) { transition-delay: 0.25s; }
+.pricing-grid .tier-card:nth-child(3) { transition-delay: 0.4s; }
+
+/* Add to styles_v2.css */
+.feature-card, .tier-card {
+    transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.5s ease;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.feature-card:hover, .tier-card:hover {
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 25px 50px rgba(37, 99, 235, 0.15);
+}
+
+/* The Shimmer/Shine Effect */
+.feature-card::before, .tier-card::before {
+    content: '';
+    position: absolute;
+    top: 0; 
+    left: -150%; 
+    width: 50%; 
+    height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-25deg);
+    transition: all 0.75s ease;
+    z-index: -1;
+}
+
+.feature-card:hover::before, .tier-card:hover::before {
+    left: 150%;
+}
+
+/* Add to styles_v2.css */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+    100% { transform: translateY(0px); }
+}
+
+.feature-card .icon {
+    display: inline-block;
+    animation: float 3.5s ease-in-out infinite;
+}
+
+/* Stagger the floating so they bounce out of sync */
+.feature-card:nth-child(1) .icon { animation-delay: 0s; }
+.feature-card:nth-child(2) .icon { animation-delay: 0.5s; }
+.feature-card:nth-child(3) .icon { animation-delay: 1s; }
+
+/* Add to styles_v2.css */
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+.hero {
+    background: linear-gradient(135deg, var(--bg-light) 0%, #e0e7ff 50%, #fce7f3 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 12s ease infinite;
+    position: relative;
+    overflow: hidden;
+}
+
