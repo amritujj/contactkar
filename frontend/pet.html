@@ -105,31 +105,55 @@
     </div>
 </section>
 
-<section id="pet-pricing" class="container" style="padding:2rem 0 4rem;">
-  <h2 style="text-align:center;margin-bottom:.4rem;">Choose Your Plan</h2>
-  <p style="text-align:center;color:var(--text-light);margin-bottom:.5rem;">All plans are FREE during testing mode.</p>
+<section id="pricing" class="container" style="padding: 4rem 0;">
+  <h2 style="text-align:center; margin-bottom:.4rem; color: var(--pet-color);">Choose Your Plan</h2>
+  <p style="text-align:center; color:var(--text-light); margin-bottom:3rem;">All plans are FREE during testing mode.</p>
+  
   <div class="pricing-grid">
-    <div class="pet-tier-card scroll-anim">
-      <h3>Basic</h3><p style="color:#666;font-size:13px;">For 1 pet.</p>
-      <div class="price"><span class="strike-price">&#8377;99</span>&#8377;0<span>/year</span></div>
-      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
-      <ul class="feature-list"><li>1 Pet Tag</li><li>QR (Soft Copy)</li><li>Voice Call Alerts</li><li>1 Emergency Contact</li></ul>
-      <button class="btn-buy-pet" onclick="openCheckout('basic',1,1)">Get Basic Free</button>
+    <!-- Basic Plan -->
+    <div class="tier-card scroll-anim">
+      <h3 style="color: var(--pet-color);">Basic</h3>
+      <p style="color:#666; font-size:13px;">For 1 pet — dogs or cats.</p>
+      <div class="price"><span class="strike-price">₹99</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>1 Pet Tag / Locket</li>
+        <li>QR Soft Copy</li>
+        <li>Voice Call Alert</li>
+        <li>1 Emergency Contact</li>
+      </ul>
+      <button class="btn-buy" style="background: var(--pet-color);" onclick="checkoutPet('basic')">Get Basic Free</button>
     </div>
-    <div class="pet-tier-card popular scroll-anim">
-      <div class="pet-badge">MOST POPULAR</div>
-      <h3>Plus</h3><p style="color:#666;font-size:13px;">For up to 3 pets.</p>
-      <div class="price"><span class="strike-price">&#8377;249</span>&#8377;0<span>/year</span></div>
-      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
-      <ul class="feature-list"><li>Up to 3 Tags</li><li>WhatsApp &amp; SMS Alerts</li><li>2 Emergency Contacts</li><li>Custom Scan Page Colors</li></ul>
-      <button class="btn-buy-pet" onclick="openCheckout('plus',3,2)">Get Plus Free</button>
+
+    <!-- Plus Plan -->
+    <div class="tier-card popular scroll-anim" style="border-color: var(--pet-color);">
+      <div class="popular-badge" style="background: var(--pet-color);">MOST POPULAR</div>
+      <h3 style="color: var(--pet-color);">Plus</h3>
+      <p style="color:#666; font-size:13px;">For households with 2 pets.</p>
+      <div class="price"><span class="strike-price">₹249</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 3 Pet Tags</li>
+        <li>WhatsApp & SMS Alerts</li>
+        <li>2 Emergency Contacts</li>
+        <li>Custom Locket Colors</li>
+      </ul>
+      <button class="btn-buy" style="background: var(--pet-color);" onclick="checkoutPet('plus')">Get Plus Free</button>
     </div>
-    <div class="pet-tier-card scroll-anim">
-      <h3>Pro</h3><p style="color:#666;font-size:13px;">For families with multiple pets.</p>
-      <div class="price"><span class="strike-price">&#8377;499</span>&#8377;0<span>/year</span></div>
-      <div class="test-badge">&#129514; TESTING &mdash; FREE</div>
-      <ul class="feature-list"><li>Up to 5 Tags</li><li>Video Call Alerts</li><li>3 Emergency Contacts</li><li>Priority WhatsApp Support</li></ul>
-      <button class="btn-buy-pet" onclick="openCheckout('pro',5,3)">Get Pro Free</button>
+
+    <!-- Pro Plan -->
+    <div class="tier-card scroll-anim">
+      <h3 style="color: var(--pet-color);">Pro</h3>
+      <p style="color:#666; font-size:13px;">For breeders & multi-pet families.</p>
+      <div class="price"><span class="strike-price">₹499</span>₹0<span>/year</span></div>
+      <div class="test-badge">🧪 TESTING — FREE</div>
+      <ul class="feature-list">
+        <li>Up to 5 Pet Tags</li>
+        <li>Priority WhatsApp Support</li>
+        <li>3 Emergency Contacts</li>
+        <li>Location Sharing Page</li>
+      </ul>
+      <button class="btn-buy" style="background: var(--pet-color);" onclick="checkoutPet('pro')">Get Pro Free</button>
     </div>
   </div>
 </section>
