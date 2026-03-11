@@ -133,42 +133,66 @@ app.get('/api/setup-db', async (req, res) => {
 // ── SIGNUP ────────────────────────────────────────────────────────────────────
 app.post('/api/auth/send-signup-otp', async (req, res) => {
   try {
-    const { email, password, name } = req.body;
-    if (!email || !password || !name)
+    const { email, mobile, password, name } = req.body;
+
+    if ((!email && !mobile) || !password || !name)
       return res.status(400).json({ success: false, error: 'Missing fields' });
-    const existing = await pool.query('SELECT id FROM users WHERE email=$1', [email]);
+
+    // Determine which contact method is being used
+    const isMobile = !!mobile;
+    const contactMethod = isMobile ? mobile : email;
+
+    // For database uniqueness, if mobile is used but email is empty, we can store mobile as the email placeholder for now, or update the pending_signups table to support mobile. Since pending_signups uses 'email TEXT UNIQUE', we can just pass the mobile number into the email column to keep the database schema unchanged.
+    const dbContact = isMobile ? mobile : email;
+
+    const existing = await pool.query('SELECT id FROM users WHERE email=$1', [dbContact]);
     if (existing.rows.length)
-      return res.status(400).json({ success: false, error: 'Email already registered' });
+      return res.status(400).json({ success: false, error: 'Account already registered' });
+
     const otp  = generateOtp();
     const hash = await bcrypt.hash(password, 10);
+
     await pool.query(
       'INSERT INTO pending_signups (email, name, password_hash, otp_code, expires_at) VALUES ($1,$2,$3,$4,$5) ON CONFLICT (email) DO UPDATE SET name=$2, password_hash=$3, otp_code=$4, expires_at=$5',
-      [email, name, hash, otp, addMinutes(new Date(), 10)]
+      [dbContact, name, hash, otp, addMinutes(new Date(), 10)]
     );
-    await sendBrevoEmail(email, 'ContactKar - Verify your email', `
-      <div style="font-family:Arial;max-width:500px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
-        <h2 style="color:#2563eb">Verify your email</h2>
-        <p>Your signup OTP is:</p>
-        <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center">${otp}</div>
-        <p style="color:#6b7280;font-size:14px;margin-top:12px">Expires in 10 minutes. Do not share.</p>
-      </div>`);
+
+    if (isMobile) {
+        // SMS LOGIC HERE (e.g. Fast2SMS). For now, simulating success.
+        console.log(`Sending SMS OTP ${otp} to ${mobile}`);
+        // If you get Fast2SMS: await axios.get(`https://www.fast2sms.com/dev/bulkV2?authorization=YOUR_KEY&variables_values=${otp}&route=otp&numbers=${mobile}`);
+    } else {
+        await sendBrevoEmail(email, 'ContactKar - Verify your account', `
+          <div style="font-family:Arial;max-width:500px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
+            <h2 style="color:#2563eb">Verify your account</h2>
+            <p>Your signup OTP is:</p>
+            <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center">${otp}</div>
+            <p style="color:#6b7280;font-size:14px;margin-top:12px">Expires in 10 minutes. Do not share.</p>
+          </div>`);
+    }
+
     res.json({ success: true, message: 'OTP sent' });
   } catch (e) { console.error(e.message); res.status(500).json({ success: false, error: 'Failed to send OTP' }); }
 });
 
 app.post('/api/auth/verify-signup-otp', async (req, res) => {
   try {
-    const { email, otp } = req.body;
-    if (!email || !otp) return res.status(400).json({ success: false, error: 'Missing fields' });
-    const row = (await pool.query('SELECT * FROM pending_signups WHERE email=$1', [email])).rows[0];
+    const { email, mobile, otp } = req.body;
+    const dbContact = mobile ? mobile : email;
+
+    if (!dbContact || !otp) return res.status(400).json({ success: false, error: 'Missing fields' });
+
+    const row = (await pool.query('SELECT * FROM pending_signups WHERE email=$1', [dbContact])).rows[0];
     if (!row)                            return res.status(400).json({ success: false, error: 'OTP not requested' });
     if (new Date(row.expires_at) < new Date()) return res.status(400).json({ success: false, error: 'OTP expired' });
     if (row.otp_code !== otp)            return res.status(400).json({ success: false, error: 'Invalid OTP' });
+
     const user = (await pool.query(
       'INSERT INTO users (email, name, password_hash) VALUES ($1,$2,$3) RETURNING id, email, name',
       [row.email, row.name, row.password_hash]
     )).rows[0];
-    await pool.query('DELETE FROM pending_signups WHERE email=$1', [email]);
+
+    await pool.query('DELETE FROM pending_signups WHERE email=$1', [dbContact]);
     res.json({ success: true, user, token: signToken(user.id) });
   } catch (e) { res.status(500).json({ success: false, error: 'Verification failed' }); }
 });
@@ -176,35 +200,53 @@ app.post('/api/auth/verify-signup-otp', async (req, res) => {
 // ── LOGIN ─────────────────────────────────────────────────────────────────────
 app.post('/api/auth/send-login-otp', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    if (!email || !password) return res.status(400).json({ success: false, error: 'Missing fields' });
-    const user = (await pool.query('SELECT * FROM users WHERE email=$1', [email])).rows[0];
+    const { email, mobile, password } = req.body;
+
+    if ((!email && !mobile) || !password) 
+        return res.status(400).json({ success: false, error: 'Missing fields' });
+
+    const isMobile = !!mobile;
+    const dbContact = isMobile ? mobile : email;
+
+    const user = (await pool.query('SELECT * FROM users WHERE email=$1', [dbContact])).rows[0];
     if (!user || !(await bcrypt.compare(password, user.password_hash)))
       return res.status(401).json({ success: false, error: 'Invalid credentials' });
+
     const otp = generateOtp();
     await pool.query(
       'INSERT INTO email_otps (purpose, user_id, email, otp_code, expires_at) VALUES ($1,$2,$3,$4,$5)',
-      ['login', user.id, email, otp, addMinutes(new Date(), 10)]
+      ['login', user.id, dbContact, otp, addMinutes(new Date(), 10)]
     );
-    await sendBrevoEmail(email, 'ContactKar - Your login OTP', `
-      <div style="font-family:Arial;max-width:500px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
-        <h2>Login Verification</h2>
-        <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center">${otp}</div>
-        <p style="color:#6b7280;font-size:14px;margin-top:12px">Expires in 10 minutes.</p>
-      </div>`);
+
+    if (isMobile) {
+        // SMS LOGIC HERE (e.g. Fast2SMS). For now, simulating success.
+        console.log(`Sending SMS OTP ${otp} to ${mobile}`);
+    } else {
+        await sendBrevoEmail(email, 'ContactKar - Your login OTP', `
+          <div style="font-family:Arial;max-width:500px;margin:auto;padding:24px;border:1px solid #e5e7eb;border-radius:12px">
+            <h2>Login Verification</h2>
+            <div style="font-size:32px;font-weight:800;letter-spacing:8px;background:#f3f4f6;padding:16px;border-radius:10px;text-align:center">${otp}</div>
+            <p style="color:#6b7280;font-size:14px;margin-top:12px">Expires in 10 minutes.</p>
+          </div>`);
+    }
+
     res.json({ success: true, message: 'OTP sent' });
   } catch (e) { console.error(e.message); res.status(500).json({ success: false, error: 'Failed to send OTP' }); }
 });
 
 app.post('/api/auth/verify-login-otp', async (req, res) => {
   try {
-    const { email, otp } = req.body;
+    const { email, mobile, otp } = req.body;
+    const dbContact = mobile ? mobile : email;
+
     const row = (await pool.query(
       "SELECT * FROM email_otps WHERE purpose='login' AND email=$1 AND used=FALSE ORDER BY created_at DESC LIMIT 1",
-      [email]
+      [dbContact]
     )).rows[0];
+
     if (!row || row.otp_code !== otp || new Date(row.expires_at) < new Date())
       return res.status(400).json({ success: false, error: 'Invalid/expired OTP' });
+
     await pool.query('UPDATE email_otps SET used=TRUE WHERE id=$1', [row.id]);
     const user = (await pool.query('SELECT id, email, name FROM users WHERE id=$1', [row.user_id])).rows[0];
     res.json({ success: true, user, token: signToken(user.id) });
