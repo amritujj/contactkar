@@ -1,30 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link rel="icon" type="image/jpeg" href="images/favicon.jpg">
-<link rel="stylesheet" href="globalanimations.css">
     <meta charset="UTF-8">
-    <title>Login / Sign Up - ContactKar</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ContactKar - Login</title>
+    <link rel="icon" type="image/jpeg" href="images/favicon.jpg">
     <link rel="stylesheet" href="styles_v2.css">
     <style>
+        .error-msg { color: var(--danger); font-size: 0.9rem; text-align: center; margin-bottom: 1rem; display: none; }
+        .success-msg { color: var(--success); font-size: 0.9rem; text-align: center; margin-bottom: 1rem; display: none; }
+        .switch-form { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: #4b5563; cursor: pointer; }
+        .switch-form span { color: var(--primary); font-weight: 600; }
+        .switch-form span:hover { text-decoration: underline; }
+
+        /* OTP Input styles */
         #otp-section { display: none; }
-        .error-msg { color: var(--danger); text-align: center; font-weight: bold; margin-bottom: 1rem; display: none; }
-        .success-msg { color: var(--success); text-align: center; font-weight: bold; margin-bottom: 1rem; display: none; }
-        .otp-boxes { display: flex; gap: 10px; justify-content: center; margin: 1rem 0; }
-        .otp-boxes input { width: 48px; height: 56px; text-align: center; font-size: 1.4rem; font-weight: bold; border: 2px solid #d1d5db; border-radius: 8px; }
-        .otp-boxes input:focus { border-color: var(--primary); outline: none; }
-        .switch-form { text-align: center; margin-top: 1.5rem; color: #666; cursor: pointer; }
-        .switch-form span { color: var(--primary); font-weight: bold; text-decoration: underline; }
+        .otp-boxes { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1.5rem; }
+        .otp-boxes input {
+            width: 45px; height: 50px; text-align: center; font-size: 1.5rem; font-weight: bold;
+            border: 2px solid var(--border); border-radius: 8px; outline: none; transition: 0.2s;
+        }
+        .otp-boxes input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
     </style>
 </head>
 <body>
+
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="nav-brand" style="display: flex; align-items: center; justify-content: flex-start; gap: 8px;">
-    <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
-</a>
-<button class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
-
+                <img src="images/logo.png" alt="ContactKar Logo" style="height: 38px; width: auto; border-radius: 6px;">
+            </a>
+            <button class="mobile-menu-btn" aria-label="Toggle navigation">☰</button>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="vehicle.html" class="nav-link">Vehicle Tags</a></li>
+                <li><a href="pet.html" class="nav-link">Pet Tags</a></li>
+            </ul>
         </div>
     </nav>
 
@@ -33,20 +44,19 @@
         <div id="error-box" class="error-msg"></div>
         <div id="success-box" class="success-msg"></div>
 
-                <!-- STEP 1: Email/Mobile & Password Form -->
+        <!-- STEP 1: Email/Mobile & Password Form -->
         <div id="credentials-section">
             <form onsubmit="sendOTP(event)">
                 <div id="signup-name" style="display:none;" class="form-group">
                     <label>Full Name</label>
                     <input type="text" id="name" class="form-input" placeholder="Rahul Sharma">
                 </div>
-                
-                <!-- 👇 Changed from Email to Email or Mobile 👇 -->
+
                 <div class="form-group">
                     <label>Email or Mobile Number</label>
                     <input type="text" id="contact-method" class="form-input" placeholder="you@example.com or 9876543210" required>
                 </div>
-                
+
                 <div class="form-group">
                     <label>Password</label>
                     <input type="password" id="password" class="form-input" placeholder="••••••••" required minlength="6">
@@ -68,55 +78,84 @@
                 <input type="text" maxlength="1" oninput="moveToNext(this, 3)" id="d2">
                 <input type="text" maxlength="1" oninput="moveToNext(this, 4)" id="d3">
                 <input type="text" maxlength="1" oninput="moveToNext(this, 5)" id="d4">
-                <input type="text" maxlength="1" oninput="moveToNext(this, 6)" id="d5">
+                <input type="text" maxlength="1" oninput="moveToNext(this, null)" id="d5">
             </div>
-            <button onclick="verifyOTP()" class="btn btn-primary" style="width:100%;" id="verify-btn">Verify & Continue</button>
-            <button onclick="goBack()" style="width:100%; margin-top: 10px; background:none; border:none; color:var(--text-light); cursor:pointer;">← Go Back</button>
+            <button onclick="verifyOTP()" id="verify-otp-btn" class="btn btn-primary" style="width:100%;">Verify & Proceed</button>
+            <p class="switch-form" onclick="goBack()">
+                <span style="color:#6b7280; font-weight:500;">← Go Back</span>
+            </p>
         </div>
     </div>
 
+    <!-- Replace with your actual deployed Render URL later -->
     <script>
-        const API_URL = 'https://contactkar.onrender.com/api';
+        const API_URL = "https://contactkar.onrender.com/api"; 
         let isLoginMode = true;
 
         function toggleMode() {
             isLoginMode = !isLoginMode;
-            document.getElementById('form-title').innerText = isLoginMode ? 'Welcome Back' : 'Create Account';
-            document.getElementById('send-otp-btn').innerText = isLoginMode ? 'Send OTP' : 'Send OTP';
+            document.getElementById('form-title').innerText = isLoginMode ? 'Welcome Back' : 'Create an Account';
             document.getElementById('switch-text').innerText = isLoginMode ? "Don't have an account? Sign up here." : "Already have an account? Login here.";
             document.getElementById('signup-name').style.display = isLoginMode ? 'none' : 'block';
-            document.getElementById('name').required = !isLoginMode;
             clearMessages();
-        }
-
-        function showError(msg) { const e = document.getElementById('error-box'); e.innerText = msg; e.style.display = 'block'; document.getElementById('success-box').style.display = 'none'; }
-        function showSuccess(msg) { const s = document.getElementById('success-box'); s.innerText = msg; s.style.display = 'block'; document.getElementById('error-box').style.display = 'none'; }
-        function clearMessages() { document.getElementById('error-box').style.display = 'none'; document.getElementById('success-box').style.display = 'none'; }
-
-        function moveToNext(el, nextIndex) {
-            if (el.value.length === 1 && nextIndex <= 5) document.getElementById('d' + nextIndex).focus();
         }
 
         function goBack() {
-            document.getElementById('credentials-section').style.display = 'block';
             document.getElementById('otp-section').style.display = 'none';
+            document.getElementById('credentials-section').style.display = 'block';
+            document.getElementById('form-title').innerText = isLoginMode ? 'Welcome Back' : 'Create an Account';
             clearMessages();
         }
 
-        // STEP 1: Send OTP via Brevo
+        function clearMessages() {
+            document.getElementById('error-box').style.display = 'none';
+            document.getElementById('success-box').style.display = 'none';
+        }
+
+        function showError(msg) {
+            const err = document.getElementById('error-box');
+            err.innerText = msg;
+            err.style.display = 'block';
+        }
+
+        function showSuccess(msg) {
+            const suc = document.getElementById('success-box');
+            suc.innerText = msg;
+            suc.style.display = 'block';
+        }
+
+        function moveToNext(field, nextFieldId) {
+            // Replace non-numeric input immediately
+            field.value = field.value.replace(/[^0-9]/g, '');
+            if (field.value.length >= 1 && nextFieldId !== null) {
+                document.getElementById('d' + nextFieldId).focus();
+            }
+        }
+
         async function sendOTP(e) {
             e.preventDefault();
             const btn = document.getElementById('send-otp-btn');
-            const email = document.getElementById('email').value;
+            const contactMethod = document.getElementById('contact-method').value.trim();
             const password = document.getElementById('password').value;
             const name = document.getElementById('name').value;
+
+            // Detect if input is a 10-digit phone number or an email
+            let email = "";
+            let mobile = "";
+            const isPhone = /^[0-9]{10}$/.test(contactMethod);
+
+            if (isPhone) {
+                mobile = contactMethod;
+            } else {
+                email = contactMethod;
+            }
 
             btn.innerText = 'Sending OTP...';
             btn.disabled = true;
             clearMessages();
 
             const endpoint = isLoginMode ? '/auth/send-login-otp' : '/auth/send-signup-otp';
-            const payload = isLoginMode ? { email, password } : { email, password, name };
+            const payload = isLoginMode ? { email, mobile, password } : { email, mobile, password, name };
 
             try {
                 const res = await fetch(API_URL + endpoint, {
@@ -129,59 +168,74 @@
                 if (data.success) {
                     document.getElementById('credentials-section').style.display = 'none';
                     document.getElementById('otp-section').style.display = 'block';
-                    document.getElementById('otp-sent-to').innerText = email;
-                    document.getElementById('d0').focus();
-                    showSuccess('OTP sent! Check your inbox.');
+                    document.getElementById('otp-sent-to').innerText = isPhone ? "+91 " + mobile : email;
+                    document.getElementById('form-title').innerText = "Verify OTP";
                 } else {
-                    showError(data.error || 'Failed to send OTP');
-                    btn.innerText = 'Send OTP';
-                    btn.disabled = false;
+                    showError(data.message || "Failed to send OTP");
                 }
             } catch (err) {
-                showError('Server error. Try again.');
+                console.error("API Error:", err);
+                showError("Server error. Please check your backend.");
+            } finally {
                 btn.innerText = 'Send OTP';
                 btn.disabled = false;
             }
         }
 
-        // STEP 2: Verify OTP via Backend
         async function verifyOTP() {
-            const otp = [0,1,2,3,4,5].map(i => document.getElementById('d'+i).value).join('');
-            if (otp.length !== 6) { showError('Enter all 6 digits'); return; }
+            let otp = '';
+            for (let i = 0; i < 6; i++) {
+                otp += document.getElementById('d' + i).value;
+            }
+            if (otp.length < 6) {
+                showError("Please enter all 6 digits");
+                return;
+            }
 
-            const btn = document.getElementById('verify-btn');
+            const btn = document.getElementById('verify-otp-btn');
             btn.innerText = 'Verifying...';
             btn.disabled = true;
+            clearMessages();
 
-            const email = document.getElementById('otp-sent-to').innerText;
+            const contactMethod = document.getElementById('contact-method').value.trim();
+            const password = document.getElementById('password').value;
+            const name = document.getElementById('name').value;
+
+            const isPhone = /^[0-9]{10}$/.test(contactMethod);
+            const email = isPhone ? "" : contactMethod;
+            const mobile = isPhone ? contactMethod : "";
+
             const endpoint = isLoginMode ? '/auth/verify-login-otp' : '/auth/verify-signup-otp';
+            const payload = isLoginMode 
+                ? { email, mobile, otp } 
+                : { email, mobile, password, name, otp };
 
             try {
                 const res = await fetch(API_URL + endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, otp })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
 
                 if (data.success) {
-                    localStorage.setItem('isLoggedIn', 'true');
+                    showSuccess("Success! Redirecting...");
                     localStorage.setItem('token', data.token);
-                    localStorage.setItem('userName', data.user.name || '');
-                    localStorage.setItem('userEmail', email);
-                    window.location.href = 'dashboard.html';
+                    localStorage.setItem('isLoggedIn', 'true');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
                 } else {
-                    showError(data.error || 'Invalid OTP');
-                    btn.innerText = 'Verify & Continue';
-                    btn.disabled = false;
+                    showError(data.message || "Invalid OTP");
                 }
             } catch (err) {
-                showError('Server error. Try again.');
-                btn.innerText = 'Verify & Continue';
+                showError("Server error");
+            } finally {
+                btn.innerText = 'Verify & Proceed';
                 btn.disabled = false;
             }
         }
     </script>
-<script src="animations.js"></script>
+    <script src="nav_logic.js"></script>
 </body>
 </html>
